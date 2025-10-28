@@ -1,35 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/layout/Layout';
+import DashboardLayout from './components/layout/DashboardLayout';
+import Home from './pages/Home';
+import About from './pages/About';
+import Login from './features/auth/Login';
+import Register from './features/auth/Register';
+import DashboardDonatur from './features/donatur/DashboardDonatur';
+import FormDonasi from './features/donatur/FormDonasi';
+import EditDonasi from './features/donatur/EditDonasi';
+import NotFound from './pages/NotFound';
+import { isAuthenticated, getUserRole } from './utils/localStorage';
+
+const ProtectedRoute = ({ children, requiredRole }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (requiredRole && getUserRole() !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="about" element={<About />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+
+        {/* Dashboard Routes - dengan DashboardLayout */}
+        <Route path="/" element={<DashboardLayout />}>
+          <Route 
+            path="dashboard-donatur" 
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <DashboardDonatur />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="donasi/buat" 
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <FormDonasi />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="donasi/edit/:id" 
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <EditDonasi />
+              </ProtectedRoute>
+            } 
+          />
+        </Route>
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
