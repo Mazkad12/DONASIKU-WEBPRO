@@ -22,6 +22,7 @@ import EditDonasi from './features/donatur/EditDonasi.jsx';
 import DashboardPenerima from './features/penerima/DashboardPenerima.jsx';
 import DetailDonasi from './features/penerima/DetailDonasi.jsx';
 import PermintaanSaya from './features/penerima/PermintaanSaya.jsx';
+import Profile from "./features/penerima/Profile.jsx";
 
 // Impor Fitur Bersama (Shared)
 import Riwayat from './features/riwayat/Riwayat.jsx';
@@ -106,7 +107,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+          path="penerima/profil"
+          element={
+            <ProtectedRoute requiredRole="penerima">
+              <Profile />
+            </ProtectedRoute>
+          }
+          />  
           {/* ===== FIX: Rute untuk Permintaan Saya ===== */}
           <Route
             path="penerima/permintaan-saya"
