@@ -52,8 +52,8 @@ const DetailDonasi = () => {
 
  
 const handleAjukan = () => {
-
- navigate("/penerima/permintaan-saya");
+  // Navigate to permintaan form for this donasi
+  navigate(`/penerima/permintaan-saya/${id}`);
 };
 
 

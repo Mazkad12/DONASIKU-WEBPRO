@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiPackage, FiMapPin, FiCalendar, FiClock, FiAlertCircle } from 'react-icons/fi';
-import { getAuthData, getUserRole } from '../../utils/localStorage';
+import { FiPackage, FiMapPin, FiCalendar, FiClock, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
+import { getAuthData, getUserRole, getRequests, getDonasi } from '../../utils/localStorage';
 // Kita akan panggil service donasi, karena riwayat donatur ada di sana
 import { getAllDonasi } from '../../services/donasiService'; 
 
@@ -24,9 +24,8 @@ const Riwayat = () => {
           );
           setHistoryItems(myHistory);
         } else if (role === 'penerima') {
-          // TODO: Logika untuk riwayat penerima
-          // Ini akan mengambil dari 'requestService' setelah kita membuatnya
-          setHistoryItems([]); // Kosongkan untuk sekarang
+          // Untuk sekarang riwayat penerima tidak ditampilkan (fitur dikembalikan ke placeholder)
+          setHistoryItems([]);
         }
       } catch (error) {
         console.error("Gagal memuat riwayat:", error);

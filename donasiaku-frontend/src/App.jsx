@@ -17,6 +17,11 @@ import Register from './features/auth/Register.jsx';
 import DashboardDonatur from './features/donatur/DashboardDonatur.jsx';
 import FormDonasi from './features/donatur/FormDonasi.jsx';
 import EditDonasi from './features/donatur/EditDonasi.jsx';
+import DaftarDonasi from './features/donatur/DaftarDonasi.jsx';
+import KelolaDonasi from './features/donatur/KelolaDonasi.jsx';
+import ChatDonatur from './features/donatur/ChatDonatur.jsx';
+
+
 
 // Impor Fitur Penerima
 import DashboardPenerima from './features/penerima/DashboardPenerima.jsx';
@@ -88,6 +93,36 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="donatur/permintaan"
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <KelolaDonasi />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="donatur/chat"
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <ChatDonatur />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Route: Donasi Saya (Daftar Donasi) */}
+          <Route
+            path="donatur/donasi-saya"
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <DaftarDonasi />
+              </ProtectedRoute>
+            }
+          />
+
+         
 
           {/* ===== Rute Penerima ===== */}
           <Route

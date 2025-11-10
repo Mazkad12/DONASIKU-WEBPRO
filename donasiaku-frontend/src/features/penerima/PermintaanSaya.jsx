@@ -8,7 +8,8 @@ import {
   FiClock,
   FiArrowLeft,
 } from "react-icons/fi";
-import { getDonasiByIdService } from "../../services/donasiService.js";
+import { getDonasiByIdService, updateDonasiService } from "../../services/donasiService.js";
+import { getDonasi, updateRequestStatus } from "../../utils/localStorage.js";
 import { getAuthData } from "../../utils/localStorage.js";
 
 const PermintaanSaya = () => {
@@ -85,6 +86,26 @@ const PermintaanSaya = () => {
     navigate("/penerima/permintaan-saya");
   };
 
+  // Handler: penerima menandai permintaan selesai
+  const handleMarkCompleted = async (req) => {
+    // update request status
+    updateRequestStatus(req.id, 'completed');
+
+    try {
+      // update donasi status menjadi 'selesai'
+      await updateDonasiService(req.donasiId, { status: 'selesai' });
+    } catch (err) {
+      console.error('Gagal update status donasi:', err);
+    }
+
+    // refresh local permintaan list
+    const allRequests = JSON.parse(localStorage.getItem('requests_db') || '[]');
+    const myRequests = allRequests.filter((r) => r.penerimaId === user.id);
+    setPermintaan(myRequests);
+
+    alert('Terima kasih — permintaan ditandai selesai dan akan masuk ke riwayat.');
+  };
+
   // Jika tidak sedang mengajukan (tidak ada id donasi di URL), tampilkan daftar permintaan
   if (!id) {
     if (permintaan.length === 0) {
@@ -147,6 +168,12 @@ const allDonasi = getDonasi();
                     year: "numeric",
                   })}
                 </div>
+                    {/* Actions for penerima */}
+                    <div className="ml-4">
+                      {req.status === 'sent' && (
+                        <button onClick={() => handleMarkCompleted(req)} className="px-3 py-1 bg-green-600 text-white rounded">Tandai Selesai</button>
+                      )}
+                    </div>
               </div>
             );
           })}
