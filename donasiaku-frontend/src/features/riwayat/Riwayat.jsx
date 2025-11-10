@@ -24,8 +24,29 @@ const Riwayat = () => {
           );
           setHistoryItems(myHistory);
         } else if (role === 'penerima') {
-          // Untuk sekarang riwayat penerima tidak ditampilkan (fitur dikembalikan ke placeholder)
-          setHistoryItems([]);
+          // Ambil semua permintaan
+          const allRequests = getRequests();
+          // Filter untuk permintaan milik user ini yang sudah diterima atau selesai
+          const myHistory = allRequests.filter(
+            r => String(r.penerimaId) === String(user.id) && 
+            (r.status === 'completed' || r.status === 'accepted' || r.status === 'sent')
+          );
+          
+          // Ambil detail donasi untuk setiap permintaan
+          const allDonasi = getDonasi();
+          const historyWithDetails = myHistory.map(request => {
+            const donasi = allDonasi.find(d => String(d.id) === String(request.donasiId));
+            return {
+              ...request,
+              nama: donasi?.nama || 'Donasi tidak ditemukan',
+              kategori: donasi?.kategori || 'lainnya',
+              image: donasi?.image,
+              lokasi: donasi?.lokasi,
+              jumlah: request.jumlahDiminta || donasi?.jumlah,
+            };
+          });
+          
+          setHistoryItems(historyWithDetails);
         }
       } catch (error) {
         console.error("Gagal memuat riwayat:", error);
@@ -87,19 +108,98 @@ const Riwayat = () => {
           </div>
         )}
         
-        {!loading && role === 'penerima' && (
-           <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+        {!loading && historyItems.length === 0 && role === 'penerima' && (
+          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <FiAlertCircle className="text-5xl text-gray-400" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Fitur Dalam Pengembangan</h3>
-            <p className="text-gray-600 mb-6">Riwayat penerimaan barang akan muncul di sini setelah fitur "Permintaan Saya" selesai dibuat.</p>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Belum Ada Riwayat</h3>
+            <p className="text-gray-600 mb-6">Anda belum memiliki permintaan donasi yang sudah selesai.</p>
             <Link
-              to="/dashboard-penerima"
+              to="/permintaan-saya"
               className="inline-flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white font-bold rounded-xl hover:shadow-xl transition-all"
             >
-              <span>Kembali ke Pencarian</span>
+              <span>Lihat Permintaan Saya</span>
             </Link>
+          </div>
+        )}
+
+        {!loading && historyItems.length > 0 && role === 'penerima' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {historyItems.map((item) => (
+              <div
+                key={item.id}
+                className="group bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
+              >
+                {/* Image */}
+                <div className="relative h-48 overflow-hidden bg-blue-50">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.nama}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-6xl">
+                      {getCategoryIcon(item.kategori)}
+                    </div>
+                  )}
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-gray-700">
+                      {getCategoryIcon(item.kategori)} {item.kategori}
+                    </span>
+                  </div>
+                  {/* Status */}
+                  <div className="absolute top-3 right-3">
+                    <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold ${
+                      item.status === 'completed' ? 'bg-green-100 text-green-700' :
+                      item.status === 'accepted' ? 'bg-blue-100 text-blue-700' :
+                      item.status === 'sent' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      <FiCheckCircle />
+                      <span>
+                        {item.status === 'completed' ? 'Selesai' :
+                         item.status === 'accepted' ? 'Diterima' :
+                         item.status === 'sent' ? 'Dikirim' : 
+                         item.status}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-5">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
+                    {item.nama}
+                  </h3>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <FiPackage className="text-[#007EFF]" />
+                      <span>Jumlah diminta: <span className="font-semibold">{item.jumlah} pcs</span></span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <FiMapPin className="text-[#007EFF]" />
+                      <span className="line-clamp-1">{item.lokasi}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <FiCalendar className="text-[#007EFF]" />
+                      <span>Tanggal: {new Date(item.updatedAt || item.createdAt).toLocaleDateString('id-ID', {
+                        day: 'numeric', month: 'long', year: 'numeric'
+                      })}</span>
+                    </div>
+                  </div>
+                  {/* Tombol Detail */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <button
+                      className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all"
+                    >
+                      <span>Lihat Detail</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

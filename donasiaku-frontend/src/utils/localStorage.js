@@ -70,8 +70,6 @@ export const getDonasiByUserId = (userId) => {
   const allDonasi = getDonasi();
   return allDonasi.filter(d => d.userId === userId);
 };
-<<<<<<< HEAD
-=======
 
 // Requests (permintaan) management
 export const getRequests = () => {
@@ -133,4 +131,3 @@ export const getConversationsForUser = (userId) => {
     messages: msgs.sort((a,b)=> new Date(a.createdAt) - new Date(b.createdAt))
   }));
 };
->>>>>>> nabiel
