@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiImage, FiMapPin, FiFileText, FiSave } from 'react-icons/fi';
-import { getAuthData } from '../../utils/localStorage';
+import { createDonasi } from '../../services/donasiService';
 
 const FormDonasi = () => {
   const navigate = useNavigate();
-  const user = getAuthData();
   const [formData, setFormData] = useState({
     nama: '',
     kategori: 'pakaian',
@@ -42,25 +41,19 @@ const FormDonasi = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const newDonation = {
-      id: Date.now().toString(),
-      ...formData,
-      userId: user.id,
-      status: 'aktif',
-      createdAt: new Date().toISOString()
-    };
-
-    const savedDonations = JSON.parse(localStorage.getItem('donasi') || '[]');
-    savedDonations.push(newDonation);
-    localStorage.setItem('donasi', JSON.stringify(savedDonations));
-
-    setTimeout(() => {
+    try {
+      await createDonasi(formData);
+      alert('Donasi berhasil dibuat!');
       navigate('/dashboard-donatur');
-    }, 1000);
+    } catch (error) {
+      alert(error.message || 'Gagal membuat donasi');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

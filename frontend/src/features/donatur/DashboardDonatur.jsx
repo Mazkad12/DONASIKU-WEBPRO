@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiPlus, FiPackage, FiClock, FiCheckCircle, FiEdit2, FiTrash2, FiMapPin, FiCalendar, FiAlertCircle, FiTrendingUp } from 'react-icons/fi';
+import { FiPlus, FiPackage, FiClock, FiCheckCircle, FiEdit2, FiTrash2, FiMapPin, FiCalendar, FiAlertCircle } from 'react-icons/fi';
 import { getAuthData } from '../../utils/localStorage';
+import { getMyDonasi, deleteDonasiService } from '../../services/donasiService';
 
 const DashboardDonatur = () => {
   const user = getAuthData();
@@ -12,30 +13,41 @@ const DashboardDonatur = () => {
     completed: 0
   });
   const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadDonations();
   }, []);
 
-  const loadDonations = () => {
-    const savedDonations = JSON.parse(localStorage.getItem('donasi') || '[]');
-    const userDonations = savedDonations.filter(d => d.userId === user.id);
-    
-    setDonations(userDonations);
-    
-    setStats({
-      total: userDonations.length,
-      active: userDonations.filter(d => d.status === 'aktif').length,
-      completed: userDonations.filter(d => d.status === 'selesai').length
-    });
+  const loadDonations = async () => {
+    try {
+      setLoading(true);
+      const userDonations = await getMyDonasi();
+      setDonations(userDonations);
+      
+      setStats({
+        total: userDonations.length,
+        active: userDonations.filter(d => d.status === 'aktif').length,
+        completed: userDonations.filter(d => d.status === 'selesai').length
+      });
+    } catch (error) {
+      console.error('Error loading donations:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus donasi ini?')) {
-      const savedDonations = JSON.parse(localStorage.getItem('donasi') || '[]');
-      const updatedDonations = savedDonations.filter(d => d.id !== id);
-      localStorage.setItem('donasi', JSON.stringify(updatedDonations));
+  const handleDelete = async (id) => {
+    if (!window.confirm('Apakah Anda yakin ingin menghapus donasi ini?')) {
+      return;
+    }
+
+    try {
+      await deleteDonasiService(id);
+      alert('Donasi berhasil dihapus!');
       loadDonations();
+    } catch (error) {
+      alert(error.message || 'Gagal menghapus donasi');
     }
   };
 
@@ -72,6 +84,17 @@ const DashboardDonatur = () => {
     };
     return icons[category.toLowerCase()] || '📦';
   };
+
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <p className="mt-4 text-gray-600">Memuat donasi...</p>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen">

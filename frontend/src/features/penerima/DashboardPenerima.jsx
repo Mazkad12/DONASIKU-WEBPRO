@@ -26,20 +26,18 @@ const DashboardPenerima = () => {
   ];
 
   useEffect(() => {
-    // 1. Muat semua donasi
-    const loadDonations = async () => {
-      try {
-        const donasiList = await getAllDonasi();
-        // 2. Filter hanya donasi yang "aktif"
-        const activeDonations = donasiList.filter(d => d.status === 'aktif');
-        setAllDonations(activeDonations);
-        setFilteredDonations(activeDonations);
-      } catch (error) {
-        console.error("Gagal memuat donasi:", error);
-      }
-    };
-    loadDonations();
-  }, []);
+  const loadDonations = async () => {
+    try {
+      const donasiList = await getAllDonasi();
+      const activeDonations = donasiList.filter(d => d.status === 'aktif');
+      setAllDonations(activeDonations);
+      setFilteredDonations(activeDonations);
+    } catch (error) {
+      console.error("Gagal memuat donasi:", error);
+    }
+  };
+  loadDonations();
+}, []);
 
   // 3. Filter donasi berdasarkan search dan kategori
   useEffect(() => {

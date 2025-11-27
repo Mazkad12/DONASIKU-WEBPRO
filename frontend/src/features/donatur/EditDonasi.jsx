@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiPackage, FiImage, FiMapPin, FiFileText, FiSave, FiX } from 'react-icons/fi';
+import { getDonasiByIdService, updateDonasiService } from '../../services/donasiService';
 
 const EditDonasi = () => {
   const navigate = useNavigate();
@@ -27,17 +28,23 @@ const EditDonasi = () => {
   ];
 
   useEffect(() => {
-    const savedDonations = JSON.parse(localStorage.getItem('donasi') || '[]');
-    const donation = savedDonations.find(d => d.id === id);
-    if (donation) {
+  const fetchDonation = async () => {
+    try {
+      const donation = await getDonasiByIdService(id);
       setFormData(donation);
       if (donation.image) {
         setImagePreview(donation.image);
       }
-    } else {
+    } catch (error) {
+      console.error('Error:', error);
       navigate('/dashboard-donatur');
     }
-  }, [id, navigate]);
+  };
+
+  if (id) {
+    fetchDonation();
+  }
+}, [id, navigate]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -51,20 +58,20 @@ const EditDonasi = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    const savedDonations = JSON.parse(localStorage.getItem('donasi') || '[]');
-    const updatedDonations = savedDonations.map(d => 
-      d.id === id ? { ...formData, updatedAt: new Date().toISOString() } : d
-    );
-    localStorage.setItem('donasi', JSON.stringify(updatedDonations));
-
-    setTimeout(() => {
-      navigate('/dashboard-donatur');
-    }, 1000);
-  };
+  try {
+    await updateDonasiService(id, formData);
+    alert('Donasi berhasil diupdate!');
+    navigate('/dashboard-donatur');
+  } catch (error) {
+    alert(error.message || 'Gagal mengupdate donasi');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
