@@ -20,7 +20,7 @@ const Footer = () => {
               <img 
                 src="/logo-donasiku.png" 
                 alt="DonasiKu Logo" 
-                className="h-12 w-auto object-contain brightness-0 invert"
+                className="h-20 w-auto object-contain brightness-0 invert"
               />
             </div>
             <p className="text-white/80 leading-relaxed max-w-md mb-6">
