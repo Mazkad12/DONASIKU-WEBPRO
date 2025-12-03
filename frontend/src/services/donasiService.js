@@ -1,70 +1,71 @@
-import { 
-  saveDonasi, 
-  getDonasi, 
-  getDonasiById, 
-  updateDonasi, 
-  deleteDonasi,
-  getDonasiByUserId 
-} from '../utils/localStorage';
+import { donationAPI } from './api';
 
 export const createDonasi = async (donasiData) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newDonasi = saveDonasi(donasiData);
-      resolve(newDonasi);
-    }, 500);
-  });
+  try {
+    const response = await donationAPI.create(donasiData);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error creating donation:', error);
+    throw new Error(error.response?.data?.message || 'Gagal membuat donasi');
+  }
 };
 
-export const getAllDonasi = async () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const donasi = getDonasi();
-      resolve(donasi);
-    }, 300);
-  });
+export const getAllDonasi = async (params = {}) => {
+  try {
+    const response = await donationAPI.getAll(params);
+    return response.data.data.data || [];
+  } catch (error) {
+    console.error('Error fetching donations:', error);
+    return [];
+  }
 };
 
 export const getDonasiByIdService = async (id) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const donasi = getDonasiById(id);
-      if (donasi) {
-        resolve(donasi);
-      } else {
-        reject(new Error('Donasi tidak ditemukan'));
-      }
-    }, 300);
-  });
+  try {
+    const response = await donationAPI.getById(id);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching donation:', error);
+    throw new Error('Donasi tidak ditemukan');
+  }
 };
 
 export const updateDonasiService = async (id, updatedData) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const updated = updateDonasi(id, updatedData);
-      if (updated) {
-        resolve(updated);
-      } else {
-        reject(new Error('Gagal mengupdate donasi'));
-      }
-    }, 500);
-  });
+  try {
+    const response = await donationAPI.update(id, updatedData);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error updating donation:', error);
+    throw new Error(error.response?.data?.message || 'Gagal mengupdate donasi');
+  }
 };
 
 export const deleteDonasiService = async (id) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      deleteDonasi(id);
-      resolve(true);
-    }, 300);
-  });
+  try {
+    await donationAPI.delete(id);
+    return true;
+  } catch (error) {
+    console.error('Error deleting donation:', error);
+    throw new Error('Gagal menghapus donasi');
+  }
 };
 
-export const getMyDonasi = async (userId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const myDonasi = getDonasiByUserId(userId);
-      resolve(myDonasi);
-    }, 300);
-  });
+export const getMyDonasi = async () => {
+  try {
+    const response = await donationAPI.getMyDonations();
+    return response.data.data.data || [];
+  } catch (error) {
+    console.error('Error fetching my donations:', error);
+    return [];
+  }
+};
+
+export const updateDonasiStatus = async (id, status) => {
+  try {
+    const response = await donationAPI.updateStatus(id, status);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error updating status:', error);
+    throw new Error('Gagal mengubah status');
+  }
 };

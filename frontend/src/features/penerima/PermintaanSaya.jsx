@@ -9,14 +9,16 @@ import {
   FiArrowLeft,
 } from "react-icons/fi";
 import { getDonasiByIdService, updateDonasiService } from "../../services/donasiService.js";
-import { getDonasi, updateRequestStatus } from "../../utils/localStorage.js";
+import { getAllDonasi } from "../../services/donasiService.js";
+import { updateRequestStatus } from "../../utils/localStorage.js";
 import { getAuthData } from "../../utils/localStorage.js";
 
 const PermintaanSaya = () => {
-  const { id } = useParams(); // id donasi (jika dari tombol Ajukan)
+  const { id } = useParams();
   const navigate = useNavigate();
   const [donasi, setDonasi] = useState(null);
   const [permintaan, setPermintaan] = useState([]);
+  const [allDonasi, setAllDonasi] = useState([]);
   const [formData, setFormData] = useState({ jumlah: 1, asal: "", deskripsi: "" });
   const user = getAuthData();
 
@@ -36,15 +38,22 @@ const PermintaanSaya = () => {
     const allRequests = JSON.parse(localStorage.getItem("requests_db") || "[]");
     const myRequests = allRequests.filter((req) => req.penerimaId === user.id);
     setPermintaan(myRequests);
+  }, [user.id]);
+
+  // Ambil semua donasi untuk ditampilkan di list
+  useEffect(() => {
+    const loadAllDonasi = async () => {
+      const data = await getAllDonasi();
+      setAllDonasi(data);
+    };
+    loadAllDonasi();
   }, []);
 
-  // Handle input form
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Simpan ke localStorage
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -65,7 +74,7 @@ const PermintaanSaya = () => {
 
     const newRequest = {
       id: `req_${Date.now()}`,
-      donasiId: donasi.id, // pastikan sesuai id donasi
+      donasiId: donasi.id,
       penerimaId: user.id,
       status: "pending",
       jumlahDiminta: formData.jumlah,
@@ -80,25 +89,20 @@ const PermintaanSaya = () => {
 
     alert("Permintaan berhasil diajukan!");
 
-    // Update daftar tanpa reload halaman
     const myRequests = allRequests.filter((req) => req.penerimaId === user.id);
     setPermintaan(myRequests);
     navigate("/penerima/permintaan-saya");
   };
 
-  // Handler: penerima menandai permintaan selesai
   const handleMarkCompleted = async (req) => {
-    // update request status
     updateRequestStatus(req.id, 'completed');
 
     try {
-      // update donasi status menjadi 'selesai'
       await updateDonasiService(req.donasiId, { status: 'selesai' });
     } catch (err) {
       console.error('Gagal update status donasi:', err);
     }
 
-    // refresh local permintaan list
     const allRequests = JSON.parse(localStorage.getItem('requests_db') || '[]');
     const myRequests = allRequests.filter((r) => r.penerimaId === user.id);
     setPermintaan(myRequests);
@@ -116,16 +120,11 @@ const PermintaanSaya = () => {
       );
     }
 
-    // Ambil semua data donasi dari localStorage
-
-const allDonasi = getDonasi();
-
     return (
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Permintaan Saya</h1>
         <div className="grid gap-4">
           {permintaan.map((req) => {
-            // Cari data donasi berdasarkan ID (pastikan cocok meski tipe berbeda)
             const donasiData = allDonasi.find(
               (d) => String(d.id) === String(req.donasiId)
             );
@@ -135,10 +134,9 @@ const allDonasi = getDonasi();
                 key={req.id}
                 className="bg-white p-4 rounded-xl shadow flex items-center gap-4"
               >
-                {/* Gambar barang */}
-                {donasiData?.gambar ? (
+                {donasiData?.image ? (
                   <img
-                    src={donasiData.gambar}
+                    src={donasiData.image}
                     alt={donasiData.nama}
                     className="w-20 h-20 object-cover rounded-lg"
                   />
@@ -168,12 +166,14 @@ const allDonasi = getDonasi();
                     year: "numeric",
                   })}
                 </div>
-                    {/* Actions for penerima */}
-                    <div className="ml-4">
-                      {req.status === 'sent' && (
-                        <button onClick={() => handleMarkCompleted(req)} className="px-3 py-1 bg-green-600 text-white rounded">Tandai Selesai</button>
-                      )}
-                    </div>
+
+                <div className="ml-4">
+                  {req.status === 'sent' && (
+                    <button onClick={() => handleMarkCompleted(req)} className="px-3 py-1 bg-green-600 text-white rounded">
+                      Tandai Selesai
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

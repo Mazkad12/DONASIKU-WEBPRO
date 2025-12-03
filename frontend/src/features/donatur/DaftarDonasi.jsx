@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyDonasi } from "../../services/donasiService";
-import { getAuthData } from "../../utils/localStorage";
 import Card from "../../components/ui/Card";
 
 const DaftarDonasi = () => {
@@ -12,8 +11,7 @@ const DaftarDonasi = () => {
   useEffect(() => {
     const fetchDonasi = async () => {
       try {
-        const user = getAuthData();
-        const data = await getMyDonasi(user?.id);
+        const data = await getMyDonasi();
         setDonasi(data);
       } catch (error) {
         console.error("Gagal mengambil data donasi:", error);
@@ -42,35 +40,28 @@ const DaftarDonasi = () => {
           {donasi.map((item) => (
             <Card key={item.id} className="shadow-md">
               <div className="p-4">
-                {/* Kategori */}
                 <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded">
                   {item.kategori || "Kategori"}
                 </span>
 
-                {/* Nama Donasi */}
                 <h2 className="font-semibold text-lg mt-2">{item.nama}</h2>
 
-                {/* Deskripsi singkat */}
                 <p className="text-sm text-gray-600">
                   {item.deskripsi || "-"}
                 </p>
 
-                {/* Jumlah */}
                 <p className="text-sm mt-2">
                   <strong>Jumlah:</strong> {item.jumlah} pcs
                 </p>
 
-                {/* Lokasi */}
                 <p className="text-sm">
                   <strong>Lokasi:</strong> {item.lokasi}
                 </p>
 
-                {/* Tanggal */}
                 <p className="text-sm">
-                  <strong>Tanggal:</strong> {item.tanggal}
+                  <strong>Tanggal:</strong> {new Date(item.created_at).toLocaleDateString('id-ID')}
                 </p>
 
-                {/* Tombol Aksi */}
                 <div className="flex gap-2 mt-4">
                   <button
                     className="flex-1 px-3 py-2 bg-blue-50 text-[#007EFF] font-semibold rounded-xl hover:bg-blue-100 transition-all"

@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiPackage, FiMapPin, FiCalendar, FiClock, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
-import { getAuthData, getUserRole, getRequests, getDonasi } from '../../utils/localStorage';
-// Kita akan panggil service donasi, karena riwayat donatur ada di sana
-import { getAllDonasi } from '../../services/donasiService'; 
+import { getAuthData, getUserRole, getRequests } from '../../utils/localStorage';
+import { getAllDonasi } from '../../services/donasiService';
 
 const Riwayat = () => {
   const user = getAuthData();
@@ -16,24 +15,19 @@ const Riwayat = () => {
       setLoading(true);
       try {
         if (role === 'donatur') {
-          // 1. Ambil semua donasi
           const allDonasi = await getAllDonasi();
-          // 2. Filter untuk donasi milik user ini DAN yang statusnya 'selesai'
           const myHistory = allDonasi.filter(
-            d => d.userId === user.id && d.status === 'selesai'
+            d => d.user_id === user.id && d.status === 'selesai'
           );
           setHistoryItems(myHistory);
         } else if (role === 'penerima') {
-          // Ambil semua permintaan
           const allRequests = getRequests();
-          // Filter untuk permintaan milik user ini yang sudah diterima atau selesai
           const myHistory = allRequests.filter(
             r => String(r.penerimaId) === String(user.id) && 
             (r.status === 'completed' || r.status === 'accepted' || r.status === 'sent')
           );
           
-          // Ambil detail donasi untuk setiap permintaan
-          const allDonasi = getDonasi();
+          const allDonasi = await getAllDonasi();
           const historyWithDetails = myHistory.map(request => {
             const donasi = allDonasi.find(d => String(d.id) === String(request.donasiId));
             return {
@@ -66,7 +60,7 @@ const Riwayat = () => {
       'perabotan': '🛋️',
       'lainnya': '📦'
     };
-    return icons[category.toLowerCase()] || '📦';
+    return icons[category?.toLowerCase()] || '📦';
   };
 
   return (
@@ -82,7 +76,6 @@ const Riwayat = () => {
             Daftar semua transaksi yang telah Anda selesaikan.
           </p>
         </div>
-        {/* Wave Separator */}
         <div className="relative">
           <svg viewBox="0 0 1440 100" className="w-full">
             <path fill="#F9FAFB" d="M0,50 Q360,0 720,50 T1440,50 L1440,100 L0,100 Z"></path>
@@ -93,10 +86,7 @@ const Riwayat = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8">
         
-        {/* TODO: Tambahkan Filter (Use Case Step 3) di sini nanti */}
-
-        {/* Daftar Riwayat */}
-        {loading && <p>Memuat riwayat...</p>}
+        {loading && <p className="text-center text-gray-500">Memuat riwayat...</p>}
 
         {!loading && historyItems.length === 0 && role === 'donatur' && (
           <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
@@ -104,7 +94,7 @@ const Riwayat = () => {
               <FiAlertCircle className="text-5xl text-gray-400" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Belum Ada Riwayat</h3>
-            <p className="text-gray-600">Anda belum memiliki donasi yang berstatus "Selesai".</p>
+            <p className="text-gray-600">Anda belum memiliki donasi yang berstatus &quot;Selesai&quot;.</p>
           </div>
         )}
         
@@ -116,7 +106,7 @@ const Riwayat = () => {
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Belum Ada Riwayat</h3>
             <p className="text-gray-600 mb-6">Anda belum memiliki permintaan donasi yang sudah selesai.</p>
             <Link
-              to="/permintaan-saya"
+              to="/penerima/permintaan-saya"
               className="inline-flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white font-bold rounded-xl hover:shadow-xl transition-all"
             >
               <span>Lihat Permintaan Saya</span>
@@ -131,7 +121,6 @@ const Riwayat = () => {
                 key={item.id}
                 className="group bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
               >
-                {/* Image */}
                 <div className="relative h-48 overflow-hidden bg-blue-50">
                   {item.image ? (
                     <img
@@ -149,7 +138,6 @@ const Riwayat = () => {
                       {getCategoryIcon(item.kategori)} {item.kategori}
                     </span>
                   </div>
-                  {/* Status */}
                   <div className="absolute top-3 right-3">
                     <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold ${
                       item.status === 'completed' ? 'bg-green-100 text-green-700' :
@@ -168,7 +156,6 @@ const Riwayat = () => {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-5">
                   <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
                     {item.nama}
@@ -189,7 +176,6 @@ const Riwayat = () => {
                       })}</span>
                     </div>
                   </div>
-                  {/* Tombol Detail */}
                   <div className="pt-4 border-t border-gray-100">
                     <button
                       className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all"
@@ -210,7 +196,6 @@ const Riwayat = () => {
                 key={item.id}
                 className="group bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100"
               >
-                {/* Image */}
                 <div className="relative h-48 overflow-hidden bg-blue-50">
                   {item.image ? (
                     <img
@@ -228,7 +213,6 @@ const Riwayat = () => {
                       {getCategoryIcon(item.kategori)} {item.kategori}
                     </span>
                   </div>
-                  {/* Status Selesai */}
                   <div className="absolute top-3 right-3">
                      <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
                         <FiCheckCircle />
@@ -237,7 +221,6 @@ const Riwayat = () => {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-5">
                   <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
                     {item.nama}
@@ -253,15 +236,13 @@ const Riwayat = () => {
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <FiCalendar className="text-[#007EFF]" />
-                      <span>Selesai pada: {new Date(item.updatedAt || item.createdAt).toLocaleDateString('id-ID', {
+                      <span>Selesai pada: {new Date(item.updated_at || item.created_at).toLocaleDateString('id-ID', {
                         day: 'numeric', month: 'long', year: 'numeric'
                       })}</span>
                     </div>
                   </div>
-                   {/* Tombol Detail (Use Case Step 4) */}
                    <div className="pt-4 border-t border-gray-100">
                     <button
-                      // onClick={() => navigate(`/riwayat/detail/${item.id}`)} // (Rute detail bisa dibuat nanti)
                       className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all"
                     >
                       <span>Lihat Detail</span>

@@ -1,64 +1,62 @@
-import { setAuthData, getAuthData } from '../utils/localStorage';
+import { authAPI } from './api';
 
-// Simulasi database users
-const USERS_KEY = 'users_db';
-
-const getUsers = () => {
-  const users = localStorage.getItem(USERS_KEY);
-  return users ? JSON.parse(users) : [];
+const setAuthData = (userData, token) => {
+  localStorage.setItem('user', JSON.stringify(userData));
+  localStorage.setItem('auth_token', token);
+  localStorage.setItem('isAuthenticated', 'true');
 };
 
-const saveUsers = (users) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+const clearAuthData = () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('isAuthenticated');
 };
 
 export const register = async (userData) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const users = getUsers();
-      
-      const existingUser = users.find(u => u.email === userData.email);
-      if (existingUser) {
-        reject(new Error('Email sudah terdaftar'));
-        return;
-      }
+  try {
+    const response = await authAPI.register({
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      role: userData.role,
+      phone: userData.phone || '',
+    });
 
-      const newUser = {
-        id: Date.now().toString(),
-        name: userData.name,
-        email: userData.email,
-        password: userData.password,
-        role: userData.role,
-        createdAt: new Date().toISOString(),
-      };
-
-      users.push(newUser);
-      saveUsers(users);
-
-      const { password, ...userWithoutPassword } = newUser;
-      resolve(userWithoutPassword);
-    }, 500);
-  });
+    const { user, token } = response.data.data;
+    setAuthData(user, token);
+    
+    return user;
+  } catch (error) {
+    const message = error.response?.data?.message || 'Registrasi gagal';
+    throw new Error(message);
+  }
 };
 
 export const login = async (email, password) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const users = getUsers();
-      const user = users.find(u => u.email === email && u.password === password);
+  try {
+    const response = await authAPI.login({ email, password });
+    
+    const { user, token } = response.data.data;
+    setAuthData(user, token);
+    
+    return user;
+  } catch (error) {
+    const message = error.response?.data?.message || 'Login gagal';
+    throw new Error(message);
+  }
+};
 
-      if (!user) {
-        reject(new Error('Email atau password salah'));
-        return;
-      }
-
-      const { password: _, ...userWithoutPassword } = user;
-      setAuthData(userWithoutPassword);
-      resolve(userWithoutPassword);
-    }, 500);
-  });
+export const logout = async () => {
+  try {
+    await authAPI.logout();
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
+    clearAuthData();
+  }
 };
 
 export const getCurrentUser = () => {
-  return getAuthData();
+  const user = localStorage.getItem('user');
+  return user ? JSON.parse(user) : null;
 };
