@@ -188,22 +188,6 @@
 - Token expiration handling di frontend interceptor
 - SQL injection prevention dengan Eloquent ORM
 
-## Performance Optimization
-- Pagination di backend untuk large dataset (default 15 per page)
-- AbortController untuk cancel duplicate requests
-- Request timeout untuk prevent hanging requests
-- Lazy loading untuk images
-- Conditional rendering untuk minimize re-renders
-- Cleanup function di useEffect untuk prevent memory leaks
-
-## Testing Workflow
-- Backend testing: php artisan serve di port 8000
-- Frontend testing: npm run dev di port 5173
-- Database monitoring: PHPMyAdmin untuk check data
-- API testing: Postman untuk test endpoints
-- Browser DevTools: Network tab untuk monitor API calls
-- Console log untuk debugging data flow
-
 ## Status Proyek
 - Backend API endpoints fully functional
 - Frontend dashboard donatur complete dengan CRUD
