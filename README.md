@@ -14,3 +14,4 @@ Aplikasi **Donasiku** adalah sebuah sistem informasi berbasis web yang mempermud
 | Muhammad Azka Darmawan | 103032300144 |
 | Muhammad Arief Ridwan Syah | 103032300064 |
 | Nauval Yusriya Athalla | 103032330022 |
+
