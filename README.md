@@ -8,7 +8,7 @@ Aplikasi **Donasiku** adalah sebuah sistem informasi berbasis web yang mempermud
 
 | Nama | NIM |
 |------|-----|
-| Nabiel Muhammad Irfani | 103032330140 |
+| Nabiel Muhammad Irfani | 103032330140 | (saya sudah kontribusi cuman ga masuk di kontributor :((( )
 | Muhammad Bayu Satrio | 103032300167 |
 | Syahril Arfian Almazril | 103032300013 |
 | Muhammad Azka Darmawan | 103032300144 |
