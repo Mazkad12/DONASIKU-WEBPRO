@@ -2,7 +2,7 @@
 
 Aplikasi **Donasiku** adalah sebuah sistem informasi berbasis web yang mempermudah proses **pendataan, permintaan, dan penyaluran donasi**. Aplikasi ini dikembangkan sebagai proyek kelompok 3 untuk mata kuliah Pemrograman Web.
 
-(saya sudah kontribusi cuman ga masuk di kontributor :((( )
+(nabiel sudah kontribusi cuman ga masuk di kontributor :((( )
 
 ## Anggota Kelompok 3
 
