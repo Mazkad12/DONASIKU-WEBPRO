@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 // Impor Layout
 import Layout from './components/layout/Layout.jsx';
 import DashboardLayout from './components/layout/DashboardLayout.jsx';
+import PenerimaLayout from './components/layout/PenerimaLayout.jsx';
 
 // Impor Halaman Publik
 import Home from './pages/Home.jsx';
@@ -20,6 +21,7 @@ import EditDonasi from './features/donatur/EditDonasi.jsx';
 import DaftarDonasi from './features/donatur/DaftarDonasi.jsx';
 import KelolaDonasi from './features/donatur/KelolaDonasi.jsx';
 import ChatDonatur from './features/donatur/ChatDonatur.jsx';
+import PermintaanMasukDonatur from './features/donatur/PermintaanMasukDonatur.jsx';
 
 
 
@@ -27,6 +29,7 @@ import ChatDonatur from './features/donatur/ChatDonatur.jsx';
 import DashboardPenerima from './features/penerima/DashboardPenerima.jsx';
 import DetailDonasi from './features/penerima/DetailDonasi.jsx';
 import PermintaanSaya from './features/penerima/PermintaanSaya.jsx';
+import DonasiDiterima from './features/penerima/DonasiDiterima.jsx';
 import Profile from "./features/penerima/Profile.jsx";
 
 // Impor Fitur Bersama (Shared)
@@ -98,7 +101,7 @@ function App() {
             path="donatur/permintaan"
             element={
               <ProtectedRoute requiredRole="donatur">
-                <KelolaDonasi />
+                <PermintaanMasukDonatur />
               </ProtectedRoute>
             }
           />
@@ -123,6 +126,11 @@ function App() {
           />
 
          
+
+        </Route>
+
+        {/* ===== Rute Dashboard Penerima (Layout Penerima) ===== */}
+        <Route path="/" element={<PenerimaLayout />}>
 
           {/* ===== Rute Penerima ===== */}
           <Route
@@ -169,15 +177,7 @@ function App() {
             }
           />
 
-          {/* ===== Rute Riwayat ===== */}
-          <Route
-            path="donatur/riwayat"
-            element={
-              <ProtectedRoute requiredRole="donatur">
-                <Riwayat />
-              </ProtectedRoute>
-            }
-          />
+          {/* ===== Rute Riwayat Penerima ===== */}
           <Route
             path="penerima/riwayat"
             element={
@@ -187,6 +187,38 @@ function App() {
             }
           />
 
+          {/* ===== Rute Chat Penerima ===== */}
+          <Route
+            path="penerima/chat"
+            element={
+              <ProtectedRoute requiredRole="penerima">
+                <ChatDonatur />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ===== Rute Donasi Diterima ===== */}
+          <Route
+            path="penerima/donasi-diterima"
+            element={
+              <ProtectedRoute requiredRole="penerima">
+                <DonasiDiterima />
+              </ProtectedRoute>
+            }
+          />
+
+        </Route>
+
+        {/* ===== Rute Donatur Riwayat (tetap di layout donatur) ===== */}
+        <Route path="/" element={<DashboardLayout />}>
+          <Route
+            path="donatur/riwayat"
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <Riwayat />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </Router>

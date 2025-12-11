@@ -7,7 +7,7 @@ const api = axios.create({
     'Accept': 'application/json',
   },
   withCredentials: true,
-  timeout: 10000,
+  timeout: 30000, // Increased to 30 seconds to handle slow requests
 });
 
 let isRefreshing = false;

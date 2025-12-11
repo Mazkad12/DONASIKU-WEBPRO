@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyDonasi } from "../../services/donasiService";
-import { FiEdit2, FiPackage, FiMapPin, FiCalendar, FiAlertCircle } from 'react-icons/fi';
+import { getMyDonasi, clearDonasiCache } from "../../services/donasiService";
+import { FiEdit2, FiPackage, FiMapPin, FiCalendar, FiAlertCircle, FiRefreshCw } from 'react-icons/fi';
 
 const DaftarDonasi = () => {
   const [donasi, setDonasi] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDonasi = async () => {
-      try {
-        setLoading(true);
-        const data = await getMyDonasi();
-        setDonasi(data);
-      } catch (error) {
-        console.error("Gagal mengambil data donasi:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchDonasi = async () => {
+    try {
+      setLoading(true);
+      const data = await getMyDonasi();
+      setDonasi(data);
+    } catch (error) {
+      console.error("Gagal mengambil data donasi:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    // Clear cache saat component mount untuk memastikan data terbaru
+    clearDonasiCache();
     fetchDonasi();
   }, []);
 
@@ -49,7 +51,21 @@ const DaftarDonasi = () => {
 
   return (
     <div className="px-6 py-4">
-      <h1 className="text-2xl font-semibold mb-4">Daftar Donasi Saya</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Daftar Donasi Saya</h1>
+        <button
+          onClick={() => {
+            clearDonasiCache();
+            fetchDonasi();
+          }}
+          disabled={loading}
+          className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50"
+          title="Refresh data donasi"
+        >
+          <FiRefreshCw className={loading ? 'animate-spin' : ''} />
+          <span className="text-sm">Refresh</span>
+        </button>
+      </div>
 
       {donasi.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
@@ -87,9 +103,24 @@ const DaftarDonasi = () => {
                 <p className="text-sm text-gray-600 line-clamp-2">{item.deskripsi || "-"}</p>
 
                 <div className="space-y-2 mt-3">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <FiPackage className="text-[#007EFF]" />
-                    <span>Jumlah: <span className="font-semibold">{item.jumlah} pcs</span></span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <FiPackage className="text-[#007EFF]" />
+                      <span>Jumlah: <span className="font-semibold">{item.jumlah} pcs</span></span>
+                    </div>
+                    {item.jumlah <= 0 ? (
+                      <span className="inline-block bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">
+                        Habis
+                      </span>
+                    ) : item.jumlah < 5 ? (
+                      <span className="inline-block bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-full">
+                        Terbatas
+                      </span>
+                    ) : (
+                      <span className="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+                        Tersedia
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <FiMapPin className="text-[#007EFF]" />

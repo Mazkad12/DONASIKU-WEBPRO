@@ -182,9 +182,20 @@ const DashboardPenerima = () => {
                   </p>
 
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <FiPackage className="text-[#007EFF]" />
-                      <span>Jumlah: <span className="font-semibold">{donation.jumlah} pcs</span></span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <FiPackage className="text-[#007EFF]" />
+                        <span>Jumlah: <span className="font-semibold">{donation.jumlah} pcs</span></span>
+                      </div>
+                      {donation.jumlah <= 0 ? (
+                        <span className="inline-block bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">
+                          Habis
+                        </span>
+                      ) : (
+                        <span className="inline-block bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+                          Tersedia
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <FiMapPin className="text-[#007EFF]" />
@@ -202,10 +213,15 @@ const DashboardPenerima = () => {
 
                   <div className="pt-4 border-t border-gray-100">
                     <button
-                      onClick={() => navigate(`/donasi/detail/${donation.id}`)}
-                      className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-[#007EFF]/30 transition-all hover:scale-105"
+                      onClick={() => donation.jumlah > 0 && navigate(`/donasi/detail/${donation.id}`)}
+                      disabled={donation.jumlah <= 0}
+                      className={`w-full flex items-center justify-center space-x-2 px-4 py-2.5 font-semibold rounded-xl transition-all ${
+                        donation.jumlah <= 0
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white hover:shadow-xl hover:shadow-[#007EFF]/30 hover:scale-105'
+                      }`}
                     >
-                      <span>Lihat Detail & Ajukan</span>
+                      <span>{donation.jumlah <= 0 ? 'Donasi Habis' : 'Lihat Detail & Ajukan'}</span>
                     </button>
                   </div>
                 </div>

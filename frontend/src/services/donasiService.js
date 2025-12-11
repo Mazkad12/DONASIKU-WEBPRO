@@ -116,3 +116,8 @@ export const updateDonasiStatus = async (id, status) => {
     throw new Error('Gagal mengubah status');
   }
 };
+
+// Clear cache untuk donasi
+export const clearDonasiCache = () => {
+  activeRequests.clear();
+};
