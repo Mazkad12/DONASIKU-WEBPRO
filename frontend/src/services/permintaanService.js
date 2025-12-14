@@ -1,6 +1,7 @@
 // frontend/src/services/permintaanService.js
 import API from './api'; 
 
+// Fungsi CREATE - membuat permintaan baru
 export const createPermintaanSaya = async (data) => {
     try {
         const response = await API.post('/permintaan-sayas', data); 
@@ -8,6 +9,20 @@ export const createPermintaanSaya = async (data) => {
     } catch (error) {
         console.error('Error creating Permintaan Saya:', error);
         throw new Error(error.response?.data?.message || 'Gagal membuat permintaan ke server.');
+    }
+};
+
+// Fungsi READ - ambil donasi berdasarkan ID untuk form permintaan
+export const getDonasiForPermintaan = async (donasiId) => {
+    try {
+        console.log('Fetching donation for form with ID:', donasiId);
+        const response = await API.get(`/donations/${donasiId}`, { timeout: 10000 });
+        const donasiData = response.data.data || response.data;
+        console.log('Donation data loaded:', donasiData);
+        return donasiData;
+    } catch (error) {
+        console.error('Error fetching donation for form:', error.message);
+        throw new Error(error.response?.data?.message || 'Gagal memuat data donasi.');
     }
 };
 

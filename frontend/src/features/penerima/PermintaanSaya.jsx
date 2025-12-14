@@ -164,9 +164,18 @@ const PermintaanSaya = () => {
 
   // Helper to open modal with logging
   const openImageModal = () => {
-    console.log("Opening modal, current state:", showImageModal);
+    console.log("🖼️ Opening image modal");
+    console.log("Donation data:", donasi);
+    console.log("Image path:", donasi?.image);
+    if (donasi?.image) {
+      const imageUrl = donasi.image.startsWith('data:') 
+        ? '[base64]' 
+        : donasi.image.startsWith('http')
+        ? donasi.image
+        : `http://localhost:8000/${donasi.image}`;
+      console.log("Final image URL:", imageUrl);
+    }
     setShowImageModal(true);
-    console.log("Modal state set to true");
   };
 
   // Helper to close modal
@@ -413,7 +422,7 @@ const PermintaanSaya = () => {
 
             {/* Image Viewer */}
             <div 
-              className="bg-gray-900 relative overflow-hidden"
+              className="bg-gray-900 relative overflow-hidden flex items-center justify-center"
               style={{ height: '500px' }}
               onMouseDown={handleImageMouseDown}
               onMouseMove={handleImageMouseMove}
@@ -422,7 +431,13 @@ const PermintaanSaya = () => {
               onWheel={handleWheel}
             >
               <img
-                src={`http://localhost:8000/${donasi.image}`}
+                src={
+                  donasi.image.startsWith('data:') 
+                    ? donasi.image 
+                    : donasi.image.startsWith('http')
+                    ? donasi.image
+                    : `http://localhost:8000/${donasi.image}`
+                }
                 alt={donasi.nama}
                 style={{
                   transform: `scale(${imageZoom}) translate(${imagePan.x}px, ${imagePan.y}px)`,
@@ -432,10 +447,16 @@ const PermintaanSaya = () => {
                   maxHeight: '100%',
                   maxWidth: '100%',
                   objectFit: 'contain',
-                  margin: 'auto',
-                  display: 'block'
                 }}
-                className="w-full h-full"
+                onError={(e) => {
+                  console.error("❌ Image failed to load in modal:", e.target.src);
+                  e.target.style.display = 'none';
+                  // Show fallback
+                  const fallback = document.createElement('div');
+                  fallback.className = 'text-6xl text-gray-600 text-center';
+                  fallback.textContent = '📦 Gambar tidak dapat ditampilkan';
+                  e.target.parentElement.appendChild(fallback);
+                }}
               />
             </div>
 
@@ -490,7 +511,7 @@ const PermintaanSaya = () => {
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           <div>
             <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
-              <FiPackage className="text-[#007EFF]" />
+              <FiPackage className="text-[#00306C]" />
               <span>Nama Barang</span>
             </label>
             <input
@@ -503,7 +524,7 @@ const PermintaanSaya = () => {
 
           <div>
             <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
-              <FiPackage className="text-[#007EFF]" />
+              <FiPackage className="text-[#00306C]" />
               <span>Jumlah/Kebutuhan *</span>
             </label>
             <input
@@ -514,13 +535,13 @@ const PermintaanSaya = () => {
               min="1"
               max={donasi?.jumlah || 1}
               required
-              className="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:border-[#007EFF] focus:ring-4 focus:ring-[#007EFF]/10 transition-all"
+              className="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00306C] focus:ring-4 focus:ring-[#00306C]/10 transition-all"
             />
           </div>
 
           <div>
             <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
-              <FiUsers className="text-[#007EFF]" />
+              <FiUsers className="text-[#00306C]" />
               <span>Darimana Anda Berasal *</span>
             </label>
             <input
@@ -530,13 +551,13 @@ const PermintaanSaya = () => {
               onChange={handleChange}
               required
               placeholder="Contoh: Komunitas, panti asuhan, dsb."
-              className="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:border-[#007EFF] focus:ring-4 focus:ring-[#007EFF]/10 transition-all"
+              className="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00306C] focus:ring-4 focus:ring-[#00306C]/10 transition-all"
             />
           </div>
 
           <div>
             <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
-              <FiFileText className="text-[#007EFF]" />
+              <FiFileText className="text-[#00306C]" />
               <span>Deskripsi Tambahan</span>
             </label>
             <textarea
@@ -544,47 +565,64 @@ const PermintaanSaya = () => {
               value={formData.deskripsi}
               onChange={handleChange}
               rows="4"
-              className="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:border-[#007EFF] focus:ring-4 focus:ring-[#007EFF]/10 transition-all resize-none"
+              className="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00306C] focus:ring-4 focus:ring-[#00306C]/10 transition-all resize-none"
             />
           </div>
 
           {/* GAMBAR BARANG DONASI DENGAN ZOOM */}
-          {donasi?.image && (
+          {donasi ? (
             <div>
               <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
-                <FiImage className="text-[#007EFF]" />
+                <FiImage className="text-[#00306C]" />
                 <span>Gambar Barang Donasi</span>
               </label>
-              <div
-                onClick={() => {
-                  console.log("🖼️ Image container clicked");
-                  openImageModal();
-                }}
-                className="w-full group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer bg-gray-100"
-              >
-                <img 
-                  src={`http://localhost:8000/${donasi.image}`} 
-                  alt={donasi.nama} 
-                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform"
-                  onError={(e) => {
-                    console.error("Image failed to load");
-                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22%3E%3Crect fill=%22%23ddd%22 width=%22100%25%22 height=%22100%25%22/%3E%3C/svg%3E';
+              {donasi.image ? (
+                <div
+                  onClick={() => {
+                    console.log("🖼️ Image container clicked");
+                    openImageModal();
                   }}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <div className="bg-white/95 px-6 py-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-center">
-                    <p className="text-sm font-semibold text-gray-800">🔍 Klik untuk zoom in/out</p>
-                    <p className="text-xs text-gray-600 mt-1">Scroll untuk zoom • Drag untuk pan</p>
+                  className="w-full group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer bg-gray-100"
+                >
+                  <img 
+                    src={donasi.image.startsWith('data:') ? donasi.image : `http://localhost:8000/${donasi.image}`} 
+                    alt={donasi.nama} 
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform"
+                    onError={(e) => {
+                      console.error("❌ Image failed to load:", e.target.src);
+                      e.target.style.display = 'none';
+                      if (e.target.nextElementSibling) {
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div 
+                    className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-6xl"
+                    style={{ display: 'none' }}
+                  >
+                    📦
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <div className="bg-white/95 px-6 py-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-center">
+                      <p className="text-sm font-semibold text-gray-800">🔍 Klik untuk zoom in/out</p>
+                      <p className="text-xs text-gray-600 mt-1">Scroll untuk zoom • Drag untuk pan</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex flex-col items-center justify-center text-gray-600">
+                  <p className="text-6xl mb-3">📦</p>
+                  <p className="font-semibold">Gambar tidak tersedia</p>
+                  <p className="text-sm mt-2">{donasi.kategori || 'Donasi'}</p>
+                </div>
+              )}
             </div>
-          )}
+          ) : null}
 
           {/* UPLOAD BUKTI KEBUTUHAN */}
           <div>
             <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
-              <FiImage className="text-[#007EFF]" />
+              <FiImage className="text-[#00306C]" />
               <span>Upload Bukti Kebutuhan</span>
             </label>
             <div className="flex items-center justify-center w-full">
