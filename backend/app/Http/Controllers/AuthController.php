@@ -39,6 +39,7 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'role' => $user->role,
                     'phone' => $user->phone,
+                    'photo' => $user->photo,
                 ],
                 'token' => $token,
             ],
@@ -72,6 +73,7 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'role' => $user->role,
                     'phone' => $user->phone,
+                    'photo' => $user->photo,
                 ],
                 'token' => $token,
             ],
@@ -98,6 +100,55 @@ class AuthController extends Controller
                 'email' => $request->user()->email,
                 'role' => $request->user()->role,
                 'phone' => $request->user()->phone,
+                'photo' => $request->user()->photo,
+            ],
+        ], 200);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ]);
+
+        if ($request->filled('name')) {
+            $user->name = $validated['name'];
+        }
+
+        if ($request->filled('phone')) {
+            $user->phone = $validated['phone'];
+        }
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($user->photo && file_exists(public_path($user->photo))) {
+                unlink(public_path($user->photo));
+            }
+
+            $file = $request->file('photo');
+            $filename = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/profiles'), $filename);
+            $user->photo = 'uploads/profiles/' . $filename;
+        }
+
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui',
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'phone' => $user->phone,
+                    'photo' => $user->photo,
+                ],
             ],
         ], 200);
     }

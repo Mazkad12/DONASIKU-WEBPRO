@@ -22,6 +22,8 @@ import DaftarDonasi from './features/donatur/DaftarDonasi.jsx';
 import KelolaDonasi from './features/donatur/KelolaDonasi.jsx';
 import ChatDonatur from './features/donatur/ChatDonatur.jsx';
 import PermintaanMasukDonatur from './features/donatur/PermintaanMasukDonatur.jsx';
+import ProfileDonatur from './features/donatur/ProfileDonatur.jsx';
+import DetailAkunDonatur from './features/donatur/DetailAkunDonatur.jsx';
 
 
 
@@ -121,6 +123,26 @@ function App() {
             element={
               <ProtectedRoute requiredRole="donatur">
                 <DaftarDonasi />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Route: Profile Donatur */}
+          <Route
+            path="donatur/profil"
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <ProfileDonatur />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Route: Detail Akun Donatur */}
+          <Route
+            path="donatur/detail-akun"
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <DetailAkunDonatur />
               </ProtectedRoute>
             }
           />
