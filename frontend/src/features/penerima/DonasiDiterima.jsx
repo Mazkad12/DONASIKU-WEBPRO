@@ -11,48 +11,65 @@ const DonasiDiterima = () => {
   const user = getAuthData();
 
   useEffect(() => {
-    // Fetch data donasi yang diterima dari permintaan yang sudah terpenuhi
+    // Fetch semua permintaan donasi user (sedang diproses, terpenuhi, ditolak)
     const fetchDonasi = async () => {
       try {
         setLoading(true);
         setErrorMsg('');
         
-        // Ambil permintaan dengan status terpenuhi (donasi sudah diterima)
-        const response = await API.get('/permintaan-sayas?status=terpenuhi');
+        // Ambil semua permintaan donasi user (tidak perlu filter by status di sini)
+        const response = await API.get('/permintaan-sayas', { timeout: 15000 });
+        console.log('📦 Permintaan API Response:', response.data);
 
         if (response.data && response.data.data) {
-          const detailDonasi = response.data.data.map(item => ({
-            id: item.id,
-            nama: item.judul,
-            kategori: item.kategori || 'lainnya',
-            jumlah: item.target_jumlah,
-            lokasi: item.lokasi || 'Tidak diketahui',
-            status: item.status || 'terpenuhi', // Status keseluruhan
-            status_permohonan: item.status_permohonan || 'pending', // NEW: Approval status
-            status_pengiriman: item.status_pengiriman || 'draft', // NEW: Delivery status
-            tanggalDiterima: item.received_at || item.updated_at,
-            tanggalDisetujui: item.approved_at,
-            tanggalDikirim: item.sent_at,
-            donatur: 'Donatur',
-            deskripsi: item.deskripsi || '',
-            email: '',
-            nomor_hp: '',
-            catatan: '',
-            // Gunakan donation.image (base64 atau path), fallback ke item.image
-            image: item.donation?.image || item.image || '/placeholder-donation.jpg'
-          }));
+          const detailDonasi = response.data.data.map(item => {
+            // Get donation data jika ada relationship
+            const donationData = item.donation || {};
+            
+            return {
+              id: item.id,
+              nama: item.judul || donationData.nama || 'Donasi',
+              kategori: item.kategori || donationData.kategori || 'lainnya',
+              jumlah: item.target_jumlah || item.jumlah || 1,
+              lokasi: item.lokasi || donationData.lokasi || 'Tidak diketahui',
+              status: item.status || 'aktif',
+              status_permohonan: item.status_permohonan || 'pending',
+              status_pengiriman: item.status_pengiriman || 'draft',
+              tanggalDiterima: item.received_at || item.updated_at,
+              tanggalDisetujui: item.approved_at,
+              tanggalDikirim: item.sent_at,
+              donatur: item.donator_name || donationData.user?.name || 'Donatur',
+              deskripsi: item.deskripsi || donationData.deskripsi || '',
+              email: item.email || '',
+              nomor_hp: item.nomor_hp || '',
+              catatan: item.catatan || '',
+              // Support base64 dan URL path untuk gambar
+              image: donationData.image || item.image || null
+            };
+          });
           
+          console.log('✅ Donasi loaded:', detailDonasi.length, 'items');
           setDonasi(detailDonasi);
+        } else {
+          console.warn('⚠️ No data in response:', response.data);
+          setDonasi([]);
         }
       } catch (error) {
-        console.error('Error fetching donasi:', error);
-        setErrorMsg('Gagal memuat data donasi. ' + (error.response?.data?.message || error.message));
+        console.error('❌ Error fetching donasi:', error);
+        // Fallback to empty array jika timeout/error
+        setDonasi([]);
+        if (error.response?.status === 401) {
+          setErrorMsg('Silakan login terlebih dahulu');
+        } else {
+          setErrorMsg('Gagal memuat data permintaan. ' + (error.message || ''));
+        }
       } finally {
         setLoading(false);
       }
     };
 
     if (user?.id) {
+      console.log('👤 User ID:', user.id, '- Loading permintaan...');
       fetchDonasi();
     } else {
       setLoading(false);
@@ -62,8 +79,8 @@ const DonasiDiterima = () => {
 
   const filteredDonasi = donasi.filter(d => {
     if (filter === 'semua') return true;
-    if (filter === 'terpenuhi') return d.status_pengiriman === 'received';
-    if (filter === 'menunggu') return d.status_permohonan === 'pending';
+    if (filter === 'terpenuhi') return d.status_pengiriman === 'received'; // Sudah diterima
+    if (filter === 'menunggu') return d.status_permohonan === 'pending' || d.status_pengiriman !== 'received'; // Sedang diproses
     return true;
   });
 
