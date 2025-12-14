@@ -302,7 +302,7 @@ const PermintaanSaya = () => {
                         />
                       ) : null}
                       <div
-                        className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center text-3xl"
+                        className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl"
                         style={{ display: req.donation?.image ? 'none' : 'flex' }}
                       >
                         📦
@@ -312,7 +312,7 @@ const PermintaanSaya = () => {
 
                   <div className="flex-1">
                     <h2 className="font-bold text-xl flex items-center gap-2 mb-2">
-                      <FiPackage className="text-blue-500" />
+                      <FiPackage className="text-[#00306C]" />
                       {req.judul || "Permintaan Kebutuhan"}
                     </h2>
                     <p className="text-gray-600 mb-4">{req.deskripsi}</p>
@@ -338,7 +338,7 @@ const PermintaanSaya = () => {
                           req.status_permohonan === 'pending'
                             ? 'bg-yellow-100 text-yellow-700'
                             : req.status_permohonan === 'approved'
-                            ? 'bg-green-100 text-green-700'
+                            ? 'bg-blue-100 text-[#00306C]'
                             : 'bg-red-100 text-red-700'
                         }`}
                       >
@@ -353,10 +353,10 @@ const PermintaanSaya = () => {
                         <span
                           className={`block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${
                             req.status_pengiriman === 'draft'
-                              ? 'bg-blue-100 text-blue-700'
+                              ? 'bg-blue-100 text-[#00306C]'
                               : req.status_pengiriman === 'sent'
                               ? 'bg-purple-100 text-purple-700'
-                              : 'bg-green-100 text-green-700'
+                              : 'bg-blue-100 text-[#00306C]'
                           }`}
                         >
                           {req.status_pengiriman === 'draft' ? '📦 Disiapkan' : req.status_pengiriman === 'sent' ? '🚚 Dikirim' : '📍 Diterima'}
@@ -372,7 +372,7 @@ const PermintaanSaya = () => {
                     <button
                       onClick={() => handleMarkReceived(req.id)}
                       disabled={actionLoading}
-                      className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                      className="w-full bg-[#00306C] hover:bg-[#001F4D] disabled:bg-gray-400 text-white font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
                     >
                       {actionLoading ? <FiLoader className="animate-spin" /> : <FiCheckCircle />}
                       Konfirmasi Sudah Diterima
@@ -444,7 +444,7 @@ const PermintaanSaya = () => {
               <button
                 onClick={handleZoomOut}
                 disabled={imageZoom <= 1}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 transition-all"
+                className="px-4 py-2 bg-[#00306C] text-white rounded-lg hover:bg-[#001F4D] disabled:bg-gray-300 transition-all"
               >
                 − Zoom Out
               </button>
@@ -454,7 +454,7 @@ const PermintaanSaya = () => {
               <button
                 onClick={handleZoomIn}
                 disabled={imageZoom >= 3}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 transition-all"
+                className="px-4 py-2 bg-[#00306C] text-white rounded-lg hover:bg-[#001F4D] disabled:bg-gray-300 transition-all"
               >
                 + Zoom In
               </button>
@@ -621,7 +621,7 @@ const PermintaanSaya = () => {
           <div className="pt-6 border-t border-gray-100">
             <button
               type="submit"
-              className="w-full flex items-center justify-center space-x-2 px-6 py-4 font-bold rounded-xl transition-all bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white hover:shadow-xl hover:shadow-[#007EFF]/30 hover:scale-[1.03]"
+              className="w-full flex items-center justify-center space-x-2 px-6 py-4 font-bold rounded-xl transition-all bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white hover:shadow-xl hover:shadow-[#00306C]/30 hover:scale-[1.03]"
             >
               <FiSend className="text-xl" />
               <span>Ajukan Permintaan</span>

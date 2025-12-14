@@ -76,7 +76,7 @@ const handleAjukan = () => {
         <p className="text-gray-600 mb-6">Donasi yang Anda cari mungkin sudah diambil atau dihapus.</p>
         <button
           onClick={() => navigate('/dashboard-penerima')}
-          className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white font-bold rounded-xl hover:shadow-xl transition-all"
+          className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white font-bold rounded-xl hover:shadow-xl transition-all"
         >
           <FiArrowLeft />
           <span>Kembali ke Pencarian</span>
@@ -92,7 +92,7 @@ const handleAjukan = () => {
       <div className="mb-6">
         <button
           onClick={() => navigate(-1)} // Kembali ke halaman sebelumnya
-          className="inline-flex items-center space-x-2 text-gray-700 font-semibold hover:text-[#007EFF] transition-colors"
+          className="inline-flex items-center space-x-2 text-gray-700 font-semibold hover:text-[#00306C] transition-colors"
         >
           <FiArrowLeft className="text-lg" />
           <span>Kembali</span>
@@ -115,7 +115,7 @@ const handleAjukan = () => {
               </div>
             )}
             <div className="absolute top-4 left-4">
-              <span className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold text-gray-900 flex items-center space-x-2">
+              <span className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-bold text-[#00306C] flex items-center space-x-2">
                 <span className="text-lg">{getCategoryIcon(donasi.kategori)}</span>
                 <span>{donasi.kategori}</span>
               </span>
@@ -127,8 +127,8 @@ const handleAjukan = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{donasi.nama}</h1>
 
             <div className="mb-6">
-              <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
-                <span>🟢</span>
+              <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-[#00306C]">
+                <span>🔵</span>
                 <span>Tersedia (Aktif)</span>
               </span>
             </div>
@@ -137,7 +137,7 @@ const handleAjukan = () => {
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
               <label className="text-sm font-bold text-gray-900 mb-2 block">Donatur:</label>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#007EFF] to-[#0063FF] rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center shadow-lg">
                   <FiUser className="text-white" />
                 </div>
                 <div>
@@ -150,15 +150,15 @@ const handleAjukan = () => {
             {/* Detail Barang */}
             <div className="space-y-3 mb-8">
               <div className="flex items-start space-x-3 text-gray-700">
-                <FiPackage className="text-[#007EFF] text-xl flex-shrink-0 mt-1" />
+                <FiPackage className="text-[#00306C] text-xl flex-shrink-0 mt-1" />
                 <span>Jumlah: <span className="font-semibold">{donasi.jumlah} pcs</span></span>
               </div>
               <div className="flex items-start space-x-3 text-gray-700">
-                <FiMapPin className="text-[#007EFF] text-xl flex-shrink-0 mt-1" />
+                <FiMapPin className="text-[#00306C] text-xl flex-shrink-0 mt-1" />
                 <span>Lokasi: <span className="font-semibold">{donasi.lokasi}</span></span>
               </div>
               <div className="flex items-start space-x-3 text-gray-700">
-                <FiCalendar className="text-[#007EFF] text-xl flex-shrink-0 mt-1" />
+                <FiCalendar className="text-[#00306C] text-xl flex-shrink-0 mt-1" />
                 <span>Di-posting: <span className="font-semibold">{new Date(donasi.createdAt).toLocaleDateString('id-ID', {
                   day: 'numeric', month: 'long', year: 'numeric'
                 })}</span></span>
@@ -180,7 +180,7 @@ const handleAjukan = () => {
             <div className="mt-auto">
               <button
                 onClick={handleAjukan}
-                className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white font-bold rounded-xl hover:shadow-xl hover:shadow-[#007EFF]/30 transition-all hover:scale-[1.03]"
+                className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white font-bold rounded-xl hover:shadow-xl hover:shadow-[#00306C]/30 transition-all hover:scale-[1.03]"
               >
                 <FiInbox className="text-xl" />
                 <span>Ajukan Permintaan Donasi</span>

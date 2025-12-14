@@ -112,7 +112,7 @@ const DonasiDiterima = () => {
             onClick={() => setFilter(tab.value)}
             className={`px-4 py-3 font-semibold border-b-2 transition-all ${
               filter === tab.value
-                ? 'border-green-500 text-green-600'
+                ? 'border-[#00306C] text-[#00306C]'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -139,7 +139,7 @@ const DonasiDiterima = () => {
               <div className="flex gap-4">
                 {/* Image - Support base64 & path */}
                 <div className="flex-shrink-0">
-                  <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-blue-100 rounded-lg flex items-center justify-center text-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center text-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
                     {item.image ? (
                       <img
                         src={
@@ -159,7 +159,7 @@ const DonasiDiterima = () => {
                       />
                     ) : null}
                     <div
-                      className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center text-3xl"
+                      className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl"
                       style={{ display: item.image ? 'none' : 'flex' }}
                     >
                       {categoryIcons[item.kategori] || '📦'}
@@ -178,7 +178,7 @@ const DonasiDiterima = () => {
                       {/* Status Permohonan */}
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         item.status_permohonan === 'approved'
-                          ? 'bg-green-100 text-green-700'
+                          ? 'bg-blue-100 text-[#00306C]'
                           : item.status_permohonan === 'rejected'
                           ? 'bg-red-100 text-red-700'
                           : 'bg-yellow-100 text-yellow-700'
@@ -190,10 +190,10 @@ const DonasiDiterima = () => {
                       {item.status_permohonan === 'approved' && (
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           item.status_pengiriman === 'received'
-                            ? 'bg-green-100 text-green-700'
+                            ? 'bg-blue-100 text-[#00306C]'
                             : item.status_pengiriman === 'sent'
                             ? 'bg-purple-100 text-purple-700'
-                            : 'bg-blue-100 text-blue-700'
+                            : 'bg-blue-100 text-[#00306C]'
                         }`}>
                           {item.status_pengiriman === 'received' ? '📍 Diterima' : item.status_pengiriman === 'sent' ? '🚚 Dikirim' : '📦 Disiapkan'}
                         </span>
@@ -204,21 +204,21 @@ const DonasiDiterima = () => {
                   {/* Details */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                     <div className="flex items-center gap-2 text-sm">
-                      <FiPackage className="text-blue-500" />
+                      <FiPackage className="text-[#00306C]" />
                       <span className="text-gray-600">
                         <span className="font-semibold">{item.jumlah}</span> item
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <FiMapPin className="text-red-500" />
+                      <FiMapPin className="text-[#00306C]" />
                       <span className="text-gray-600">{item.lokasi}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <FiUser className="text-purple-500" />
+                      <FiUser className="text-[#00306C]" />
                       <span className="text-gray-600">{item.donatur}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <FiCalendar className="text-green-500" />
+                      <FiCalendar className="text-[#00306C]" />
                       <span className="text-gray-600">
                         {item.tanggalDiterima 
                           ? new Date(item.tanggalDiterima).toLocaleDateString('id-ID')
@@ -249,15 +249,15 @@ const DonasiDiterima = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mt-8">
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Terpenuhi</p>
-              <p className="text-2xl font-bold text-green-600 mt-1">
+              <p className="text-2xl font-bold text-[#00306C] mt-1">
                 {donasi.filter(d => d.status === 'terpenuhi').length}
               </p>
             </div>
-            <FiCheckCircle className="text-4xl text-green-500 opacity-50" />
+            <FiCheckCircle className="text-4xl text-[#00306C] opacity-50" />
           </div>
         </div>
 
@@ -273,15 +273,15 @@ const DonasiDiterima = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Item</p>
-              <p className="text-2xl font-bold text-blue-600 mt-1">
+              <p className="text-2xl font-bold text-[#00306C] mt-1">
                 {donasi.reduce((sum, d) => sum + d.jumlah, 0)}
               </p>
             </div>
-            <FiPackage className="text-4xl text-blue-500 opacity-50" />
+            <FiPackage className="text-4xl text-[#00306C] opacity-50" />
           </div>
         </div>
       </div>

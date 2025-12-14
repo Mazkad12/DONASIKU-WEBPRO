@@ -46,8 +46,8 @@ const PenerimaNavbar = () => {
                 to={item.path}
                 className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
                   isActive(item.path)
-                    ? 'bg-gradient-to-r from-[#00C368] to-[#00A352] text-white shadow-lg'
-                    : 'text-gray-700 hover:bg-green-50 hover:text-[#00C368]'
+                    ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white shadow-lg'
+                    : 'text-gray-700 hover:bg-blue-50 hover:text-[#00306C]'
                 }`}
               >
                 <item.icon className="text-lg" />
@@ -58,8 +58,8 @@ const PenerimaNavbar = () => {
 
           {/* User Menu & Logout */}
           <div className="hidden lg:flex items-center space-x-4">
-            <div className="flex items-center space-x-3 px-4 py-2 bg-green-50 rounded-xl">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#00C368] to-[#00A352] rounded-full flex items-center justify-center">
+            <div className="flex items-center space-x-3 px-4 py-2 bg-blue-50 rounded-xl">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center">
                 <FiUser className="text-white" />
               </div>
               <div>
@@ -102,17 +102,17 @@ const PenerimaNavbar = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all ${
                     isActive(item.path)
-                      ? 'bg-gradient-to-r from-[#00C368] to-[#00A352] text-white'
-                      : 'text-gray-700 hover:bg-green-50'
+                      ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white'
+                      : 'text-gray-700 hover:bg-blue-50'
                   }`}
                 >
                   <item.icon className="text-xl" />
                   <span>{item.label}</span>
                 </Link>
               ))}
-              <div className="px-4 py-3 bg-green-50 rounded-xl">
+              <div className="px-4 py-3 bg-blue-50 rounded-xl">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#00C368] to-[#00A352] rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center">
                     <FiUser className="text-white" />
                   </div>
                   <div>
