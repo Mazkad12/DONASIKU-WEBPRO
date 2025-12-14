@@ -3,11 +3,17 @@ import { FiLogIn, FiLogOut, FiUser, FiMenu, FiX } from 'react-icons/fi';
 import { isAuthenticated, logout, getAuthData, getUserRole } from '../../utils/localStorage';
 import { useState, useEffect } from 'react';
 
+const getPhotoUrl = (photoPath) => {
+  if (!photoPath) return null;
+  if (photoPath.startsWith('http')) return photoPath;
+  return `http://localhost:8000/${photoPath}`;
+};
+
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const authenticated = isAuthenticated();
-  const user = getAuthData();
+  const [user, setUser] = useState(getAuthData());
   const role = getUserRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -19,6 +25,16 @@ const Navbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  // Refresh user data on window focus
+  useEffect(() => {
+    const handleFocus = () => {
+      setUser(getAuthData());
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   // Auto-hide on scroll
   useEffect(() => {
@@ -116,9 +132,17 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="flex items-center space-x-3 ml-4">
-                  <div className="flex items-center space-x-3 px-5 py-2.5 bg-blue-50 rounded-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-[#007EFF] to-[#0063FF] rounded-full flex items-center justify-center shadow-lg">
-                      <FiUser className="text-white text-sm" />
+                  <div className="flex items-center space-x-3 px-5 py-2.5 bg-blue-50 rounded-full cursor-pointer hover:bg-blue-100 transition-colors" onClick={() => navigate(role === 'donatur' ? '/donatur/profil' : '/penerima/profil')}>
+                    <div className="w-9 h-9 bg-gradient-to-br from-[#007EFF] to-[#0063FF] rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+                      {getPhotoUrl(user?.photo) ? (
+                        <img 
+                          src={getPhotoUrl(user?.photo)} 
+                          alt={user?.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <FiUser className="text-white text-sm" />
+                      )}
                     </div>
                     <span className="font-bold text-[#00306C] text-sm">{user?.name}</span>
                   </div>
@@ -200,10 +224,18 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <div className="px-5 py-3 bg-blue-50 rounded-xl">
+                <div className="px-5 py-3 bg-blue-50 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors" onClick={() => {navigate(role === 'donatur' ? '/donatur/profil' : '/penerima/profil'); setMobileMenuOpen(false);}}>
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#007EFF] to-[#0063FF] rounded-full flex items-center justify-center">
-                      <FiUser className="text-white" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#007EFF] to-[#0063FF] rounded-full flex items-center justify-center overflow-hidden">
+                      {getPhotoUrl(user?.photo) ? (
+                        <img 
+                          src={getPhotoUrl(user?.photo)} 
+                          alt={user?.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <FiUser className="text-white" />
+                      )}
                     </div>
                     <span className="font-bold text-[#00306C]">{user?.name}</span>
                   </div>

@@ -15,6 +15,7 @@ Route::get('donations/{id}', [DonationController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
+    Route::post('user/profile', [AuthController::class, 'updateProfile']);
     
     // Routes untuk Donasi
     Route::post('donations', [DonationController::class, 'store']);
