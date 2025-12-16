@@ -1,0 +1,335 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Waktu pembuatan: 03 Des 2025 pada 05.59
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `donasiku`
+--
+
+DELIMITER $$
+--
+-- Prosedur
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_accept_request` (IN `p_request_id` INT, OUT `p_success` BOOLEAN, OUT `p_message` VARCHAR(255))   BEGIN
+    DECLARE v_donasi_id INT;
+    DECLARE v_jumlah_diminta INT;
+    DECLARE v_jumlah_tersedia INT;
+    
+    -- Ambil info request
+    SELECT donasi_id, jumlah_diminta 
+    INTO v_donasi_id, v_jumlah_diminta
+    FROM requests 
+    WHERE id = p_request_id;
+    
+    -- Ambil jumlah donasi tersedia
+    SELECT jumlah INTO v_jumlah_tersedia
+    FROM donations
+    WHERE id = v_donasi_id;
+    
+    -- Validasi
+    IF v_jumlah_tersedia >= v_jumlah_diminta THEN
+        -- Update request status
+        UPDATE requests 
+        SET status = 'accepted', updated_at = NOW()
+        WHERE id = p_request_id;
+        
+        -- Kurangi jumlah donasi
+        UPDATE donations
+        SET jumlah = jumlah - v_jumlah_diminta, updated_at = NOW()
+        WHERE id = v_donasi_id;
+        
+        SET p_success = TRUE;
+        SET p_message = 'Request berhasil diterima';
+    ELSE
+        SET p_success = FALSE;
+        SET p_message = 'Jumlah donasi tidak mencukupi';
+    END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_create_donation` (IN `p_user_id` INT, IN `p_nama` VARCHAR(200), IN `p_kategori` VARCHAR(50), IN `p_jumlah` INT, IN `p_deskripsi` TEXT, IN `p_lokasi` VARCHAR(255), IN `p_image` TEXT, OUT `p_donation_id` INT)   BEGIN
+    INSERT INTO donations (user_id, nama, kategori, jumlah, deskripsi, lokasi, image, status)
+    VALUES (p_user_id, p_nama, p_kategori, p_jumlah, p_deskripsi, p_lokasi, p_image, 'aktif');
+    
+    SET p_donation_id = LAST_INSERT_ID();
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_delete_donation` (IN `p_donation_id` INT, IN `p_user_id` INT)   BEGIN
+    DELETE FROM donations
+    WHERE id = p_donation_id AND user_id = p_user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_update_donation` (IN `p_donation_id` INT, IN `p_nama` VARCHAR(200), IN `p_kategori` VARCHAR(50), IN `p_jumlah` INT, IN `p_deskripsi` TEXT, IN `p_lokasi` VARCHAR(255), IN `p_image` TEXT, IN `p_status` VARCHAR(20))   BEGIN
+    UPDATE donations
+    SET 
+        nama = p_nama,
+        kategori = p_kategori,
+        jumlah = p_jumlah,
+        deskripsi = p_deskripsi,
+        lokasi = p_lokasi,
+        image = IFNULL(p_image, image),
+        status = p_status,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = p_donation_id;
+END$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `donations`
+--
+
+CREATE TABLE `donations` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `nama` varchar(200) NOT NULL,
+  `kategori` enum('pakaian','elektronik','buku','mainan','perabotan','lainnya') NOT NULL,
+  `jumlah` int(11) NOT NULL DEFAULT 1,
+  `deskripsi` text NOT NULL,
+  `lokasi` varchar(255) NOT NULL,
+  `image` text DEFAULT NULL,
+  `status` enum('aktif','selesai') NOT NULL DEFAULT 'aktif',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `migrations`
+--
+
+CREATE TABLE `migrations` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `migration` varchar(255) NOT NULL,
+  `batch` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `migrations`
+--
+
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
+(1, '0001_01_01_000000_create_users_table', 1),
+(2, '2025_11_27_154541_create_donations_table', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `users`
+--
+
+CREATE TABLE `users` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `phone` varchar(255) DEFAULT NULL,
+  `role` enum('donatur','penerima') NOT NULL DEFAULT 'donatur',
+  `remember_token` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `detail_donasis`
+--
+
+CREATE TABLE `detail_donasis` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `donation_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `nama_penerima` varchar(255) NOT NULL,
+  `email_penerima` varchar(255) NOT NULL,
+  `nomor_hp` varchar(255) NOT NULL,
+  `alamat` text NOT NULL,
+  `keperluan` text NOT NULL,
+  `jumlah_diterima` int(11) NOT NULL,
+  `status_penerimaan` enum('menunggu','diterima','ditolak') NOT NULL DEFAULT 'menunggu',
+  `catatan` text DEFAULT NULL,
+  `tanggal_penerimaan` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `permintaan_sayas`
+--
+
+CREATE TABLE `permintaan_sayas` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `judul` varchar(255) NOT NULL,
+  `deskripsi` text NOT NULL,
+  `kategori` varchar(255) NOT NULL,
+  `target_jumlah` int(11) NOT NULL,
+  `jumlah_terkumpul` int(11) NOT NULL DEFAULT 0,
+  `lokasi` varchar(255) NOT NULL,
+  `image` text DEFAULT NULL,
+  `status` enum('aktif','terpenuhi','dibatalkan') NOT NULL DEFAULT 'aktif',
+  `batas_waktu` date DEFAULT NULL,
+  `bukti_kebutuhan` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in struktur untuk tampilan `v_donations_with_donatur`
+-- (Lihat di bawah untuk tampilan aktual)
+--
+CREATE TABLE `v_donations_with_donatur` (
+`id` bigint(20) unsigned
+,`user_id` bigint(20) unsigned
+,`nama` varchar(200)
+,`kategori` enum('pakaian','elektronik','buku','mainan','perabotan','lainnya')
+,`jumlah` int(11)
+,`deskripsi` text
+,`lokasi` varchar(255)
+,`image` text
+,`status` enum('aktif','selesai')
+,`created_at` timestamp
+,`updated_at` timestamp
+,`donatur_name` varchar(255)
+,`donatur_email` varchar(255)
+,`donatur_phone` varchar(255)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Struktur untuk view `v_donations_with_donatur`
+--
+DROP TABLE IF EXISTS `v_donations_with_donatur`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_donations_with_donatur`  AS SELECT `d`.`id` AS `id`, `d`.`user_id` AS `user_id`, `d`.`nama` AS `nama`, `d`.`kategori` AS `kategori`, `d`.`jumlah` AS `jumlah`, `d`.`deskripsi` AS `deskripsi`, `d`.`lokasi` AS `lokasi`, `d`.`image` AS `image`, `d`.`status` AS `status`, `d`.`created_at` AS `created_at`, `d`.`updated_at` AS `updated_at`, `u`.`name` AS `donatur_name`, `u`.`email` AS `donatur_email`, `u`.`phone` AS `donatur_phone` FROM (`donations` `d` join `users` `u` on(`d`.`user_id` = `u`.`id`)) ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indeks untuk tabel `donations`
+--
+ALTER TABLE `donations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `donations_user_id_index` (`user_id`),
+  ADD KEY `donations_status_index` (`status`),
+  ADD KEY `donations_kategori_index` (`kategori`),
+  ADD KEY `donations_created_at_index` (`created_at`);
+
+--
+-- Indeks untuk tabel `migrations`
+--
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `users_email_unique` (`email`);
+
+--
+-- Indeks untuk tabel `detail_donasis`
+--
+ALTER TABLE `detail_donasis`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `detail_donasis_donation_id_index` (`donation_id`),
+  ADD KEY `detail_donasis_user_id_index` (`user_id`),
+  ADD KEY `detail_donasis_status_penerimaan_index` (`status_penerimaan`);
+
+--
+-- Indeks untuk tabel `permintaan_sayas`
+--
+ALTER TABLE `permintaan_sayas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `permintaan_sayas_user_id_index` (`user_id`),
+  ADD KEY `permintaan_sayas_status_index` (`status`),
+  ADD KEY `permintaan_sayas_kategori_index` (`kategori`);
+
+--
+-- AUTO_INCREMENT untuk tabel yang dibuang
+--
+
+--
+-- AUTO_INCREMENT untuk tabel `donations`
+--
+ALTER TABLE `donations`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `migrations`
+--
+ALTER TABLE `migrations`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT untuk tabel `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `detail_donasis`
+--
+ALTER TABLE `detail_donasis`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `permintaan_sayas`
+--
+ALTER TABLE `permintaan_sayas`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
+--
+
+--
+-- Ketidakleluasaan untuk tabel `donations`
+--
+ALTER TABLE `donations`
+  ADD CONSTRAINT `donations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `detail_donasis`
+--
+ALTER TABLE `detail_donasis`
+  ADD CONSTRAINT `detail_donasis_donation_id_foreign` FOREIGN KEY (`donation_id`) REFERENCES `donations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `detail_donasis_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `permintaan_sayas`
+--
+ALTER TABLE `permintaan_sayas`
+  ADD CONSTRAINT `permintaan_sayas_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
