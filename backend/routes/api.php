@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\DetailDonasiController;
 use App\Http\Controllers\PermintaanSayaController;
+use App\Http\Controllers\Api\ProfileController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -15,7 +16,6 @@ Route::get('donations/{id}', [DonationController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
-    Route::post('user/profile', [AuthController::class, 'updateProfile']);
     
     // Routes untuk Donasi
     Route::post('donations', [DonationController::class, 'store']);
@@ -37,6 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('permintaan-sayas', [PermintaanSayaController::class, 'store']);
     Route::put('permintaan-sayas/{id}', [PermintaanSayaController::class, 'update']);
     Route::delete('permintaan-sayas/{id}', [PermintaanSayaController::class, 'destroy']);
+    
+    // Profile routes
+    Route::get('profile', [ProfileController::class, 'show']);
+    Route::post('profile/update', [ProfileController::class, 'update']);
     
     // Workflow endpoints
     Route::patch('permintaan-sayas/{id}/approve', [PermintaanSayaController::class, 'approve']); // Donatur
