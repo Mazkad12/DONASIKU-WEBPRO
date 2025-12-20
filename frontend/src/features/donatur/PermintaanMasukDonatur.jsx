@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiMapPin, FiUser, FiPhone, FiMail, FiMessageSquare, FiCheckCircle, FiX, FiLoader, FiTruck, FiClock } from 'react-icons/fi';
 import API from '../../services/api';
 
 const PermintaanMasukDonatur = () => {
+  const navigate = useNavigate();
   const [permintaan, setPermintaan] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -17,7 +19,7 @@ const PermintaanMasukDonatur = () => {
 
       // Fetch permintaan yang masuk untuk donatur
       const response = await API.get('/permintaan-sayas');
-      
+
       if (response.data && response.data.data) {
         let data = response.data.data;
 
@@ -113,11 +115,10 @@ const PermintaanMasukDonatur = () => {
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all capitalize ${
-              filter === status
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all capitalize ${filter === status
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
           >
             {status === 'semua' ? 'Semua' : status === 'pending' ? 'Menunggu Disetujui' : status === 'approved' ? 'Sudah Disetujui' : 'Ditolak'}
           </button>
@@ -184,25 +185,23 @@ const PermintaanMasukDonatur = () => {
                 <div className="text-right">
                   <div className="flex flex-col gap-1 items-end">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        p.status_permohonan === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : p.status_permohonan === 'approved'
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${p.status_permohonan === 'pending'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : p.status_permohonan === 'approved'
                           ? 'bg-green-100 text-green-700'
                           : 'bg-red-100 text-red-700'
-                      }`}
+                        }`}
                     >
                       {p.status_permohonan === 'pending' ? '⏳ Menunggu' : p.status_permohonan === 'approved' ? '✓ Disetujui' : '✕ Ditolak'}
                     </span>
                     {p.status_permohonan === 'approved' && (
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          p.status_pengiriman === 'draft'
-                            ? 'bg-blue-100 text-blue-700'
-                            : p.status_pengiriman === 'sent'
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${p.status_pengiriman === 'draft'
+                          ? 'bg-blue-100 text-blue-700'
+                          : p.status_pengiriman === 'sent'
                             ? 'bg-purple-100 text-purple-700'
                             : 'bg-green-100 text-green-700'
-                        }`}
+                          }`}
                       >
                         {p.status_pengiriman === 'draft' ? '📦 Disiapkan' : p.status_pengiriman === 'sent' ? '🚚 Dikirim' : '📍 Diterima'}
                       </span>
@@ -311,7 +310,7 @@ const PermintaanMasukDonatur = () => {
               {/* Bukti Kebutuhan - Gambar atau Teks */}
               <div>
                 <h4 className="font-bold mb-2">Bukti Kebutuhan</h4>
-                
+
                 {/* Jika ada file bukti kebutuhan (upload image) */}
                 {selectedPermintaan.bukti_kebutuhan && (
                   <img
@@ -323,7 +322,7 @@ const PermintaanMasukDonatur = () => {
                     }}
                   />
                 )}
-                
+
                 {/* Jika ada gambar dari donasi (fallback) */}
                 {!selectedPermintaan.bukti_kebutuhan && selectedPermintaan.image && (
                   <img
@@ -335,7 +334,7 @@ const PermintaanMasukDonatur = () => {
                     }}
                   />
                 )}
-                
+
                 {/* Jika tidak ada keduanya */}
                 {!selectedPermintaan.bukti_kebutuhan && !selectedPermintaan.image && (
                   <p className="text-gray-500 italic">Belum ada bukti kebutuhan yang diunggah</p>
@@ -358,6 +357,25 @@ const PermintaanMasukDonatur = () => {
                     className="flex-1 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
                   >
                     {actionLoading ? <FiLoader className="animate-spin" /> : <FiX />} Tolak Permintaan
+                  </button>
+                </div>
+              )}
+
+              {/* Chat Button for Approved/Sent/Received */}
+              {selectedPermintaan.status_permohonan === 'approved' && (
+                <div className="pt-4 border-t">
+                  <button
+                    onClick={() => {
+                      // Close modal and navigate
+                      setSelectedPermintaan(null);
+                      // Navigate to chat
+                      navigate('/donatur/chat', { state: { peerId: selectedPermintaan.user_id } });
+                      // Wait, this component doesn't have useNavigate imported? Let's check imports.
+                    }}
+                    // It seems this component does not use useNavigate. I should add it.
+                    className="w-full bg-blue-100 hover:bg-blue-200 text-[#00306C] font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    <FiMessageSquare /> Chat Penerima
                   </button>
                 </div>
               )}

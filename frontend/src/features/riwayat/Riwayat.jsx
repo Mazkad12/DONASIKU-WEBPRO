@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { FiPackage, FiMapPin, FiCalendar, FiClock, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
 import { getAuthData, getUserRole, getRequests } from '../../utils/localStorage';
 import { getAllDonasi } from '../../services/donasiService';
-import { getMyPermintaanSaya } from '../../services/permintaanService';
 
 const Riwayat = () => {
   const user = getAuthData();
@@ -18,36 +17,30 @@ const Riwayat = () => {
         if (role === 'donatur') {
           const allDonasi = await getAllDonasi();
           const myHistory = allDonasi.filter(
-            d => d.user_id === user.id && (d.status === 'selesai' || d.jumlah === 0)
+            d => d.user_id === user.id && d.status === 'selesai'
           );
           setHistoryItems(myHistory);
         } else if (role === 'penerima') {
-          // [UPDATED] Mengambil data dari API backend
-          const myRequests = await getMyPermintaanSaya();
-
-          const formattedHistory = myRequests.map(item => {
-            // Mapping fields dari API ke format UI
-            const donasi = item.donation || {}; // Relasi donation dari backend
+          const allRequests = getRequests();
+          const myHistory = allRequests.filter(
+            r => String(r.penerimaId) === String(user.id) && 
+            (r.status === 'completed' || r.status === 'accepted' || r.status === 'sent')
+          );
+          
+          const allDonasi = await getAllDonasi();
+          const historyWithDetails = myHistory.map(request => {
+            const donasi = allDonasi.find(d => String(d.id) === String(request.donasiId));
             return {
-              id: item.id,
-              // Gunakan data donasi jika ada
-              nama: donasi.nama || item.judul || 'Nama Donasi Tidak Tersedia',
-              image: donasi.image,
-              kategori: donasi.kategori || item.kategori || 'lainnya',
-              lokasi: donasi.lokasi || '-',
-              jumlah: item.target_jumlah || donasi.jumlah || 0, // Field target_jumlah dari tabel permintaan_sayas
-
-              // Status mapping
-              status: item.status_pengiriman === 'received' ? 'completed' :
-                item.status_pengiriman === 'sent' ? 'sent' :
-                  item.status_permohonan === 'approved' ? 'accepted' :
-                    item.status_permohonan || 'pending',
-
-              updatedAt: item.updated_at || item.created_at
+              ...request,
+              nama: donasi?.nama || 'Donasi tidak ditemukan',
+              kategori: donasi?.kategori || 'lainnya',
+              image: donasi?.image,
+              lokasi: donasi?.lokasi,
+              jumlah: request.jumlahDiminta || donasi?.jumlah,
             };
           });
-
-          setHistoryItems(formattedHistory);
+          
+          setHistoryItems(historyWithDetails);
         }
       } catch (error) {
         console.error("Gagal memuat riwayat:", error);
@@ -92,7 +85,7 @@ const Riwayat = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8">
-
+        
         {loading && <p className="text-center text-gray-500">Memuat riwayat...</p>}
 
         {!loading && historyItems.length === 0 && role === 'donatur' && (
@@ -104,7 +97,7 @@ const Riwayat = () => {
             <p className="text-gray-600">Anda belum memiliki donasi yang berstatus &quot;Selesai&quot;.</p>
           </div>
         )}
-
+        
         {!loading && historyItems.length === 0 && role === 'penerima' && (
           <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -146,19 +139,18 @@ const Riwayat = () => {
                     </span>
                   </div>
                   <div className="absolute top-3 right-3">
-                    <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold ${item.status === 'completed' ? 'bg-green-100 text-green-700' :
+                    <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold ${
+                      item.status === 'completed' ? 'bg-green-100 text-green-700' :
                       item.status === 'accepted' ? 'bg-blue-100 text-blue-700' :
-                        item.status === 'sent' ? 'bg-yellow-100 text-yellow-700' :
-                          item.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                            'bg-gray-100 text-gray-700'
-                      }`}>
+                      item.status === 'sent' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
                       <FiCheckCircle />
                       <span>
                         {item.status === 'completed' ? 'Selesai' :
-                          item.status === 'accepted' ? 'Diterima' :
-                            item.status === 'sent' ? 'Dikirim' :
-                              item.status === 'rejected' ? 'Dibatalkan' :
-                                'Pending'}
+                         item.status === 'accepted' ? 'Diterima' :
+                         item.status === 'sent' ? 'Dikirim' : 
+                         item.status}
                       </span>
                     </span>
                   </div>
@@ -222,10 +214,10 @@ const Riwayat = () => {
                     </span>
                   </div>
                   <div className="absolute top-3 right-3">
-                    <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
-                      <FiCheckCircle />
-                      <span>Selesai</span>
-                    </span>
+                     <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
+                        <FiCheckCircle />
+                        <span>Selesai</span>
+                      </span>
                   </div>
                 </div>
 
@@ -249,7 +241,7 @@ const Riwayat = () => {
                       })}</span>
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-gray-100">
+                   <div className="pt-4 border-t border-gray-100">
                     <button
                       className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all"
                     >

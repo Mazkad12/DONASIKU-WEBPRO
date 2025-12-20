@@ -1,175 +1,239 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiChevronRight, FiLogOut, FiPackage } from 'react-icons/fi'; // Tambah icon package untuk riwayat
-import { getAuthData, logout } from '../../utils/localStorage';
+import { useState, useRef, useEffect } from "react";
+import { FiCamera, FiEdit2 } from "react-icons/fi";
+import { getAuthData, setAuthData } from "../../utils/localStorage.js";
+import axios from 'axios'; // <--- PASTIKAN AXIOS DIIMPORT
 
-const ProfilePenerima = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+function Profile() {
+  const userData = getAuthData();
+  const [profile, setProfile] = useState(userData || {
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
+    avatar: "",
+  });
 
-  const loadUserData = () => {
-    const authData = getAuthData();
-    if (!authData) {
-      navigate('/login');
-      return;
-    }
-    setUser(authData);
-  };
+  const [editMode, setEditMode] = useState(false);
+  const [editData, setEditData] = useState({ ...profile });
+  
+  // STATE BARU: Menyimpan objek File mentah dari komputer lokal
+  const [fileToUpload, setFileToUpload] = useState(null); 
+  
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    loadUserData();
-    
-    // Refresh data jika user kembali ke tab ini
-    window.addEventListener('focus', loadUserData);
-    return () => window.removeEventListener('focus', loadUserData);
-  }, [navigate]);
+    setEditData({ ...profile });
+    setFileToUpload(null); 
+  }, [profile]);
 
-  const getPhotoUrl = (photoPath) => {
-    if (!photoPath) return null;
-    if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
-    // Sesuai logika Laravel: asset disimpan di storage/
-    return `http://localhost:8000/storage/${photoPath}`;
-  };
+  const handleChange = (e) => setEditData({ ...editData, [e.target.name]: e.target.value });
 
-  const handleLogout = () => {
-    if (window.confirm('Apakah Anda yakin ingin keluar?')) {
-      logout();
-      navigate('/login');
+  // 📸 Handler ini menyimpan File Object mentah dan membuat Base64 untuk PREVIEW
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFileToUpload(file); // SIMPAN FILE OBJECT MENTAH UNTUK UPLOAD
+      
+      const reader = new FileReader();
+      reader.onloadend = () => setEditData({ ...editData, avatar: reader.result });
+      reader.readAsDataURL(file);
     }
   };
 
-  if (!user) {
-    return <div className="p-4 text-center">Loading...</div>;
-  }
+  const handleSave = async () => {
+    
+    // 1. Gunakan FormData untuk mengirim file
+    const formData = new FormData();
+    
+    // Append data text
+    formData.append('name', editData.name);
+    formData.append('email', editData.email);
+    formData.append('phone', editData.phone || ''); 
 
-  const photoUrl = getPhotoUrl(user.avatar || user.photo);
-  const displayName = user.name?.charAt(0).toUpperCase() || 'P';
+    // Penanganan Avatar: Kirim file mentah jika ada fileToUpload
+    if (fileToUpload) {
+        // Nama field HARUS 'avatar' agar sesuai dengan controller Laravel
+        formData.append('avatar', fileToUpload); 
+    } else if (editData.avatar === null || editData.avatar === '') {
+        // Logika untuk menghapus avatar jika diperlukan
+        formData.append('avatar', ''); 
+    }
+
+    try {
+        // Logika token yang sudah diperbaiki
+        let token;
+        const currentAuthData = getAuthData();
+        token = currentAuthData?.token || currentAuthData?.access_token; 
+        if (!token) { token = localStorage.getItem('auth_token') || localStorage.getItem('token'); }
+        
+        if (!token) {
+            alert("Token otorisasi tidak ditemukan. Silakan login kembali.");
+            return;
+        }
+
+        // GANTI 'http://localhost:8000' dengan URL Base Backend Laravel Anda jika berbeda
+        const API_URL = 'http://localhost:8000/api/profile/update';
+
+        // 2. Kirim API Request menggunakan FormData
+        const response = await axios.post(API_URL, formData, { // <--- KRITIS: MENGIRIM DATA KE LARAVEL
+            headers: {
+                // Axios akan otomatis mengatur Content-Type: multipart/form-data
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        // 3. Update State dan Local Storage
+        const updatedUser = response.data.user; 
+        
+        setProfile(updatedUser); 
+        setAuthData({ 
+            ...currentAuthData,
+            ...updatedUser,
+            token: token, 
+        });
+        
+        // Reset file state
+        setFileToUpload(null); 
+
+        setEditMode(false);
+        alert(response.data.message || 'Profil berhasil diperbarui!');
+
+    } catch (error) {
+        console.error('Error saat menyimpan profil:', error);
+        
+        const validationErrors = error.response?.data?.errors;
+        
+        if (validationErrors) {
+             const firstError = Object.values(validationErrors).flat()[0];
+             alert('Gagal menyimpan: ' + firstError);
+        } else {
+             if (error.response?.status === 401) {
+                alert("Sesi Anda berakhir. Silakan login kembali.");
+             } else {
+                alert(error.response?.data?.message || 'Terjadi kesalahan saat menghubungi server.');
+             }
+        }
+    }
+  };
+
+  const handleCancel = () => {
+    setEditData({ ...profile });
+    setFileToUpload(null);
+    setEditMode(false);
+  };
+
+  const avatarSrc = editData.avatar || profile.avatar;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header Profile Card */}
-      <div className="p-4">
-        <div className="bg-white rounded-3xl p-6 shadow-sm space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex gap-4 flex-1">
-              {/* Avatar - Menggunakan gradien yang sedikit berbeda untuk membedakan role jika mau */}
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0 overflow-hidden shadow-sm">
-                {photoUrl ? (
-                  <img
-                    src={photoUrl}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  displayName
-                )}
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-medium">
-                    Penerima
-                  </span>
-                </div>
-                <h2 className="text-lg font-bold text-gray-900">{user.name}</h2>
-                <p className="text-xs text-gray-500">{user.email}</p>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6">
 
-            {/* Tombol Detail mengarah ke halaman Edit Profile yang sudah Anda buat */}
-            <button 
-              onClick={() => navigate('/penerima/detail-akun')}
-              className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 px-4 py-2 border border-indigo-600 rounded-full transition"
-            >
-              Detail
-            </button>
+        {/* Avatar */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative">
+             {/* Tampilan gambar: handle Base64, path storage, dan default */}
+            <img
+              src={avatarSrc && !avatarSrc.startsWith('data:') && !avatarSrc.startsWith('http') ? `http://localhost:8000/storage/${avatarSrc}` : avatarSrc || "/default-avatar.png"}
+              alt="Avatar"
+              className="w-32 h-32 rounded-full object-cover border-4 border-blue-400 shadow-md"
+            />
+            {editMode && (
+              <button
+                onClick={() => fileInputRef.current.click()}
+                className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full text-white shadow-md hover:bg-blue-700 transition"
+              >
+                <FiCamera size={20} />
+              </button>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
           </div>
-
-          {/* Status Verifikasi / Ketentuan */}
-          <div className="pt-2 border-t border-gray-100">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="text-green-500">✓</span>
-              <span>Akun Terverifikasi</span>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold mt-4">{profile.name}</h1>
+          <span className="text-sm text-white bg-blue-500 px-3 py-1 rounded-full mt-1">{profile.role}</span>
         </div>
-      </div>
 
-      {/* Settings Section */}
-      <div className="px-4 mt-6 space-y-4">
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-          
-          {/* Riwayat Bantuan - Khusus Penerima */}
-          <button 
-            onClick={() => navigate('/penerima/riwayat')}
-            className="w-full px-6 py-4 hover:bg-gray-50 transition flex items-center justify-between border-b border-gray-100"
-          >
-            <div className="text-left">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded flex items-center justify-center bg-indigo-50 text-indigo-600 font-bold text-sm">
-                  <FiPackage size={14} />
-                </div>
-                <p className="font-semibold text-gray-900">Riwayat Bantuan</p>
-              </div>
+        {/* Detail Profil */}
+        {!editMode ? (
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Nama</label>
+              <p className="mt-1 text-gray-800">{profile.name}</p>
             </div>
-            <FiChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Email</label>
+              <p className="mt-1 text-gray-800">{profile.email}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Nomor HP</label>
+              <p className="mt-1 text-gray-800">{profile.phone || '-'}</p>
+            </div>
 
-          {/* Kebijakan dan Ketentuan */}
-          <button className="w-full px-6 py-4 hover:bg-gray-50 transition flex items-center justify-between border-b border-gray-100">
-            <div className="text-left">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded flex items-center justify-center bg-indigo-50 text-indigo-600 font-bold text-sm">
-                  i
-                </div>
-                <p className="font-semibold text-gray-900">Kebijakan dan Ketentuan</p>
-              </div>
-            </div>
-            <FiChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
-
-          {/* Pusat Bantuan */}
-          <button className="w-full px-6 py-4 hover:bg-gray-50 transition flex items-center justify-between border-b border-gray-100">
-            <div className="text-left">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded flex items-center justify-center bg-indigo-50 text-indigo-600 font-bold text-sm">
-                  ?
-                </div>
-                <p className="font-semibold text-gray-900">Pusat Bantuan</p>
-              </div>
-            </div>
-            <FiChevronRight className="w-5 h-5 text-gray-400" />
-          </button>
-
-          {/* Versi Aplikasi */}
-          <div className="w-full px-6 py-4 flex items-center justify-between">
-            <div className="text-left">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded flex items-center justify-center bg-indigo-50">
-                  <span className="text-xs text-indigo-600">⬆</span>
-                </div>
-                <p className="font-semibold text-gray-900">Versi Aplikasi</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-500">v1.0.0</span>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setEditMode(true)}
+                className="flex items-center gap-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                <FiEdit2 /> Edit Profil
+              </button>
             </div>
           </div>
-        </div>
-      </div>
+        ) : (
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Nama</label>
+              <input
+                type="text"
+                name="name"
+                value={editData.name}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={editData.email}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-500">Nomor HP</label>
+              <input
+                type="text"
+                name="phone"
+                value={editData.phone}
+                onChange={handleChange}
+                className="w-full border rounded-md px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
 
-      {/* Logout Button */}
-      <div className="px-4 mt-8 mb-4">
-        <button
-          onClick={handleLogout}
-          className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-semibold py-4 rounded-full flex items-center justify-center gap-2 transition border border-red-100"
-        >
-          <span>Keluar Akun</span>
-          <FiLogOut className="w-5 h-5" />
-        </button>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleSave}
+                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                Simpan
+              </button>
+              <button
+                onClick={handleCancel}
+                className="bg-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-400 transition"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
+}
 
-export default ProfilePenerima;
+export default Profile;
