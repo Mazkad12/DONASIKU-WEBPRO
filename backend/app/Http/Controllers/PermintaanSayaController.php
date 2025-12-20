@@ -20,7 +20,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             // Otentikasi tetap diperlukan
             if (!$user) {
                 return response()->json([
@@ -34,7 +34,7 @@ class PermintaanSayaController extends Controller
             // Logika baru: Jika user adalah PENERIMA, filter hanya permintaan miliknya.
             if ($user->role === 'penerima') {
                 $query->where('user_id', $user->id);
-            } 
+            }
             // Jika user adalah DONATUR, tampilkan SEMUA permintaan yang statusnya 'aktif'.
             else if ($user->role === 'donatur') {
                 $query->where('status', 'aktif');
@@ -48,7 +48,7 @@ class PermintaanSayaController extends Controller
             $permintaan = $query->orderBy('created_at', 'desc')->get();
 
             // Transform data untuk memastikan donation image terlihat
-            $formattedData = $permintaan->map(function($item) {
+            $formattedData = $permintaan->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'user_id' => $item->user_id,
@@ -101,7 +101,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -134,7 +134,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -162,29 +162,29 @@ class PermintaanSayaController extends Controller
             ]);
 
             $imagePath = null;
-            
+
             // START: Logic Penyimpanan Gambar Base64 (FIX NULL IMAGE)
             if (isset($validated['image']) && $validated['image']) {
                 try {
                     $base64Image = $validated['image'];
-                    
+
                     // Pisahkan header Base64 dari data
                     @list($type, $imageData) = explode(';', $base64Image);
                     @list(, $imageData) = explode(',', $imageData);
-                    
+
                     $imageData = base64_decode($imageData);
-                    
+
                     // Deteksi ekstensi (asumsi PNG jika tidak ada header)
                     $extension = (isset($type) && strpos($type, 'image/')) ? explode('/', $type)[1] : 'png';
-                    
+
                     $filename = 'req_' . time() . '_' . Str::random(10) . '.' . $extension;
-                    
+
                     // Simpan file ke storage (buat folder 'permintaan' di public disk)
                     Storage::disk('public')->put('permintaan/' . $filename, $imageData);
-                    
+
                     // Simpan path yang dapat diakses publik (relative path)
-                    $imagePath = 'storage/permintaan/' . $filename; 
-                    
+                    $imagePath = 'storage/permintaan/' . $filename;
+
                 } catch (\Exception $e) {
                     Log::error('Gagal menyimpan gambar Base64 di PermintaanSayaController: ' . $e->getMessage());
                     $imagePath = null;
@@ -245,8 +245,8 @@ class PermintaanSayaController extends Controller
                 }
             }
 
-            $donationId = isset($validated['donation_id']) ? (int)$validated['donation_id'] : null;
-            
+            $donationId = isset($validated['donation_id']) ? (int) $validated['donation_id'] : null;
+
             $permintaan = PermintaanSaya::create([
                 'user_id' => $user->id,
                 'donation_id' => $donationId, // Link ke donasi (cascade delete akan work)
@@ -299,7 +299,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -348,14 +348,14 @@ class PermintaanSayaController extends Controller
                     'bukti_kebutuhan' => 'nullable|string',
                 ]);
             }
-            
+
             // Logic update image jika ada
             if (isset($validated['image']) && $validated['image']) {
                 // Hapus gambar lama jika ada
                 if ($permintaan->image) {
                     Storage::disk('public')->delete(str_replace('storage/', '', $permintaan->image));
                 }
-                
+
                 // Logic penyimpanan Base64 baru
                 $imagePath = null;
                 try {
@@ -366,7 +366,7 @@ class PermintaanSayaController extends Controller
                     $extension = (isset($type) && strpos($type, 'image/')) ? explode('/', $type)[1] : 'png';
                     $filename = 'req_' . time() . '_' . Str::random(10) . '.' . $extension;
                     Storage::disk('public')->put('permintaan/' . $filename, $imageData);
-                    $imagePath = 'storage/permintaan/' . $filename; 
+                    $imagePath = 'storage/permintaan/' . $filename;
                     $validated['image'] = $imagePath; // Timpa field image dengan path baru
                 } catch (\Exception $e) {
                     Log::error('Gagal update gambar Base64: ' . $e->getMessage());
@@ -409,7 +409,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -420,7 +420,7 @@ class PermintaanSayaController extends Controller
             $permintaan = PermintaanSaya::where('id', $id)
                 ->where('user_id', $user->id)
                 ->firstOrFail();
-            
+
             // Hapus file gambar dari storage sebelum menghapus record
             if ($permintaan->image) {
                 Storage::disk('public')->delete(str_replace('storage/', '', $permintaan->image));
@@ -449,7 +449,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json(['success' => false, 'message' => 'Tidak terautentikasi'], 401);
             }
@@ -474,7 +474,7 @@ class PermintaanSayaController extends Controller
             if ($permintaan->donation_id) {
                 $donation = $permintaan->donation;
                 $requestedQty = $permintaan->target_jumlah;
-                
+
                 if ($donation->jumlah < $requestedQty) {
                     return response()->json(['success' => false, 'message' => 'Stok donasi tidak cukup. Stok tersisa: ' . $donation->jumlah], 400);
                 }
@@ -507,7 +507,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json(['success' => false, 'message' => 'Tidak terautentikasi'], 401);
             }
@@ -556,7 +556,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json(['success' => false, 'message' => 'Tidak terautentikasi'], 401);
             }
@@ -601,7 +601,7 @@ class PermintaanSayaController extends Controller
     {
         try {
             $user = Auth::user() ?? auth()->guard('sanctum')->user();
-            
+
             if (!$user) {
                 return response()->json(['success' => false, 'message' => 'Tidak terautentikasi'], 401);
             }
@@ -629,17 +629,20 @@ class PermintaanSayaController extends Controller
                 $donation = \App\Models\Donation::findOrFail($permintaan->donation_id);
                 $previousQty = $donation->jumlah;
                 $newQuantity = max(0, $previousQty - $permintaan->target_jumlah);
-                
+
                 Log::info('Decreasing donation stock', [
                     'donation_id' => $donation->id,
                     'previous_qty' => $previousQty,
                     'target_jumlah' => $permintaan->target_jumlah,
                     'will_be' => $newQuantity
                 ]);
-                
-                $donation->update(['jumlah' => $newQuantity]);
+
+                $donation->update([
+                    'jumlah' => $newQuantity,
+                    'status' => $newQuantity === 0 ? 'selesai' : $donation->status
+                ]);
                 $donation->refresh(); // Refresh to get updated data
-                
+
                 Log::info('Donation quantity decreased', [
                     'donation_id' => $donation->id,
                     'previous_qty' => $previousQty,
