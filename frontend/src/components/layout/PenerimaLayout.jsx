@@ -1,20 +1,38 @@
-import { Outlet } from 'react-router-dom';
-import PenerimaNavbar from './PenerimaNavbar';
+import { Outlet, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import DashboardSidebar from './DashboardSidebar';
+import DashboardTopbar from './DashboardTopbar';
 import DashboardFooter from './DashboardFooter';
 
 const PenerimaLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const location = useLocation();
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  // Hide topbar on profile pages if needed, consistent with DashboardLayout
+  const hideTopbar = location.pathname.includes('/profil') || location.pathname.includes('/detail-akun');
+
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
-      {/* Navbar */}
-      <PenerimaNavbar />
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Sidebar - Reused component which handles 'penerima' role */}
+      <DashboardSidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
       {/* Main Content */}
-      <main className="flex-grow mt-20 p-6 max-w-7xl mx-auto w-full">
-        <Outlet />
-      </main>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
+        {/* Top Navbar */}
+        {!hideTopbar && <DashboardTopbar toggleSidebar={toggleSidebar} />}
 
-      {/* Footer */}
-      <DashboardFooter />
+        {/* Content */}
+        <main className={`flex-grow p-6 ${!hideTopbar ? 'mt-20' : ''}`}>
+          <Outlet />
+        </main>
+
+        {/* Footer */}
+        <DashboardFooter />
+      </div>
     </div>
   );
 };

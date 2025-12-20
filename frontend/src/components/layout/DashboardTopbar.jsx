@@ -15,7 +15,7 @@ const DashboardTopbar = ({ toggleSidebar }) => {
 
   useEffect(() => {
     loadUserData();
-    
+
     // Refresh user data whenever window gains focus
     window.addEventListener('focus', loadUserData);
     return () => window.removeEventListener('focus', loadUserData);
@@ -65,7 +65,7 @@ const DashboardTopbar = ({ toggleSidebar }) => {
           </button>
 
           {/* User Info */}
-          <div 
+          <div
             onClick={handleAvatarClick}
             className="flex items-center space-x-3 pl-4 border-l border-gray-200 cursor-pointer hover:opacity-80 transition"
           >
@@ -82,7 +82,7 @@ const DashboardTopbar = ({ toggleSidebar }) => {
             </div>
             <div className="hidden sm:block">
               <div className="text-sm font-bold text-gray-900">{user?.name}</div>
-              <div className="text-xs text-gray-600">Donatur</div>
+              <div className="text-xs text-gray-600 capitalize">{user?.role || 'User'}</div>
             </div>
           </div>
         </div>
