@@ -35,8 +35,11 @@ class PermintaanSayaController extends Controller
             if ($user->role === 'penerima') {
                 $query->where('user_id', $user->id);
             }
-            // Jika user adalah DONATUR, tampilkan SEMUA permintaan yang statusnya 'aktif'.
+            // Jika user adalah DONATUR, tampilkan permintaan yang terkait dengan donasi milik mereka.
             else if ($user->role === 'donatur') {
+                $query->whereHas('donation', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
                 $query->where('status', 'aktif');
             }
 
@@ -70,6 +73,7 @@ class PermintaanSayaController extends Controller
                     'updated_at' => $item->updated_at,
                     'donation' => $item->donation ? [
                         'id' => $item->donation->id,
+                        'user_id' => $item->donation->user_id,
                         'nama' => $item->donation->nama,
                         'image' => $item->donation->image,
                         'kategori' => $item->donation->kategori,
@@ -637,10 +641,7 @@ class PermintaanSayaController extends Controller
                     'will_be' => $newQuantity
                 ]);
 
-                $donation->update([
-                    'jumlah' => $newQuantity,
-                    'status' => $newQuantity === 0 ? 'selesai' : $donation->status
-                ]);
+                $donation->update(['jumlah' => $newQuantity]);
                 $donation->refresh(); // Refresh to get updated data
 
                 Log::info('Donation quantity decreased', [

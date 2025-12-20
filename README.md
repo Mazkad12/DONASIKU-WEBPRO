@@ -1,17 +1,21 @@
+<<<<<<< HEAD
 # Aplikasi Donasiku
 
 Aplikasi **Donasiku** adalah sebuah sistem informasi berbasis web yang mempermudah proses **pendataan, permintaan, dan penyaluran donasi**. Aplikasi ini dikembangkan sebagai proyek kelompok 3 untuk mata kuliah Pemrograman Web.
 
-(nabiel sudah kontribusi cuman ga masuk di kontributor :((( )
+(nabiel sudah kontribusi cuman ga masuk di kontributorr :((( )
 
-## Anggota Kelompok 3
+## Anggota Kelompok 3 
 
 | Nama | NIM |
 |------|-----|
-| Nabiel Muhammad Irfani | 103032330140 |
+| Nabiel Muhammad Irfani | 103032330140 | 
 | Muhammad Bayu Satrio | 103032300167 |
 | Syahril Arfian Almazril | 103032300013 |
 | Muhammad Azka Darmawan | 103032300144 |
 | Muhammad Arief Ridwan Syah | 103032300064 |
 | Nauval Yusriya Athalla | 103032330022 |
 
+=======
+# DONASIKU
+>>>>>>> 16ee23b381f7dff270bb9bda8e0575a2afac5d0f

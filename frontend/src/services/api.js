@@ -21,7 +21,7 @@ const processQueue = (error, token = null) => {
       prom.resolve(token);
     }
   });
-  
+
   failedQueue = [];
 };
 
@@ -62,11 +62,11 @@ api.interceptors.response.use(
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
         localStorage.removeItem('isAuthenticated');
-        
+
         processQueue(null, null);
-        
+
         window.location.href = '/login';
-        
+
         return Promise.reject(error);
       } catch (err) {
         processQueue(err, null);
@@ -95,6 +95,12 @@ export const donationAPI = {
   delete: (id) => api.delete(`/donations/${id}`),
   getMyDonations: (params = {}) => api.get('/my-donations', { params }),
   updateStatus: (id, status) => api.patch(`/donations/${id}/status`, { status }),
+};
+
+export const chatAPI = {
+  sendMessage: (data) => api.post('/chat/send', data),
+  getConversations: () => api.get('/chat/conversations'),
+  getMessages: (peerId) => api.get(`/chat/messages/${peerId}`),
 };
 
 export default api;

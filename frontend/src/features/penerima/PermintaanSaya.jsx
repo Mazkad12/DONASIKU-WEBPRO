@@ -10,19 +10,20 @@ import {
   FiImage,
   FiTruck,
   FiCheckCircle,
-  FiLoader
+  FiLoader,
+  FiMessageSquare
 } from "react-icons/fi";
 // FIX LINTER: Hanya import yang diperlukan
 import { getDonasiByIdService } from "../../services/donasiService.js";
-import { getMyPermintaanSaya } from "../../services/permintaanService.js"; 
+import { getMyPermintaanSaya } from "../../services/permintaanService.js";
 import { getAuthData } from "../../utils/localStorage.js";
-import API from "../../services/api.js"; 
+import API from "../../services/api.js";
 
 const PermintaanSaya = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [donasi, setDonasi] = useState(null);
-  const [permintaan, setPermintaan] = useState([]); 
+  const [permintaan, setPermintaan] = useState([]);
   const [formData, setFormData] = useState({ jumlah: 1, asal: "", deskripsi: "", bukti_file: null });
   const [buktiPreview, setBuktiPreview] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -36,7 +37,7 @@ const PermintaanSaya = () => {
   useEffect(() => {
     console.log("Modal state changed:", showImageModal);
   }, [showImageModal]);
-  
+
   const user = getAuthData();
 
   // Ambil data donasi jika ada ID (untuk form pengajuan)
@@ -44,11 +45,11 @@ const PermintaanSaya = () => {
     const fetchDonasi = async () => {
       if (id) {
         try {
-            const donasiData = await getDonasiByIdService(id);
-            setDonasi(donasiData);
+          const donasiData = await getDonasiByIdService(id);
+          setDonasi(donasiData);
         } catch (error) {
-            console.error("Gagal memuat detail donasi:", error);
-            navigate("/dashboard-penerima"); 
+          console.error("Gagal memuat detail donasi:", error);
+          navigate("/dashboard-penerima");
         }
       }
     };
@@ -58,44 +59,44 @@ const PermintaanSaya = () => {
   // FIX: Mengganti logic localStorage dengan panggilan API READ & FIX useEfect dependency
   useEffect(() => {
     const loadPermintaan = async () => {
-        if (!user) return;
-        try {
-            // Try using API directly first (like PermintaanMasukDonatur)
-            const response = await API.get('/permintaan-sayas', { timeout: 8000 });
-            const data = response.data?.data || [];
-            console.log("📦 Permintaan API Response:", data);
-            if (Array.isArray(data)) {
-                console.log("✅ Data is array, total:", data.length);
-                if (data[0]) {
-                    console.log("🔍 First item:", {
-                        id: data[0].id,
-                        judul: data[0].judul,
-                        donation_id: data[0].donation_id,
-                        has_donation: !!data[0].donation,
-                        donation_image: data[0].donation?.image,
-                        full_first_item: JSON.stringify(data[0], null, 2)
-                    });
-                }
-                setPermintaan(data);
-            } else {
-                console.warn("Data format tidak sesuai", data);
-                setPermintaan([]);
-            }
-        } catch (error) {
-            console.error("Gagal memuat permintaan dari API:", error);
-            // Fallback: try service function
-            try {
-                const data = await getMyPermintaanSaya();
-                if (Array.isArray(data)) {
-                    setPermintaan(data);
-                } else {
-                    setPermintaan([]);
-                }
-            } catch (err) {
-                console.error("Fallback also failed:", err);
-                setPermintaan([]);
-            }
+      if (!user) return;
+      try {
+        // Try using API directly first (like PermintaanMasukDonatur)
+        const response = await API.get('/permintaan-sayas', { timeout: 8000 });
+        const data = response.data?.data || [];
+        console.log("📦 Permintaan API Response:", data);
+        if (Array.isArray(data)) {
+          console.log("✅ Data is array, total:", data.length);
+          if (data[0]) {
+            console.log("🔍 First item:", {
+              id: data[0].id,
+              judul: data[0].judul,
+              donation_id: data[0].donation_id,
+              has_donation: !!data[0].donation,
+              donation_image: data[0].donation?.image,
+              full_first_item: JSON.stringify(data[0], null, 2)
+            });
+          }
+          setPermintaan(data);
+        } else {
+          console.warn("Data format tidak sesuai", data);
+          setPermintaan([]);
         }
+      } catch (error) {
+        console.error("Gagal memuat permintaan dari API:", error);
+        // Fallback: try service function
+        try {
+          const data = await getMyPermintaanSaya();
+          if (Array.isArray(data)) {
+            setPermintaan(data);
+          } else {
+            setPermintaan([]);
+          }
+        } catch (err) {
+          console.error("Fallback also failed:", err);
+          setPermintaan([]);
+        }
+      }
     };
     loadPermintaan();
   }, [user]); // FIX WARNING: dependency 'user' ditambahkan
@@ -109,7 +110,7 @@ const PermintaanSaya = () => {
     const file = e.target.files[0];
     if (file) {
       setFormData((prev) => ({ ...prev, bukti_file: file }));
-      
+
       // Preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -168,11 +169,11 @@ const PermintaanSaya = () => {
     console.log("Donation data:", donasi);
     console.log("Image path:", donasi?.image);
     if (donasi?.image) {
-      const imageUrl = donasi.image.startsWith('data:') 
-        ? '[base64]' 
+      const imageUrl = donasi.image.startsWith('data:')
+        ? '[base64]'
         : donasi.image.startsWith('http')
-        ? donasi.image
-        : `http://localhost:8000/${donasi.image}`;
+          ? donasi.image
+          : `http://localhost:8000/${donasi.image}`;
       console.log("Final image URL:", imageUrl);
     }
     setShowImageModal(true);
@@ -212,35 +213,35 @@ const PermintaanSaya = () => {
     newRequestData.append('target_jumlah', parseInt(formData.jumlah));
     newRequestData.append('lokasi', donasi.lokasi);
     newRequestData.append('donation_id', parseInt(id));
-    
+
     // Tambahkan bukti file jika ada
     if (formData.bukti_file) {
       newRequestData.append('bukti_kebutuhan', formData.bukti_file);
     }
 
     try {
-        const response = await fetch('http://localhost:8000/api/permintaan-sayas', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-            // Jangan set Content-Type, browser akan set multipart/form-data
-          },
-          body: newRequestData
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Gagal membuat permintaan');
-        }
-        
-        alert("Permintaan berhasil diajukan dan disimpan ke database!");
-        setFormData({ jumlah: 1, asal: "", deskripsi: "", bukti_file: null });
-        setBuktiPreview(null);
-        navigate("/penerima/permintaan-saya");
-        
+      const response = await fetch('http://localhost:8000/api/permintaan-sayas', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+          // Jangan set Content-Type, browser akan set multipart/form-data
+        },
+        body: newRequestData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal membuat permintaan');
+      }
+
+      alert("Permintaan berhasil diajukan dan disimpan ke database!");
+      setFormData({ jumlah: 1, asal: "", deskripsi: "", bukti_file: null });
+      setBuktiPreview(null);
+      navigate("/penerima/permintaan-saya");
+
     } catch (error) {
-        console.error("Error API Permintaan Saya:", error);
-        alert("Gagal mengajukan permintaan: " + (error.message || "Terjadi kesalahan server."));
+      console.error("Error API Permintaan Saya:", error);
+      alert("Gagal mengajukan permintaan: " + (error.message || "Terjadi kesalahan server."));
     }
   };
 
@@ -295,8 +296,8 @@ const PermintaanSaya = () => {
                       {req.donation?.image ? (
                         <img
                           src={
-                            req.donation.image.startsWith('data:') 
-                              ? req.donation.image 
+                            req.donation.image.startsWith('data:')
+                              ? req.donation.image
                               : `http://localhost:8000/${req.donation.image}`
                           }
                           alt={req.judul}
@@ -325,7 +326,7 @@ const PermintaanSaya = () => {
                       {req.judul || "Permintaan Kebutuhan"}
                     </h2>
                     <p className="text-gray-600 mb-4">{req.deskripsi}</p>
-                    
+
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-gray-500">Lokasi:</span>
@@ -343,13 +344,12 @@ const PermintaanSaya = () => {
                     <div>
                       <span className="text-xs text-gray-500">Permohonan</span>
                       <span
-                        className={`block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${
-                          req.status_permohonan === 'pending'
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : req.status_permohonan === 'approved'
+                        className={`block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${req.status_permohonan === 'pending'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : req.status_permohonan === 'approved'
                             ? 'bg-blue-100 text-[#00306C]'
                             : 'bg-red-100 text-red-700'
-                        }`}
+                          }`}
                       >
                         {req.status_permohonan === 'pending' ? '⏳ Menunggu' : req.status_permohonan === 'approved' ? '✓ Disetujui' : '✕ Ditolak'}
                       </span>
@@ -360,13 +360,12 @@ const PermintaanSaya = () => {
                       <div>
                         <span className="text-xs text-gray-500">Pengiriman</span>
                         <span
-                          className={`block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${
-                            req.status_pengiriman === 'draft'
-                              ? 'bg-blue-100 text-[#00306C]'
-                              : req.status_pengiriman === 'sent'
+                          className={`block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${req.status_pengiriman === 'draft'
+                            ? 'bg-blue-100 text-[#00306C]'
+                            : req.status_pengiriman === 'sent'
                               ? 'bg-purple-100 text-purple-700'
                               : 'bg-blue-100 text-[#00306C]'
-                          }`}
+                            }`}
                         >
                           {req.status_pengiriman === 'draft' ? '📦 Disiapkan' : req.status_pengiriman === 'sent' ? '🚚 Dikirim' : '📍 Diterima'}
                         </span>
@@ -376,16 +375,28 @@ const PermintaanSaya = () => {
                 </div>
 
                 {/* Action Button */}
-                {req.status_permohonan === 'approved' && req.status_pengiriman === 'sent' && (
-                  <div className="mt-4 pt-4 border-t">
-                    <button
-                      onClick={() => handleMarkReceived(req.id)}
-                      disabled={actionLoading}
-                      className="w-full bg-[#00306C] hover:bg-[#001F4D] disabled:bg-gray-400 text-white font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
-                    >
-                      {actionLoading ? <FiLoader className="animate-spin" /> : <FiCheckCircle />}
-                      Konfirmasi Sudah Diterima
-                    </button>
+                {req.status_permohonan === 'approved' && (
+                  <div className="mt-4 pt-4 border-t flex flex-col gap-2">
+                    {/* CHAT BUTTON */}
+                    {req.donation?.user_id && (
+                      <button
+                        onClick={() => navigate('/penerima/chat', { state: { peerId: req.donation.user_id } })}
+                        className="w-full bg-blue-100 hover:bg-blue-200 text-[#00306C] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        <FiMessageSquare /> Chat Donatur
+                      </button>
+                    )}
+
+                    {req.status_pengiriman === 'sent' && (
+                      <button
+                        onClick={() => handleMarkReceived(req.id)}
+                        disabled={actionLoading}
+                        className="w-full bg-[#00306C] hover:bg-[#001F4D] disabled:bg-gray-400 text-white font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        {actionLoading ? <FiLoader className="animate-spin" /> : <FiCheckCircle />}
+                        Konfirmasi Sudah Diterima
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -401,11 +412,11 @@ const PermintaanSaya = () => {
     <div className="max-w-2xl mx-auto">
       {/* IMAGE ZOOM MODAL */}
       {showImageModal && donasi?.image && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={closeImageModal}
         >
-          <div 
+          <div
             className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full"
             onClick={(e) => e.stopPropagation()}
           >
@@ -421,7 +432,7 @@ const PermintaanSaya = () => {
             </div>
 
             {/* Image Viewer */}
-            <div 
+            <div
               className="bg-gray-900 relative overflow-hidden flex items-center justify-center"
               style={{ height: '500px' }}
               onMouseDown={handleImageMouseDown}
@@ -432,11 +443,11 @@ const PermintaanSaya = () => {
             >
               <img
                 src={
-                  donasi.image.startsWith('data:') 
-                    ? donasi.image 
-                    : donasi.image.startsWith('http')
+                  donasi.image.startsWith('data:')
                     ? donasi.image
-                    : `http://localhost:8000/${donasi.image}`
+                    : donasi.image.startsWith('http')
+                      ? donasi.image
+                      : `http://localhost:8000/${donasi.image}`
                 }
                 alt={donasi.nama}
                 style={{
@@ -584,9 +595,9 @@ const PermintaanSaya = () => {
                   }}
                   className="w-full group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer bg-gray-100"
                 >
-                  <img 
-                    src={donasi.image.startsWith('data:') ? donasi.image : `http://localhost:8000/${donasi.image}`} 
-                    alt={donasi.nama} 
+                  <img
+                    src={donasi.image.startsWith('data:') ? donasi.image : `http://localhost:8000/${donasi.image}`}
+                    alt={donasi.nama}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform"
                     onError={(e) => {
                       console.error("❌ Image failed to load:", e.target.src);
@@ -596,7 +607,7 @@ const PermintaanSaya = () => {
                       }
                     }}
                   />
-                  <div 
+                  <div
                     className="w-full h-64 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-6xl"
                     style={{ display: 'none' }}
                   >
@@ -655,7 +666,7 @@ const PermintaanSaya = () => {
               </div>
             )}
           </div>
-          
+
           <div className="pt-6 border-t border-gray-100">
             <button
               type="submit"
