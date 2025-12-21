@@ -143,9 +143,17 @@ const PermintaanMasukDonatur = () => {
                 {/* Image */}
                 <div className="flex-shrink-0">
                   <div className="w-28 h-28 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-                    {p.image ? (
+                    {p.image || p.donation?.image ? (
                       <img
-                        src={`http://localhost:8000/${p.image}`}
+                        src={
+                          (p.image || p.donation?.image)?.startsWith('data:')
+                            ? (p.image || p.donation.image)
+                            : (p.image || p.donation?.image)?.startsWith('http')
+                              ? (p.image || p.donation.image)
+                              : (p.image || p.donation?.image)?.startsWith('storage/')
+                                ? `http://localhost:8000/${p.image || p.donation.image}`
+                                : `http://localhost:8000/storage/${p.image || p.donation.image}`
+                        }
                         alt={p.judul}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -232,10 +240,18 @@ const PermintaanMasukDonatur = () => {
             {/* Body */}
             <div className="p-6 space-y-6">
               {/* Image Display */}
-              {selectedPermintaan.image && (
+              {(selectedPermintaan.image || selectedPermintaan.donation?.image) && (
                 <div className="flex justify-center">
                   <img
-                    src={`http://localhost:8000/${selectedPermintaan.image}`}
+                    src={
+                      (selectedPermintaan.image || selectedPermintaan.donation?.image)?.startsWith('data:')
+                        ? (selectedPermintaan.image || selectedPermintaan.donation.image)
+                        : (selectedPermintaan.image || selectedPermintaan.donation?.image)?.startsWith('http')
+                          ? (selectedPermintaan.image || selectedPermintaan.donation.image)
+                          : (selectedPermintaan.image || selectedPermintaan.donation?.image)?.startsWith('storage/')
+                            ? `http://localhost:8000/${selectedPermintaan.image || selectedPermintaan.donation.image}`
+                            : `http://localhost:8000/storage/${selectedPermintaan.image || selectedPermintaan.donation.image}`
+                    }
                     alt={selectedPermintaan.judul}
                     className="max-w-sm max-h-64 object-cover rounded-lg shadow-md"
                     onError={(e) => {
