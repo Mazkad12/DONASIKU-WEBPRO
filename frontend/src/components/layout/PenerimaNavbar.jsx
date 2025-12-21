@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiHelpCircle, FiInbox, FiMessageSquare, FiClock, FiUser, FiLogOut, FiMapPin } from 'react-icons/fi';
+import { FiHome, FiHelpCircle, FiInbox, FiMessageSquare, FiClock, FiUser, FiLogOut } from 'react-icons/fi';
 import { logout, getAuthData } from '../../utils/localStorage';
 import { useState } from 'react';
 
@@ -19,7 +19,6 @@ const PenerimaNavbar = () => {
   const menuItems = [
     { path: '/dashboard-penerima', label: 'Dashboard', icon: FiHome },
     { path: '/penerima/permintaan-saya', label: 'Permintaan Saya', icon: FiHelpCircle },
-    { path: '/penerima/donasi-diterima', label: 'Donasi Diterima', icon: FiMapPin },
     { path: '/penerima/riwayat', label: 'Riwayat', icon: FiClock },
     { path: '/penerima/chat', label: 'Chat', icon: FiMessageSquare },
     { path: '/penerima/profil', label: 'Profil', icon: FiUser },
@@ -31,9 +30,9 @@ const PenerimaNavbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/dashboard-penerima" className="flex items-center space-x-3 group">
-            <img 
-              src="/logo-donasiku.png" 
-              alt="DonasiKu Logo" 
+            <img
+              src="/logo-donasiku.png"
+              alt="DonasiKu Logo"
               className="h-10 w-auto object-contain transition-transform group-hover:scale-110"
             />
           </Link>
@@ -44,11 +43,10 @@ const PenerimaNavbar = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
-                  isActive(item.path)
-                    ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white shadow-lg'
-                    : 'text-gray-700 hover:bg-blue-50 hover:text-[#00306C]'
-                }`}
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${isActive(item.path)
+                  ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-blue-50 hover:text-[#00306C]'
+                  }`}
               >
                 <item.icon className="text-lg" />
                 <span>{item.label}</span>
@@ -100,11 +98,10 @@ const PenerimaNavbar = () => {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all ${
-                    isActive(item.path)
-                      ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white'
-                      : 'text-gray-700 hover:bg-blue-50'
-                  }`}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-semibold transition-all ${isActive(item.path)
+                    ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white'
+                    : 'text-gray-700 hover:bg-blue-50'
+                    }`}
                 >
                   <item.icon className="text-xl" />
                   <span>{item.label}</span>

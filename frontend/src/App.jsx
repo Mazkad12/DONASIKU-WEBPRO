@@ -32,7 +32,6 @@ import DetailAkunDonatur from './features/donatur/DetailAkunDonatur.jsx';
 import DashboardPenerima from './features/penerima/DashboardPenerima.jsx';
 import DetailDonasi from './features/penerima/DetailDonasi.jsx';
 import PermintaanSaya from './features/penerima/PermintaanSaya.jsx';
-import DonasiDiterima from './features/penerima/DonasiDiterima.jsx';
 import Profile from "./features/penerima/Profile.jsx";
 import DetailProfilePenerima from './features/penerima/DetailProfilePenerima.jsx';
 import RequestForm from './components/RequestForm.jsx';
@@ -251,16 +250,6 @@ function App() {
             element={
               <ProtectedRoute requiredRole="penerima">
                 <ChatDonatur />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ===== Rute Donasi Diterima ===== */}
-          <Route
-            path="penerima/donasi-diterima"
-            element={
-              <ProtectedRoute requiredRole="penerima">
-                <DonasiDiterima />
               </ProtectedRoute>
             }
           />

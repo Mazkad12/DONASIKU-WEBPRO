@@ -11,7 +11,9 @@ import {
   FiTruck,
   FiCheckCircle,
   FiLoader,
-  FiMessageSquare
+  FiMessageSquare,
+  FiSearch,
+  FiAlertCircle
 } from "react-icons/fi";
 // FIX LINTER: Hanya import yang diperlukan
 import { getDonasiByIdService } from "../../services/donasiService.js";
@@ -107,7 +109,7 @@ const PermintaanSaya = () => {
       }
     };
     loadPermintaan();
-  }, [user]); // FIX WARNING: dependency 'user' ditambahkan
+  }, [user?.id, id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -278,148 +280,176 @@ const PermintaanSaya = () => {
 
   // --- LOGIKA TAMPILAN DAFTAR (if (!id)) ---
   if (!id) {
-    if (permintaan.length === 0) {
-      return (
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="text-center py-20 bg-gray-50 rounded-xl">
-            <FiPackage className="mx-auto text-4xl text-gray-300 mb-3" />
-            <p className="text-gray-600 text-lg">Belum ada permintaan yang diajukan.</p>
+    return (
+      <div className="min-h-screen font-sans bg-gray-50">
+        {/* HEADER SECTION */}
+        <div className="bg-gradient-to-br from-[#00306C] via-[#0063FF] to-[#007EFF] text-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8 py-12">
+            <div className="mb-0">
+              <h1 className="text-4xl md:text-5xl font-bold mb-3">
+                {user?.name ? `Halo, ${user.name}! 👋` : 'Permintaan Saya'}
+              </h1>
+              <p className="text-xl text-white/80">
+                Pantau status permintaan barang kebutuhan Anda di sini.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative">
+            <svg viewBox="0 0 1440 100" className="w-full">
+              <path fill="#F9FAFB" d="M0,50 Q360,0 720,50 T1440,50 L1440,100 L0,100 Z"></path>
+            </svg>
           </div>
         </div>
-      );
-    }
 
-    return (
-      <div className="max-w-7xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Permintaan Saya</h1>
-        <div className="grid gap-4">
-          {permintaan.map((req) => {
-            return (
-              <div
-                key={req.id}
-                className="bg-white rounded-xl shadow hover:shadow-lg transition-all p-6"
-              >
-                <div className="flex items-start justify-between gap-6">
-                  {/* Image - dari donation.image (base64 atau path) */}
-                  <div className="flex-shrink-0">
-                    <div className="w-28 h-28 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center shadow-md hover:shadow-lg transition-shadow">
-                      {req.donation?.image || req.image ? (
-                        <img
-                          src={
-                            req.donation?.image
-                              ? (req.donation.image.startsWith('data:')
-                                ? req.donation.image
-                                : req.donation.image.startsWith('storage/')
-                                  ? `http://localhost:8000/${req.donation.image}`
-                                  : `http://localhost:8000/storage/${req.donation.image}`)
-                              : (req.image && (req.image.startsWith('data:')
-                                ? req.image
-                                : req.image.startsWith('storage/')
-                                  ? `http://localhost:8000/${req.image}`
-                                  : `http://localhost:8000/storage/${req.image}`))
-                          }
-                          alt={req.judul}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                          onError={(e) => {
-                            console.error("❌ Image failed to load:", e.target.src);
-                            e.target.style.display = 'none';
-                            if (e.target.nextElementSibling) {
-                              e.target.nextElementSibling.style.display = 'flex';
-                            }
-                          }}
-                        />
-                      ) : null}
-                      <div
-                        className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl"
-                        style={{ display: req.donation?.image || req.image ? 'none' : 'flex' }}
-                      >
-                        📦
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex-1">
-                    <h2 className="font-bold text-xl flex items-center gap-2 mb-2">
-                      <FiPackage className="text-[#00306C]" />
-                      {req.judul || "Permintaan Kebutuhan"}
-                    </h2>
-                    <p className="text-gray-600 mb-4">{req.deskripsi}</p>
-
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-500">Lokasi:</span>
-                        <p className="font-semibold">{req.lokasi}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500">Jumlah:</span>
-                        <p className="font-semibold">{req.target_jumlah}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 items-end">
-                    {/* Status Permohonan */}
-                    <div>
-                      <span className="text-xs text-gray-500">Permohonan</span>
-                      <span
-                        className={`block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${req.status_permohonan === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : req.status_permohonan === 'approved'
-                            ? 'bg-blue-100 text-[#00306C]'
-                            : 'bg-red-100 text-red-700'
-                          }`}
-                      >
-                        {req.status_permohonan === 'pending' ? '⏳ Menunggu' : req.status_permohonan === 'approved' ? '✓ Disetujui' : '✕ Ditolak'}
-                      </span>
-                    </div>
-
-                    {/* Status Pengiriman (jika approved) */}
-                    {req.status_permohonan === 'approved' && (
-                      <div>
-                        <span className="text-xs text-gray-500">Pengiriman</span>
-                        <span
-                          className={`block px-3 py-1 rounded-full text-xs font-semibold mt-1 ${req.status_pengiriman === 'draft'
-                            ? 'bg-blue-100 text-[#00306C]'
-                            : req.status_pengiriman === 'sent'
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'bg-blue-100 text-[#00306C]'
-                            }`}
-                        >
-                          {req.status_pengiriman === 'draft' ? '📦 Disiapkan' : req.status_pengiriman === 'sent' ? '🚚 Dikirim' : '📍 Diterima'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Action Button */}
-                {req.status_permohonan === 'approved' && (
-                  <div className="mt-4 pt-4 border-t flex flex-col gap-2">
-                    {/* CHAT BUTTON */}
-                    {req.donation?.user_id && (
-                      <button
-                        onClick={() => navigate('/penerima/chat', { state: { peerId: req.donation.user_id } })}
-                        className="w-full bg-blue-100 hover:bg-blue-200 text-[#00306C] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
-                      >
-                        <FiMessageSquare /> Chat Donatur
-                      </button>
-                    )}
-
-                    {req.status_pengiriman === 'sent' && (
-                      <button
-                        onClick={() => handleMarkReceived(req.id)}
-                        disabled={actionLoading}
-                        className="w-full bg-[#00306C] hover:bg-[#001F4D] disabled:bg-gray-400 text-white font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-2"
-                      >
-                        {actionLoading ? <FiLoader className="animate-spin" /> : <FiCheckCircle />}
-                        Konfirmasi Sudah Diterima
-                      </button>
-                    )}
-                  </div>
-                )}
+        {/* MAIN CONTENT */}
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-8">
+          {permintaan.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FiPackage className="text-5xl text-gray-400" />
               </div>
-            );
-          })}
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Belum Ada Permintaan</h3>
+              <p className="text-gray-600 mb-6">Anda belum mengajukan permintaan bantuan apapun.</p>
+              <button
+                onClick={() => navigate('/dashboard-penerima')}
+                className="inline-flex items-center space-x-2 px-8 py-3 bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white font-bold rounded-xl hover:shadow-xl transition-all"
+              >
+                <FiSearch className="text-xl" />
+                <span>Cari Donasi</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Daftar Permintaan Aktif</h2>
+                  <p className="text-gray-600">Status terkini dari pengajuan bantuan Anda</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {permintaan.map((req) => {
+                  return (
+                    <div
+                      key={req.id}
+                      className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100"
+                    >
+                      {/* Card Image Header */}
+                      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-100 to-cyan-100">
+                        {req.donation?.image || req.image ? (
+                          <img
+                            src={
+                              req.donation?.image
+                                ? (req.donation.image.startsWith('data:')
+                                  ? req.donation.image
+                                  : req.donation.image.startsWith('storage/')
+                                    ? `http://localhost:8000/${req.donation.image}`
+                                    : `http://localhost:8000/storage/${req.donation.image}`)
+                                : (req.image && (req.image.startsWith('data:')
+                                  ? req.image
+                                  : req.image.startsWith('storage/')
+                                    ? `http://localhost:8000/${req.image}`
+                                    : `http://localhost:8000/storage/${req.image}`))
+                            }
+                            alt={req.judul}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            onError={(e) => {
+                              console.error("❌ Image failed to load:", e.target.src);
+                              e.target.style.display = 'none';
+                              // Fallback via CSS sibling selector or parent background
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-6xl">
+                            📦
+                          </div>
+                        )}
+
+                        {/* Status Badges Overlay */}
+                        <div className="absolute top-3 right-3 flex flex-col items-end gap-2">
+                          {/* Status Permohonan */}
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1 ${req.status_permohonan === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : req.status_permohonan === 'approved'
+                                ? 'bg-blue-100 text-[#00306C]'
+                                : 'bg-red-100 text-red-800'
+                              }`}
+                          >
+                            {req.status_permohonan === 'pending' ? <><FiClock /> Menunggu</> : req.status_permohonan === 'approved' ? <><FiCheckCircle /> Disetujui</> : <><FiAlertCircle /> Ditolak</>}
+                          </span>
+
+                          {/* Status Pengiriman (if approved) */}
+                          {req.status_permohonan === 'approved' && (
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1 ${req.status_pengiriman === 'draft'
+                                ? 'bg-blue-50 text-blue-700'
+                                : req.status_pengiriman === 'sent'
+                                  ? 'bg-purple-100 text-purple-700'
+                                  : 'bg-green-100 text-green-700'
+                                }`}
+                            >
+                              {req.status_pengiriman === 'draft' ? '📦 Disiapkan' : req.status_pengiriman === 'sent' ? <><FiTruck /> Dikirim</> : '📍 Diterima'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="p-5">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 truncate">
+                          {req.judul || "Permintaan Kebutuhan"}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[40px]">
+                          {req.deskripsi}
+                        </p>
+
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <FiUsers className="text-[#007EFF]" />
+                            <span className="truncate">{req.lokasi}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <FiPackage className="text-[#007EFF]" />
+                            <span>Permintaan: <span className="font-semibold">{req.target_jumlah} Pcs</span></span>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        {req.status_permohonan === 'approved' && (
+                          <div className="pt-4 border-t border-gray-100 flex flex-col gap-2">
+                            {/* CHAT BUTTON */}
+                            {req.donation?.user_id && (
+                              <button
+                                onClick={() => navigate('/penerima/chat', { state: { peerId: req.donation.user_id } })}
+                                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-50 text-[#00306C] font-bold rounded-xl hover:bg-blue-100 transition-all"
+                              >
+                                <FiMessageSquare />
+                                <span>Chat Donatur</span>
+                              </button>
+                            )}
+
+                            {/* CONFIRM BUTTON */}
+                            {req.status_pengiriman === 'sent' && (
+                              <button
+                                onClick={() => handleMarkReceived(req.id)}
+                                disabled={actionLoading}
+                                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-[#00306C] text-white font-bold rounded-xl hover:bg-[#001F4D] transition-all disabled:opacity-50 hover:shadow-lg"
+                              >
+                                {actionLoading ? <FiLoader className="animate-spin" /> : <FiCheckCircle />}
+                                <span>Konfirmasi Diterima</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
