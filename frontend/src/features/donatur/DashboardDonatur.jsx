@@ -529,7 +529,7 @@ const DashboardDonatur = () => {
                       <span className="font-semibold">{req.donation?.jumlah || req.target_jumlah} Pcs Didonasikan</span>
                     </div>
 
-                    {req.status_pengiriman === 'draft' && (
+                    {req.status_pengiriman === 'draft' && req.status_permohonan === 'approved' && (
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
@@ -548,6 +548,12 @@ const DashboardDonatur = () => {
                       >
                         <FiPackage /> Tandai Sudah Dikirim
                       </button>
+                    )}
+
+                    {req.status_pengiriman === 'draft' && req.status_permohonan === 'pending' && (
+                      <div className="w-full py-2 bg-yellow-50 text-yellow-700 font-semibold rounded-lg flex items-center justify-center gap-2 text-sm cursor-default border border-yellow-100">
+                        <FiClock className="animate-pulse" /> Menunggu Persetujuan Anda
+                      </div>
                     )}
 
                     {req.status_pengiriman === 'sent' && (

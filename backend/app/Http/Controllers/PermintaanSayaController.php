@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
+use App\Models\Notification;
 
 class PermintaanSayaController extends Controller
 {
@@ -276,6 +277,20 @@ class PermintaanSayaController extends Controller
                 'bukti_kebutuhan' => $buktiPath, // <-- Simpan path file bukti yang diupload
             ]);
 
+            // Notify Donatur that someone applied for their donation
+            if ($permintaan->donation_id) {
+                $donation = \App\Models\Donation::find($permintaan->donation_id);
+                if ($donation && $donation->user_id !== $user->id) {
+                    Notification::create([
+                        'user_id' => $donation->user_id,
+                        'title' => 'Permintaan Masuk',
+                        'message' => $user->name . ' mengajukan permintaan untuk donasi: ' . $donation->nama,
+                        'type' => 'application_received',
+                        'link' => '/dashboard-donatur'
+                    ]);
+                }
+            }
+
             Log::info('PermintaanSaya created successfully', [
                 'permintaan_id' => $permintaan->id,
                 'donation_id' => $permintaan->donation_id,
@@ -500,6 +515,15 @@ class PermintaanSayaController extends Controller
                 'status_pengiriman' => 'draft' // Siap disiapkan untuk dikirim
             ]);
 
+            // Notify Penerima that their request was approved
+            Notification::create([
+                'user_id' => $permintaan->user_id,
+                'title' => 'Permintaan Disetujui',
+                'message' => 'Permintaan Anda untuk "' . $permintaan->judul . '" telah disetujui oleh donatur.',
+                'type' => 'request_approved',
+                'link' => '/dashboard-penerima'
+            ]);
+
             Log::info('Permintaan approved by donatur', ['permintaan_id' => $id, 'user_id' => $user->id]);
 
             return response()->json([
@@ -549,6 +573,15 @@ class PermintaanSayaController extends Controller
                 'bukti_kebutuhan' => 'Ditolak - ' . $reason // Simpan alasan reject
             ]);
 
+            // Notify Penerima that their request was rejected
+            Notification::create([
+                'user_id' => $permintaan->user_id,
+                'title' => 'Permintaan Ditolak',
+                'message' => 'Maaf, permintaan Anda untuk "' . $permintaan->judul . '" belum dapat disetujui.',
+                'type' => 'request_rejected',
+                'link' => '/dashboard-penerima'
+            ]);
+
             Log::info('Permintaan rejected by donatur', ['permintaan_id' => $id, 'user_id' => $user->id, 'reason' => $reason]);
 
             return response()->json([
@@ -592,6 +625,15 @@ class PermintaanSayaController extends Controller
             $permintaan->update([
                 'status_pengiriman' => 'sent',
                 'sent_at' => now()
+            ]);
+
+            // Notify Penerima that the item is sent
+            Notification::create([
+                'user_id' => $permintaan->user_id,
+                'title' => 'Barang Dikirim',
+                'message' => 'Donatur telah mengirimkan barang untuk permintaan: ' . $permintaan->judul,
+                'type' => 'request_sent',
+                'link' => '/dashboard-penerima'
             ]);
 
             Log::info('Permintaan marked as sent', ['permintaan_id' => $id, 'user_id' => $user->id]);
@@ -734,6 +776,15 @@ class PermintaanSayaController extends Controller
                 'status_permohonan' => 'approved', // Auto-approve karena donatur yang berinisiatif
                 'approved_at' => now(),
                 'status_pengiriman' => 'draft', // Siap dikirim
+            ]);
+
+            // Notify Penerima that their request was fulfilled by a donor
+            Notification::create([
+                'user_id' => $permintaan->user_id,
+                'title' => 'Permintaan Dipenuhi',
+                'message' => 'Donatur ' . $user->name . ' bersedia memenuhi permintaan Anda: ' . $permintaan->judul,
+                'type' => 'request_fulfilled',
+                'link' => '/dashboard-penerima'
             ]);
 
             DB::commit();

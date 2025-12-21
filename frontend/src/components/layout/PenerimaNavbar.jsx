@@ -1,13 +1,41 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiHelpCircle, FiInbox, FiMessageSquare, FiClock, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiHome, FiHelpCircle, FiInbox, FiMessageSquare, FiClock, FiUser, FiLogOut, FiBell } from 'react-icons/fi';
 import { logout, getAuthData } from '../../utils/localStorage';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import NotificationDropdown from '../NotificationDropdown';
+import { getNotifications } from '../../services/notificationService';
 
 const PenerimaNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = getAuthData();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+
+  const fetchNotifCount = async () => {
+    try {
+      const res = await getNotifications();
+      if (res.success) {
+        setUnreadCount(res.unread_count);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifCount();
+    const notifInterval = setInterval(fetchNotifCount, 30000);
+
+    const handleFocus = () => fetchNotifCount();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(notifInterval);
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -27,41 +55,42 @@ const PenerimaNavbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/dashboard-penerima" className="flex items-center space-x-3 group">
-            <img
-              src="/logo-donasiku.png"
-              alt="DonasiKu Logo"
-              className="h-10 w-auto object-contain transition-transform group-hover:scale-110"
-            />
-          </Link>
+        <div className="flex items-center h-20">
+          {/* Logo & Desktop Menu */}
+          <div className="flex items-center space-x-8">
+            <Link to="/dashboard-penerima" className="flex items-center space-x-3 group">
+              <img
+                src="/logo-donasiku.png"
+                alt="DonasiKu Logo"
+                className="h-10 w-auto object-contain transition-transform group-hover:scale-110"
+              />
+            </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center space-x-1">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${isActive(item.path)
-                  ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white shadow-lg'
-                  : 'text-gray-700 hover:bg-blue-50 hover:text-[#00306C]'
-                  }`}
-              >
-                <item.icon className="text-lg" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            <div className="hidden lg:flex items-center space-x-1">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${isActive(item.path)
+                    ? 'bg-gradient-to-r from-[#00306C] to-[#001F4D] text-white shadow-lg'
+                    : 'text-gray-700 hover:bg-blue-50 hover:text-[#00306C]'
+                    }`}
+                >
+                  <item.icon className="text-lg" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
           </div>
 
-          {/* User Menu & Logout */}
-          <div className="hidden lg:flex items-center space-x-4">
+          {/* Desktop User Info & Logout - Now moved to the left after menu */}
+          <div className="hidden lg:flex items-center ml-8 space-x-4 flex-shrink-0">
             <div className="flex items-center space-x-3 px-4 py-2 bg-blue-50 rounded-xl">
               <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center">
                 <FiUser className="text-white" />
               </div>
-              <div>
-                <div className="text-sm font-bold text-gray-900">{user?.name}</div>
+              <div className="text-left">
+                <div className="text-sm font-bold text-gray-900 line-clamp-1">{user?.name}</div>
                 <div className="text-xs text-gray-600">Penerima</div>
               </div>
             </div>
@@ -74,10 +103,32 @@ const PenerimaNavbar = () => {
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Spacer to push the notification bell to the absolute far right */}
+          <div className="flex-1"></div>
+
+          {/* Notification Bell - Far right */}
+          <div className="relative w-10 h-10 flex-shrink-0">
+            <button
+              onClick={() => setIsNotifOpen(!isNotifOpen)}
+              className={`w-full h-full flex items-center justify-center hover:bg-gray-100 rounded-xl transition-colors ${isNotifOpen ? 'bg-gray-100' : ''}`}
+            >
+              <FiBell className="text-2xl text-gray-700" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+            <NotificationDropdown
+              isOpen={isNotifOpen}
+              onClose={() => setIsNotifOpen(false)}
+            />
+          </div>
+
+          {/* Mobile Menu Button - At the very end on mobile */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-xl"
+            className="lg:hidden ml-4 p-2 text-gray-700 hover:bg-gray-100 rounded-xl flex-shrink-0"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileMenuOpen ? (

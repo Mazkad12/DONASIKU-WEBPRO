@@ -7,6 +7,7 @@ use App\Http\Controllers\DetailDonasiController;
 use App\Http\Controllers\PermintaanSayaController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\NotificationController;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -60,4 +61,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('permintaan-sayas/{id}/sent', [PermintaanSayaController::class, 'markSent']); // Donatur
     Route::patch('permintaan-sayas/{id}/received', [PermintaanSayaController::class, 'markReceived']); // Penerima
     Route::post('permintaan-sayas/{id}/fulfill', [PermintaanSayaController::class, 'fulfill']); // Donatur fulflls request
+
+    // Notification Routes
+    Route::get('notifications', [NotificationController::class, 'index']);
+    Route::patch('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::patch('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 });
