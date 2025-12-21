@@ -86,6 +86,28 @@ export const fulfillPermintaan = async (id, donationData) => {
     }
 };
 
+// Fungsi APPROVE - Donatur menyetujui permintaan pending
+export const approvePermintaan = async (id) => {
+    try {
+        const response = await API.patch(`/permintaan-sayas/${id}/approve`);
+        return response.data;
+    } catch (error) {
+        console.error('Error approving permintaan:', error);
+        throw new Error(error.response?.data?.message || 'Gagal menyetujui permintaan.');
+    }
+};
+
+// Fungsi REJECT - Donatur menolak permintaan pending
+export const rejectPermintaan = async (id, reason) => {
+    try {
+        const response = await API.patch(`/permintaan-sayas/${id}/reject`, { reason });
+        return response.data;
+    } catch (error) {
+        console.error('Error rejecting permintaan:', error);
+        throw new Error(error.response?.data?.message || 'Gagal menolak permintaan.');
+    }
+};
+
 // Fungsi MARK AS SENT - Donatur menandai barang dikirim
 export const markPermintaanSent = async (id) => {
     try {

@@ -18,7 +18,7 @@ const ProfileDonatur = () => {
 
   useEffect(() => {
     loadUserData();
-    
+
     // Refresh user data whenever window gains focus (user returns to this tab/page)
     window.addEventListener('focus', loadUserData);
     return () => window.removeEventListener('focus', loadUserData);
@@ -63,7 +63,7 @@ const ProfileDonatur = () => {
                   displayName
                 )}
               </div>
-              
+
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">
@@ -74,7 +74,7 @@ const ProfileDonatur = () => {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={() => navigate('/donatur/detail-akun')}
               className="text-sm font-semibold text-blue-600 hover:text-blue-700 px-4 py-2 border border-blue-600 rounded-full transition"
             >

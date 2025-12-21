@@ -151,7 +151,13 @@ const Riwayat = () => {
                 <div className="relative h-48 overflow-hidden bg-blue-50">
                   {item.image ? (
                     <img
-                      src={item.image.startsWith('http') || item.image.startsWith('data:') ? item.image : `http://localhost:8000/${item.image}`}
+                      src={
+                        item.image.startsWith('http') || item.image.startsWith('data:')
+                          ? item.image
+                          : item.image.startsWith('storage/')
+                            ? `http://localhost:8000/${item.image}`
+                            : `http://localhost:8000/storage/${item.image}`
+                      }
                       alt={item.nama}
                       className="w-full h-full object-cover"
                     />
@@ -167,8 +173,8 @@ const Riwayat = () => {
                   </div>
                   <div className="absolute top-3 right-3">
                     <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold ${(item.displayStatus === 'completed' || item.status === 'selesai' || item.status === 'terpenuhi') ? 'bg-green-100 text-green-700' :
-                        item.displayStatus === 'rejected' ? 'bg-red-100 text-red-700' :
-                          'bg-blue-100 text-blue-700'
+                      item.displayStatus === 'rejected' ? 'bg-red-100 text-red-700' :
+                        'bg-blue-100 text-blue-700'
                       }`}>
                       <FiCheckCircle />
                       <span>

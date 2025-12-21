@@ -332,7 +332,13 @@ const DashboardDonatur = () => {
                 <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-100 to-cyan-100">
                   {donation.image ? (
                     <img
-                      src={donation.image.startsWith('http') || donation.image.startsWith('data:') ? donation.image : `http://localhost:8000/${donation.image}`}
+                      src={
+                        donation.image.startsWith('http') || donation.image.startsWith('data:')
+                          ? donation.image
+                          : donation.image.startsWith('storage/')
+                            ? `http://localhost:8000/${donation.image}`
+                            : `http://localhost:8000/storage/${donation.image}`
+                      }
                       alt={donation.nama}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
@@ -424,7 +430,13 @@ const DashboardDonatur = () => {
                   <div className="h-48 w-full bg-yellow-50 relative overflow-hidden">
                     {req.image ? (
                       <img
-                        src={req.image.startsWith('http') || req.image.startsWith('data:') ? req.image : `http://localhost:8000/${req.image}`}
+                        src={
+                          req.image.startsWith('http') || req.image.startsWith('data:')
+                            ? req.image
+                            : req.image.startsWith('storage/')
+                              ? `http://localhost:8000/${req.image}`
+                              : `http://localhost:8000/storage/${req.image}`
+                        }
                         alt={req.judul}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
