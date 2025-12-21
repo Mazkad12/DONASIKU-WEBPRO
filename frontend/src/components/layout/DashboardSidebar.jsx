@@ -1,9 +1,9 @@
 // src/components/layout/DashboardSidebar.jsx
 
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  FiHome, FiPackage, FiInbox, FiMessageSquare, FiClock, FiUser, 
-  FiSettings, FiLogOut, FiChevronLeft, FiSearch, FiHeart 
+import {
+  FiHome, FiPackage, FiInbox, FiMessageSquare, FiClock, FiUser,
+  FiLogOut, FiChevronLeft, FiSearch, FiHeart
 } from 'react-icons/fi';
 import { logout, getUserRole } from '../../utils/localStorage'; // <-- Tambahkan getUserRole
 import { useNavigate } from 'react-router-dom';
@@ -34,19 +34,17 @@ const DashboardSidebar = ({ isOpen, toggleSidebar }) => {
     ];
     bottomMenuItems = [
       { path: '/donatur/profil', label: 'Profil', icon: FiUser },
-      { path: '/donatur/settings', label: 'Settings', icon: FiSettings },
     ];
   } else if (role === 'penerima') {
     mainMenuItems = [
       // Ini adalah halaman utama untuk penerima
-      { path: '/dashboard-penerima', label: 'Cari Donasi', icon: FiSearch }, 
+      { path: '/dashboard-penerima', label: 'Cari Donasi', icon: FiSearch },
       { path: '/penerima/permintaan-saya', label: 'Permintaan Saya', icon: FiInbox },
       { path: '/penerima/chat', label: 'Chat', icon: FiMessageSquare },
       { path: '/penerima/riwayat', label: 'Riwayat', icon: FiClock },
     ];
     bottomMenuItems = [
       { path: '/penerima/profil', label: 'Profil', icon: FiUser },
-      { path: '/penerima/settings', label: 'Settings', icon: FiSettings },
     ];
   }
 
@@ -54,24 +52,23 @@ const DashboardSidebar = ({ isOpen, toggleSidebar }) => {
     <>
       {/* Overlay untuk mobile */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={toggleSidebar}
         ></div>
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-xl z-50 transition-all duration-300 ${
-        isOpen ? 'w-64' : 'w-0 lg:w-20'
-      }`}>
+      <aside className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-xl z-50 transition-all duration-300 ${isOpen ? 'w-64' : 'w-0 lg:w-20'
+        }`}>
         <div className="flex flex-col h-full">
           {/* Logo & Toggle */}
           <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200">
             {isOpen && (
               <Link to="/" className="flex items-center space-x-2">
-                <img 
-                  src="/logo-donasiku.png" 
-                  alt="DonasiKu" 
+                <img
+                  src="/logo-donasiku.png"
+                  alt="DonasiKu"
                   className="h-10 w-auto object-contain"
                 />
               </Link>
@@ -94,11 +91,10 @@ const DashboardSidebar = ({ isOpen, toggleSidebar }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive(item.path)
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${isActive(item.path)
                       ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg'
                       : 'text-gray-700 hover:bg-blue-50'
-                  }`}
+                    }`}
                   title={!isOpen ? item.label : ''}
                 >
                   <item.icon className="text-xl flex-shrink-0" />
@@ -116,11 +112,10 @@ const DashboardSidebar = ({ isOpen, toggleSidebar }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive(item.path)
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${isActive(item.path)
                       ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg'
                       : 'text-gray-700 hover:bg-blue-50'
-                  }`}
+                    }`}
                   title={!isOpen ? item.label : ''}
                 >
                   <item.icon className="text-xl flex-shrink-0" />
