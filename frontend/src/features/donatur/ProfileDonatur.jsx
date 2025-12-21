@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronRight, FiLogOut } from 'react-icons/fi';
 import { getAuthData, logout } from '../../utils/localStorage';
+import { showConfirm } from '../../utils/sweetalert';
 
 const ProfileDonatur = () => {
   const navigate = useNavigate();
@@ -30,8 +31,9 @@ const ProfileDonatur = () => {
     return `http://localhost:8000/${photoPath}`;
   };
 
-  const handleLogout = () => {
-    if (window.confirm('Apakah Anda yakin ingin keluar?')) {
+  const handleLogout = async () => {
+    const result = await showConfirm('Konfirmasi Keluar', 'Apakah Anda yakin ingin keluar?', 'Keluar', 'Batal');
+    if (result.isConfirmed) {
       logout();
       navigate('/login');
     }

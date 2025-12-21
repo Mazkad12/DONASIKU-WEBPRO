@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiPackage, FiMapPin, FiCalendar, FiUser, FiCheckCircle, FiClock, FiAlertCircle } from 'react-icons/fi';
 import { getPermintaanById } from '../../services/permintaanService';
+import { showSuccess, showError, showConfirm } from '../../utils/sweetalert';
+import Swal from 'sweetalert2';
 import FulfillmentModal from '../../components/FulfillmentModal';
 import { getAuthData } from '../../utils/localStorage';
 
@@ -122,15 +124,16 @@ const DetailPermintaan = () => {
                             {request.donation_id && user?.role === 'donatur' && request.status_permohonan === 'approved' && request.status_pengiriman === 'draft' && request.donation?.user_id === user.id && (
                                 <button
                                     onClick={async () => {
-                                        if (window.confirm('Apakah Anda yakin sudah mengirim barang ini?')) {
+                                        const res = await showConfirm('Konfirmasi', 'Apakah Anda yakin sudah mengirim barang ini?', 'Sudah Terkirim', 'Batal');
+                                        if (res.isConfirmed) {
                                             try {
                                                 await import('../../services/permintaanService').then(m => m.markPermintaanSent(request.id));
-                                                alert('Status berhasil diperbarui! Terima kasih telah mengirim bantuan.');
+                                                await showSuccess('Berhasil', 'Status berhasil diperbarui! Terima kasih telah mengirim bantuan.');
                                                 // Refresh data
                                                 const updatedData = await import('../../services/permintaanService').then(m => m.getPermintaanById(request.id));
                                                 setRequest(updatedData);
                                             } catch (err) {
-                                                alert(err.message);
+                                                showError('Gagal', err.message);
                                             }
                                         }
                                     }}
@@ -145,14 +148,15 @@ const DetailPermintaan = () => {
                                 <div className="flex gap-2 w-full sm:w-auto">
                                     <button
                                         onClick={async () => {
-                                            if (window.confirm('Setujui permintaan ini?')) {
+                                            const res = await showConfirm('Konfirmasi', 'Setujui permintaan ini?', 'Setujui', 'Batal');
+                                            if (res.isConfirmed) {
                                                 try {
                                                     await import('../../services/permintaanService').then(m => m.approvePermintaan(request.id));
-                                                    alert('Permintaan disetujui!');
+                                                    await showSuccess('Berhasil', 'Permintaan disetujui!');
                                                     const updatedData = await import('../../services/permintaanService').then(m => m.getPermintaanById(request.id));
                                                     setRequest(updatedData);
                                                 } catch (err) {
-                                                    alert(err.message);
+                                                    showError('Gagal', err.message);
                                                 }
                                             }
                                         }}
@@ -162,15 +166,23 @@ const DetailPermintaan = () => {
                                     </button>
                                     <button
                                         onClick={async () => {
-                                            const reason = prompt('Masukkan alasan penolakan:');
+                                            const { value: reason } = await Swal.fire({
+                                                title: 'Alasan Penolakan',
+                                                input: 'textarea',
+                                                inputPlaceholder: 'Masukkan alasan penolakan...',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#d33',
+                                                confirmButtonText: 'Tolak',
+                                                cancelButtonText: 'Batal'
+                                            });
                                             if (reason) {
                                                 try {
                                                     await import('../../services/permintaanService').then(m => m.rejectPermintaan(request.id, reason));
-                                                    alert('Permintaan ditolak.');
+                                                    await showSuccess('Berhasil', 'Permintaan ditolak.');
                                                     const updatedData = await import('../../services/permintaanService').then(m => m.getPermintaanById(request.id));
                                                     setRequest(updatedData);
                                                 } catch (err) {
-                                                    alert(err.message);
+                                                    showError('Gagal', err.message);
                                                 }
                                             }
                                         }}

@@ -20,6 +20,7 @@ import { getDonasiByIdService } from "../../services/donasiService.js";
 import { getMyPermintaanSaya } from "../../services/permintaanService.js";
 import { getAuthData } from "../../utils/localStorage.js";
 import API from "../../services/api.js";
+import { showSuccess, showError } from "../../utils/sweetalert";
 
 const PermintaanSaya = () => {
   const { id } = useParams();
@@ -203,17 +204,17 @@ const PermintaanSaya = () => {
     e.preventDefault();
 
     if (!user || !user.id) {
-      alert("Data pengguna tidak ditemukan, silakan login ulang.");
+      showError("Kesalahan", "Data pengguna tidak ditemukan, silakan login ulang.");
       return;
     }
 
     if (!donasi || formData.jumlah <= 0 || formData.jumlah > donasi.jumlah) {
-      alert(`Jumlah harus di antara 1 dan ${donasi?.jumlah || 1}.`);
+      showError("Jumlah Tidak Valid", `Jumlah harus di antara 1 dan ${donasi?.jumlah || 1}.`);
       return;
     }
 
     if (!formData.asal) {
-      alert("Silakan isi asal Anda.");
+      showError("Data Tidak Lengkap", "Silakan isi asal Anda.");
       return;
     }
 
@@ -246,14 +247,14 @@ const PermintaanSaya = () => {
         throw new Error(errorData.message || 'Gagal membuat permintaan');
       }
 
-      alert("Permintaan berhasil diajukan dan disimpan ke database!");
+      await showSuccess("Berhasil", "Permintaan berhasil diajukan dan disimpan ke database!");
       setFormData({ jumlah: 1, asal: "", deskripsi: "", bukti_file: null });
       setBuktiPreview(null);
       navigate("/penerima/permintaan-saya");
 
     } catch (error) {
       console.error("Error API Permintaan Saya:", error);
-      alert("Gagal mengajukan permintaan: " + (error.message || "Terjadi kesalahan server."));
+      showError("Gagal", "Gagal mengajukan permintaan: " + (error.message || "Terjadi kesalahan server."));
     }
   };
 
@@ -268,11 +269,11 @@ const PermintaanSaya = () => {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         }
       });
-      alert('Barang ditandai sebagai sudah diterima');
+      await showSuccess('Berhasil', 'Barang ditandai sebagai sudah diterima');
       const data = await getMyPermintaanSaya();
       setPermintaan(data);
     } catch (error) {
-      alert('Gagal menandai penerimaan: ' + (error.message || 'Terjadi kesalahan'));
+      showError('Gagal', 'Gagal menandai penerimaan: ' + (error.message || 'Terjadi kesalahan'));
     } finally {
       setActionLoading(false);
     }

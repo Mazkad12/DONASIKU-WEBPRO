@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiImage, FiMapPin, FiFileText, FiSave } from 'react-icons/fi';
 import { createDonasi } from '../../services/donasiService';
+import { showSuccess, showError } from '../../utils/sweetalert';
 
 const FormDonasi = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const FormDonasi = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('Ukuran file maksimal 5MB');
+        showError('File Terlalu Besar', 'Ukuran file maksimal adalah 5MB');
         return;
       }
       const reader = new FileReader();
@@ -47,10 +48,10 @@ const FormDonasi = () => {
 
     try {
       await createDonasi(formData);
-      alert('Donasi berhasil dibuat!');
+      await showSuccess('Berhasil', 'Donasi berhasil dibuat!');
       navigate('/dashboard-donatur');
     } catch (error) {
-      alert(error.message || 'Gagal membuat donasi');
+      showError('Gagal', error.message || 'Gagal membuat donasi');
     } finally {
       setIsSubmitting(false);
     }
@@ -136,11 +137,10 @@ const FormDonasi = () => {
                     key={cat.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, kategori: cat.value })}
-                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${
-                      formData.kategori === cat.value
+                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.kategori === cat.value
                         ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     <span className="text-xl">{cat.icon}</span>
                     <span className="text-sm">{cat.label}</span>

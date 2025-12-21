@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiMapPin, FiUser, FiPhone, FiMail, FiMessageSquare, FiCheckCircle, FiX, FiLoader, FiTruck, FiClock } from 'react-icons/fi';
 import API from '../../services/api';
+import { showSuccess, showError } from '../../utils/sweetalert';
 
 const PermintaanMasukDonatur = () => {
   const navigate = useNavigate();
@@ -51,13 +52,13 @@ const PermintaanMasukDonatur = () => {
 
   const handleApprove = async (permintaanId) => {
     try {
-      setActionLoading(true);
+      setLoading(true);
       await API.patch(`/permintaan-sayas/${permintaanId}/approve`);
-      alert('Permintaan disetujui');
+      await showSuccess('Berhasil', 'Permintaan disetujui');
       fetchPermintaan();
       setSelectedPermintaan(null);
     } catch (err) {
-      alert('Gagal menyetujui permintaan: ' + (err.response?.data?.message || err.message));
+      showError('Gagal', 'Gagal menyetujui permintaan: ' + (err.response?.data?.message || err.message));
     } finally {
       setActionLoading(false);
     }
@@ -67,11 +68,11 @@ const PermintaanMasukDonatur = () => {
     try {
       setActionLoading(true);
       await API.patch(`/permintaan-sayas/${permintaanId}/reject`);
-      alert('Permintaan ditolak');
+      await showSuccess('Berhasil', 'Permintaan ditolak');
       fetchPermintaan();
       setSelectedPermintaan(null);
     } catch (err) {
-      alert('Gagal menolak permintaan: ' + (err.response?.data?.message || err.message));
+      showError('Gagal', 'Gagal menolak permintaan: ' + (err.response?.data?.message || err.message));
     } finally {
       setActionLoading(false);
     }
@@ -81,11 +82,11 @@ const PermintaanMasukDonatur = () => {
     try {
       setActionLoading(true);
       await API.patch(`/permintaan-sayas/${permintaanId}/sent`);
-      alert('Donasi ditandai sebagai sudah dikirim');
+      await showSuccess('Berhasil', 'Donasi ditandai sebagai sudah dikirim');
       fetchPermintaan();
       setSelectedPermintaan(null);
     } catch (err) {
-      alert('Gagal menandai pengiriman: ' + (err.response?.data?.message || err.message));
+      showError('Gagal', 'Gagal menandai pengiriman: ' + (err.response?.data?.message || err.message));
     } finally {
       setActionLoading(false);
     }

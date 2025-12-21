@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiPackage, FiFileText, FiMapPin, FiImage, FiSend, FiArrowLeft } from "react-icons/fi";
 import API from "../services/api";
 import { getAuthData } from "../utils/localStorage";
+import { showSuccess, showError } from "../utils/sweetalert";
 
 const RequestForm = () => {
     const navigate = useNavigate();
@@ -57,7 +58,7 @@ const RequestForm = () => {
         setLoading(true);
 
         if (!formData.judul || !formData.lokasi || !formData.image) {
-            alert("Mohon lengkapi data wajib (Judul, Lokasi, Gambar)");
+            showError("Data Tidak Lengkap", "Mohon lengkapi data wajib (Judul, Lokasi, Gambar)");
             setLoading(false);
             return;
         }
@@ -91,11 +92,11 @@ const RequestForm = () => {
                 }
             });
 
-            alert('Permintaan berhasil diajukan!');
+            await showSuccess('Berhasil', 'Permintaan berhasil diajukan!');
             navigate('/penerima/permintaan-saya');
         } catch (error) {
             console.error('Error submitting request:', error);
-            alert('Gagal mengajukan permintaan: ' + (error.response?.data?.message || error.message));
+            showError('Gagal', 'Gagal mengajukan permintaan: ' + (error.response?.data?.message || error.message));
         } finally {
             setLoading(false);
         }

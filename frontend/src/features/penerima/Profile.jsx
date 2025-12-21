@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronRight, FiLogOut, FiPackage } from 'react-icons/fi'; // Tambah icon package untuk riwayat
 import { getAuthData, logout } from '../../utils/localStorage';
+import { showConfirm } from '../../utils/sweetalert';
 
 const ProfilePenerima = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const ProfilePenerima = () => {
 
   useEffect(() => {
     loadUserData();
-    
+
     // Refresh data jika user kembali ke tab ini
     window.addEventListener('focus', loadUserData);
     return () => window.removeEventListener('focus', loadUserData);
@@ -31,8 +32,9 @@ const ProfilePenerima = () => {
     return `http://localhost:8000/storage/${photoPath}`;
   };
 
-  const handleLogout = () => {
-    if (window.confirm('Apakah Anda yakin ingin keluar?')) {
+  const handleLogout = async () => {
+    const result = await showConfirm('Konfirmasi Keluar', 'Apakah Anda yakin ingin keluar?', 'Keluar', 'Batal');
+    if (result.isConfirmed) {
       logout();
       navigate('/login');
     }
@@ -64,7 +66,7 @@ const ProfilePenerima = () => {
                   displayName
                 )}
               </div>
-              
+
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-medium">
@@ -77,7 +79,7 @@ const ProfilePenerima = () => {
             </div>
 
             {/* Tombol Detail mengarah ke halaman Edit Profile yang sudah Anda buat */}
-            <button 
+            <button
               onClick={() => navigate('/penerima/detail-akun')}
               className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 px-4 py-2 border border-indigo-600 rounded-full transition"
             >
@@ -98,9 +100,9 @@ const ProfilePenerima = () => {
       {/* Settings Section */}
       <div className="px-4 mt-6 space-y-4">
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-          
+
           {/* Riwayat Bantuan - Khusus Penerima */}
-          <button 
+          <button
             onClick={() => navigate('/penerima/riwayat')}
             className="w-full px-6 py-4 hover:bg-gray-50 transition flex items-center justify-between border-b border-gray-100"
           >

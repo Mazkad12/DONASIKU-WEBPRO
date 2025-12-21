@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FiX, FiCheckCircle, FiUpload, FiPackage } from "react-icons/fi";
 import { fulfillPermintaan } from "../services/permintaanService";
+import { showSuccess, showError } from "../utils/sweetalert";
 
 const FulfillmentModal = ({ request, onClose, onSuccess }) => {
     const [loading, setLoading] = useState(false);
@@ -35,19 +36,19 @@ const FulfillmentModal = ({ request, onClose, onSuccess }) => {
         setLoading(true);
 
         if (!formData.image) {
-            alert("Mohon sertakan foto barang yang akan didonasikan.");
+            showError("Foto Dibutuhkan", "Mohon sertakan foto barang yang akan didonasikan.");
             setLoading(false);
             return;
         }
 
         try {
             await fulfillPermintaan(request.id, formData);
-            alert("Terima kasih! Permintaan berhasil dipenuhi.");
+            await showSuccess("Terima kasih!", "Permintaan berhasil dipenuhi.");
             onSuccess();
             onClose();
         } catch (error) {
             console.error(error);
-            alert("Gagal memproses donasi: " + error.message);
+            showError("Gagal", "Gagal memproses donasi: " + error.message);
         } finally {
             setLoading(false);
         }

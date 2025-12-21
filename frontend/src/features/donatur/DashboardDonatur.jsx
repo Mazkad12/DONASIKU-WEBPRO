@@ -5,6 +5,7 @@ import { getAuthData } from '../../utils/localStorage';
 import { getMyDonasi, deleteDonasiService } from '../../services/donasiService';
 import { getMyPermintaanSaya } from '../../services/permintaanService';
 import FulfillmentModal from '../../components/FulfillmentModal';
+import { showSuccess, showError, showConfirm } from '../../utils/sweetalert';
 
 const DashboardDonatur = () => {
   const navigate = useNavigate();
@@ -125,14 +126,13 @@ const DashboardDonatur = () => {
   const handleDelete = async (id) => {
     if (deleting) return;
 
-    if (!window.confirm('Apakah Anda yakin ingin menghapus donasi ini?')) {
-      return;
-    }
+    const result = await showConfirm('Konfirmasi', 'Apakah Anda yakin ingin menghapus donasi ini?');
+    if (!result.isConfirmed) return;
 
     setDeleting(true);
     try {
       await deleteDonasiService(id);
-      alert('Donasi berhasil dihapus!');
+      await showSuccess('Berhasil', 'Donasi berhasil dihapus!');
 
       const userDonations = await getMyDonasi();
       setDonations(userDonations);
@@ -142,7 +142,7 @@ const DashboardDonatur = () => {
         completed: userDonations.filter(d => d.status === 'selesai').length
       });
     } catch (error) {
-      alert(error.message || 'Gagal menghapus donasi');
+      showError('Gagal', error.message || 'Gagal menghapus donasi');
     } finally {
       setDeleting(false);
     }
@@ -533,12 +533,14 @@ const DashboardDonatur = () => {
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (window.confirm('Tandai barang ini sebagai sudah dikirim?')) {
+                          const res = await showConfirm('Konfirmasi', 'Tandai barang ini sebagai sudah dikirim?');
+                          if (res.isConfirmed) {
                             try {
                               await import('../../services/permintaanService').then(m => m.markPermintaanSent(req.id));
+                              await showSuccess('Berhasil', 'Barang ditandai sebagai sudah dikirim');
                               window.location.reload();
                             } catch (err) {
-                              alert(err.message);
+                              showError('Gagal', err.message);
                             }
                           }
                         }}

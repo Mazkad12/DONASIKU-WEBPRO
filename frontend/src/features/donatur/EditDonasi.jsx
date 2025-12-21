@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiPackage, FiImage, FiMapPin, FiFileText, FiSave, FiX } from 'react-icons/fi';
 import { getDonasiByIdService, updateDonasiService } from '../../services/donasiService';
+import { showSuccess, showError } from '../../utils/sweetalert';
 
 const EditDonasi = () => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const EditDonasi = () => {
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Gagal memuat data donasi');
+        showError('Gagal', 'Gagal memuat data donasi');
         navigate('/dashboard-donatur');
       } finally {
         setLoading(false);
@@ -63,7 +64,7 @@ const EditDonasi = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('Ukuran file maksimal 5MB');
+        showError('File Terlalu Besar', 'Ukuran file maksimal adalah 5MB');
         return;
       }
       const reader = new FileReader();
@@ -81,10 +82,10 @@ const EditDonasi = () => {
 
     try {
       await updateDonasiService(id, formData);
-      alert('Donasi berhasil diupdate!');
+      await showSuccess('Berhasil', 'Donasi berhasil diupdate!');
       navigate('/dashboard-donatur');
     } catch (error) {
-      alert(error.message || 'Gagal mengupdate donasi');
+      showError('Gagal', error.message || 'Gagal mengupdate donasi');
     } finally {
       setIsSubmitting(false);
     }
@@ -195,11 +196,10 @@ const EditDonasi = () => {
                     key={cat.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, kategori: cat.value })}
-                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${
-                      formData.kategori === cat.value
+                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.kategori === cat.value
                         ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg scale-105'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     <span className="text-2xl">{cat.icon}</span>
                     <span>{cat.label}</span>
@@ -232,22 +232,20 @@ const EditDonasi = () => {
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, status: 'aktif' })}
-                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${
-                    formData.status === 'aktif'
+                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.status === 'aktif'
                       ? 'bg-green-500 text-white shadow-lg scale-105'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <span>Aktif</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, status: 'selesai' })}
-                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${
-                    formData.status === 'selesai'
+                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.status === 'selesai'
                       ? 'bg-blue-500 text-white shadow-lg scale-105'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <span>Selesai</span>
                 </button>

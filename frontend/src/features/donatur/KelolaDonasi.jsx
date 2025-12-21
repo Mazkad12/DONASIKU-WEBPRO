@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FiClock, FiPackage, FiMapPin, FiUser } from "react-icons/fi";
 import { getAuthData } from "../../utils/localStorage";
 import { getMyDonasi, updateDonasiService } from "../../services/donasiService";
+import { showSuccess, showError, showConfirm } from "../../utils/sweetalert";
 
 const KelolaDonasi = () => {
   const user = getAuthData();
@@ -37,13 +38,13 @@ const KelolaDonasi = () => {
 
   const handleAccept = async (req) => {
     if (processing) return;
-    
-    const confirmAccept = window.confirm("Terima permintaan ini dan kurangi jumlah donasi?");
-    if (!confirmAccept) return;
+
+    const result = await showConfirm("Konfirmasi", "Terima permintaan ini dan kurangi jumlah donasi?");
+    if (!result.isConfirmed) return;
 
     const donasi = donasiList.find((d) => String(d.id) === String(req.donasiId));
     if (!donasi) {
-      alert("Donasi tidak ditemukan.");
+      showError("Kesalahan", "Donasi tidak ditemukan.");
       return;
     }
 
@@ -67,20 +68,20 @@ const KelolaDonasi = () => {
       const refreshed = await getMyDonasi();
       setDonasiList(refreshed || []);
 
-      alert("Permintaan diterima. Jumlah donasi diperbarui.");
+      showSuccess("Berhasil", "Permintaan diterima. Jumlah donasi diperbarui.");
     } catch (err) {
       console.error(err);
-      alert("Gagal memproses permintaan.");
+      showError("Gagal", "Gagal memproses permintaan.");
     } finally {
       setProcessing(false);
     }
   };
 
-  const handleReject = (req) => {
+  const handleReject = async (req) => {
     if (processing) return;
-    
-    const confirmReject = window.confirm("Tolak permintaan ini?");
-    if (!confirmReject) return;
+
+    const result = await showConfirm("Konfirmasi", "Tolak permintaan ini?");
+    if (!result.isConfirmed) return;
 
     setProcessing(true);
     try {
@@ -95,17 +96,17 @@ const KelolaDonasi = () => {
       const donasiIds = donasiList.map((d) => String(d.id));
       setRequests(updatedReq.filter((r) => donasiIds.includes(String(r.donasiId))));
 
-      alert("Permintaan telah ditolak.");
+      showSuccess("Berhasil", "Permintaan telah ditolak.");
     } finally {
       setProcessing(false);
     }
   };
 
-  const handleSend = (req) => {
+  const handleSend = async (req) => {
     if (processing) return;
-    
-    const confirmSend = window.confirm("Tandai permintaan ini sebagai sudah dikirim/diambil?");
-    if (!confirmSend) return;
+
+    const result = await showConfirm("Konfirmasi", "Tandai permintaan ini sebagai sudah dikirim/diambil?");
+    if (!result.isConfirmed) return;
 
     setProcessing(true);
     try {
@@ -120,7 +121,7 @@ const KelolaDonasi = () => {
       const donasiIds = donasiList.map((d) => String(d.id));
       setRequests(updatedReq.filter((r) => donasiIds.includes(String(r.donasiId))));
 
-      alert("Permintaan ditandai sebagai dikirim. Penerima dapat menandai selesai setelah menerima barang.");
+      showSuccess("Berhasil", "Permintaan ditandai sebagai dikirim. Penerima dapat menandai selesai setelah menerima barang.");
     } finally {
       setProcessing(false);
     }
