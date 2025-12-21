@@ -16,25 +16,37 @@ const DashboardTopbar = ({ toggleSidebar }) => {
   useEffect(() => {
     loadUserData();
     
+    // Listen untuk profile update event real-time
+    const handleProfileUpdate = (e) => {
+      const updatedUser = e.detail;
+      setUser(updatedUser);
+    };
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
     // Refresh user data whenever window gains focus
     window.addEventListener('focus', loadUserData);
-    return () => window.removeEventListener('focus', loadUserData);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('focus', loadUserData);
+    };
   }, []);
 
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
-    if (photoPath.startsWith('http')) return photoPath;
-    return `http://localhost:8000/${photoPath}`;
+    if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
+    return `http://localhost:8000/storage/${photoPath}`;
   };
 
-  const photoUrl = user ? getPhotoUrl(user.photo) : null;
-  const displayName = user?.name?.charAt(0).toUpperCase() || 'D';
+  const photoUrl = user ? getPhotoUrl(user.avatar || user.photo) : null;
+  const displayInitial = user?.name?.charAt(0).toUpperCase() || 'U';
 
   const handleAvatarClick = () => {
     if (user?.role === 'donatur') {
-      navigate('/donatur/profil');
+      navigate('/donatur/detail-akun');
     } else if (user?.role === 'penerima') {
-      navigate('/penerima/profil');
+      navigate('/penerima/detail-akun');
     }
   };
 
@@ -69,7 +81,7 @@ const DashboardTopbar = ({ toggleSidebar }) => {
             onClick={handleAvatarClick}
             className="flex items-center space-x-3 pl-4 border-l border-gray-200 cursor-pointer hover:opacity-80 transition"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-[#007EFF] to-[#0063FF] rounded-full flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
               {photoUrl ? (
                 <img
                   src={photoUrl}
@@ -77,7 +89,7 @@ const DashboardTopbar = ({ toggleSidebar }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-white font-bold text-lg">{displayName}</span>
+                <span className="text-white font-bold text-lg">{displayInitial}</span>
               )}
             </div>
             <div className="hidden sm:block">
