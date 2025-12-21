@@ -59,4 +59,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('permintaan-sayas/{id}/reject', [PermintaanSayaController::class, 'reject']); // Donatur
     Route::patch('permintaan-sayas/{id}/sent', [PermintaanSayaController::class, 'markSent']); // Donatur
     Route::patch('permintaan-sayas/{id}/received', [PermintaanSayaController::class, 'markReceived']); // Penerima
+    Route::post('permintaan-sayas/{id}/fulfill', [PermintaanSayaController::class, 'fulfill']); // Donatur fulflls request
 });

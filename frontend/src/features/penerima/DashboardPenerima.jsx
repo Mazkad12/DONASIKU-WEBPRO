@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPackage, FiMapPin, FiCalendar, FiSearch, FiAlertCircle } from 'react-icons/fi';
+import { FiPackage, FiMapPin, FiCalendar, FiSearch, FiAlertCircle, FiClock, FiCheckCircle } from 'react-icons/fi';
 import { getAuthData } from '../../utils/localStorage';
 import { getAllDonasi } from '../../services/donasiService';
+import { getMyPermintaanSaya } from '../../services/permintaanService';
 
 const DashboardPenerima = () => {
   const user = getAuthData();
   const navigate = useNavigate();
-  
+
   const [allDonations, setAllDonations] = useState([]);
   const [filteredDonations, setFilteredDonations] = useState([]);
+  const [myRequests, setMyRequests] = useState([]); // State for user's requests
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -25,21 +27,30 @@ const DashboardPenerima = () => {
   ];
 
   useEffect(() => {
-    const loadDonations = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const donasiList = await getAllDonasi();
+        // Load donations and requests in parallel
+        const [donasiList, permintaanList] = await Promise.all([
+          getAllDonasi(),
+          getMyPermintaanSaya()
+        ]);
+
         console.log('All donations:', donasiList);
-        const activeDonations = donasiList.filter(d => d.status === 'aktif');
-        setAllDonations(activeDonations);
-        setFilteredDonations(activeDonations);
+        console.log('My requests:', permintaanList);
+
+        const availableDonations = donasiList.filter(d => d.status === 'aktif' && d.jumlah > 0);
+        setAllDonations(availableDonations);
+        setFilteredDonations(availableDonations);
+        setMyRequests(permintaanList);
+
       } catch (error) {
-        console.error("Gagal memuat donasi:", error);
+        console.error("Gagal memuat data:", error);
       } finally {
         setLoading(false);
       }
     };
-    loadDonations();
+    loadData();
   }, []);
 
   useEffect(() => {
@@ -50,7 +61,7 @@ const DashboardPenerima = () => {
     }
 
     if (searchTerm) {
-      result = result.filter(d => 
+      result = result.filter(d =>
         d.nama?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         d.deskripsi?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         d.lokasi?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -72,12 +83,29 @@ const DashboardPenerima = () => {
     return icons[category?.toLowerCase()] || '📦';
   };
 
+  const getStatusBadge = (req) => {
+    // Priority: Received -> Sent -> Approved (Fulfilled) -> Pending -> Rejected
+    if (req.status_pengiriman === 'received') {
+      return <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><FiCheckCircle /> Diterima</span>;
+    }
+    if (req.status_pengiriman === 'sent') {
+      return <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><FiPackage /> Dikirim</span>;
+    }
+    if (req.status_permohonan === 'approved') {
+      return <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><FiCheckCircle /> Disetujui</span>;
+    }
+    if (req.status_permohonan === 'rejected') {
+      return <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><FiAlertCircle /> Ditolak</span>;
+    }
+    return <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><FiClock /> Menunggu</span>;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          <p className="mt-4 text-gray-600">Memuat donasi...</p>
+          <p className="mt-4 text-gray-600">Memuat data...</p>
         </div>
       </div>
     );
@@ -97,7 +125,7 @@ const DashboardPenerima = () => {
           </div>
 
           <div className="relative">
-            <input 
+            <input
               type="text"
               placeholder="Cari donasi berdasarkan nama, deskripsi, atau lokasi..."
               value={searchTerm}
@@ -116,10 +144,24 @@ const DashboardPenerima = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8">
+
+
+
+
+
+        {/* SECTION: DAFTAR DONASI */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Daftar Donasi Tersedia</h2>
             <p className="text-gray-600">Pilih donasi yang paling sesuai dengan kebutuhan Anda</p>
+          </div>
+          <div className="flex gap-4">
+            <button
+              onClick={() => navigate('/penerima/ajukan-permintaan')}
+              className="bg-white text-[#00306C] border font-bold px-6 py-3 rounded-xl hover:bg-gray-50 flex items-center gap-2 transition-all shadow-sm"
+            >
+              <FiPackage /> Ajukan Permintaan
+            </button>
           </div>
         </div>
 
@@ -128,11 +170,10 @@ const DashboardPenerima = () => {
             <button
               key={cat.value}
               onClick={() => setCategory(cat.value)}
-              className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${
-                category === cat.value
-                  ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
+              className={`px-6 py-2.5 rounded-lg font-semibold transition-all ${category === cat.value
+                ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg'
+                : 'text-gray-600 hover:bg-gray-100'
+                }`}
             >
               {cat.label}
             </button>
@@ -215,11 +256,10 @@ const DashboardPenerima = () => {
                     <button
                       onClick={() => donation.jumlah > 0 && navigate(`/donasi/detail/${donation.id}`)}
                       disabled={donation.jumlah <= 0}
-                      className={`w-full flex items-center justify-center space-x-2 px-4 py-2.5 font-semibold rounded-xl transition-all ${
-                        donation.jumlah <= 0
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white hover:shadow-xl hover:shadow-[#007EFF]/30 hover:scale-105'
-                      }`}
+                      className={`w-full flex items-center justify-center space-x-2 px-4 py-2.5 font-semibold rounded-xl transition-all ${donation.jumlah <= 0
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white hover:shadow-xl hover:shadow-[#007EFF]/30 hover:scale-105'
+                        }`}
                     >
                       <span>{donation.jumlah <= 0 ? 'Donasi Habis' : 'Lihat Detail & Ajukan'}</span>
                     </button>
@@ -227,6 +267,108 @@ const DashboardPenerima = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* SECTION: PERMINTAAN SAYA (ACTIVE) */}
+        {myRequests.filter(req => !['received', 'rejected'].includes(req.status_pengiriman) && req.status_permohonan !== 'rejected').length > 0 && (
+          <div className="mb-12 mt-12 pt-8 border-t border-gray-200">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">Permintaan Saya</h2>
+                <p className="text-gray-600">Status permintaan yang sedang berjalan</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myRequests.filter(req => !['received', 'rejected'].includes(req.status_pengiriman) && req.status_permohonan !== 'rejected').map((req) => (
+                <div key={req.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all">
+                  <div className="h-40 bg-gray-100 relative">
+                    {req.image ? (
+                      <img
+                        src={req.image.startsWith('http') ? req.image : `http://localhost:8000/${req.image}`}
+                        alt={req.judul}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl">
+                        {getCategoryIcon(req.kategori)}
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3">
+                      {getStatusBadge(req)}
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="font-bold text-gray-900 mb-1 truncate">{req.judul}</h3>
+                    <p className="text-sm text-gray-500 mb-3 truncate">{req.deskripsi}</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                        Target: {req.target_jumlah} Pcs
+                      </span>
+                      <span className="text-gray-400 text-xs">
+                        {new Date(req.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {req.status_pengiriman === 'sent' && (
+                      <button
+                        onClick={() => navigate('/penerima/konfirmasi-terima/' + req.id)}
+                        className="w-full mt-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors"
+                      >
+                        Konfirmasi Terima
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* SECTION: RIWAYAT PERMINTAAN (COMPLETED/REJECTED) */}
+        {myRequests.filter(req => ['received'].includes(req.status_pengiriman) || req.status_permohonan === 'rejected').length > 0 && (
+          <div className="mb-12 mt-12 pt-8 border-t border-gray-200">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">Riwayat Permintaan Selesai</h2>
+                <p className="text-gray-600">Permintaan yang sudah diterima atau ditolak</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myRequests.filter(req => ['received'].includes(req.status_pengiriman) || req.status_permohonan === 'rejected').map((req) => (
+                <div key={req.id} className="bg-gray-50 rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all opacity-80 hover:opacity-100">
+                  <div className="h-40 bg-gray-200 relative grayscale">
+                    {req.image ? (
+                      <img
+                        src={req.image.startsWith('http') ? req.image : `http://localhost:8000/${req.image}`}
+                        alt={req.judul}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl">
+                        {getCategoryIcon(req.kategori)}
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3">
+                      {getStatusBadge(req)}
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="font-bold text-gray-700 mb-1 truncate">{req.judul}</h3>
+                    <p className="text-sm text-gray-500 mb-3 truncate">{req.deskripsi}</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500 bg-gray-100 px-2 py-1 rounded-md border border-gray-200">
+                        Target: {req.target_jumlah} Pcs
+                      </span>
+                      <span className="text-gray-400 text-xs">
+                        {new Date(req.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

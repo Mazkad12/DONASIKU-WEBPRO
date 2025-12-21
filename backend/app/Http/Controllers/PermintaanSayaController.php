@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\PermintaanSaya;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,12 +36,14 @@ class PermintaanSayaController extends Controller
             if ($user->role === 'penerima') {
                 $query->where('user_id', $user->id);
             }
-            // Jika user adalah DONATUR, tampilkan permintaan yang terkait dengan donasi milik mereka.
+            // Jika user adalah DONATUR, tampilkan (1) Permintaan yang dia penuhi (linked to his donation), ATAU (2) Permintaan terbuka (belum ada donasi).
             else if ($user->role === 'donatur') {
-                $query->whereHas('donation', function ($q) use ($user) {
-                    $q->where('user_id', $user->id);
+                $query->where(function ($q) use ($user) {
+                    $q->whereHas('donation', function ($subQ) use ($user) {
+                        $subQ->where('user_id', $user->id);
+                    })
+                    ->orWhereNull('donation_id'); // Tampilkan permintaan terbuka
                 });
-                $query->where('status', 'aktif');
             }
 
             // Filter by status if provided (optional)
@@ -113,9 +116,16 @@ class PermintaanSayaController extends Controller
                 ], 401);
             }
 
-            $permintaan = PermintaanSaya::where('id', $id)
-                ->where('user_id', $user->id)
-                ->firstOrFail();
+            $query = PermintaanSaya::with('donation')->where('id', $id);
+
+            // Jika user adalah penerima, harus miliknya sendiri
+            if ($user->role === 'penerima') {
+                $query->where('user_id', $user->id);
+            }
+            // Jika donatur, bisa lihat semua (atau logic lain sesuai kebutuhan bisnis)
+            // Untuk saat ini donatur bisa lihat detail permintaan apapun untuk dipenuhi
+
+            $permintaan = $query->firstOrFail();
 
             return response()->json([
                 'success' => true,
@@ -204,7 +214,7 @@ class PermintaanSayaController extends Controller
             ]);
 
             // If no image path provided, try to get from donation relationship
-            if (!$imagePath && $validated['donation_id']) {
+            if (!$imagePath && !empty($validated['donation_id'])) {
                 $donation = \App\Models\Donation::find($validated['donation_id']);
                 if ($donation && $donation->image) {
                     $imagePath = $donation->image;
@@ -212,7 +222,7 @@ class PermintaanSayaController extends Controller
             }
 
             // Validasi donation memiliki stok yang cukup
-            if ($validated['donation_id']) {
+            if (!empty($validated['donation_id'])) {
                 $donation = \App\Models\Donation::find($validated['donation_id']);
                 if (!$donation) {
                     return response()->json([
@@ -664,6 +674,85 @@ class PermintaanSayaController extends Controller
             ], 200);
         } catch (\Exception $e) {
             Log::error('Error marking received: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Donatur memenuhi permintaan (Fulfill Request)
+     * POST /api/permintaan-sayas/{id}/fulfill
+     * - Membuat Donasi baru
+     * - Link Donasi ke Permintaan ini
+     * - Auto-approve permintaan
+     */
+    public function fulfill(Request $request, $id): JsonResponse
+    {
+        try {
+            $user = Auth::user() ?? auth()->guard('sanctum')->user();
+
+            if (!$user) {
+                return response()->json(['success' => false, 'message' => 'Tidak terautentikasi'], 401);
+            }
+
+            if ($user->role !== 'donatur') {
+                return response()->json(['success' => false, 'message' => 'Hanya donatur yang dapat memenuhi permintaan'], 403);
+            }
+
+            $permintaan = PermintaanSaya::findOrFail($id);
+
+            if ($permintaan->donation_id) {
+                return response()->json(['success' => false, 'message' => 'Permintaan ini sudah dipenuhi oleh orang lain'], 400);
+            }
+
+            // Validasi input donasi (mirip dengan DonationController store)
+            $validated = $request->validate([
+                'nama' => 'required|string|max:255',
+                'kategori' => 'required|string|max:255',
+                'jumlah' => 'required|integer|min:1',
+                'deskripsi' => 'required|string',
+                'lokasi' => 'required|string',
+                'image' => 'required|string', // Base64 image required for donation proof
+            ]);
+
+            DB::beginTransaction();
+
+            // 1. Buat Donation Baru
+            $donation = \App\Models\Donation::create([
+                'user_id' => $user->id,
+                'nama' => $validated['nama'],
+                'kategori' => $validated['kategori'],
+                'jumlah' => $validated['jumlah'],
+                'deskripsi' => $validated['deskripsi'],
+                'lokasi' => $validated['lokasi'],
+                'image' => $validated['image'], // Simpan base64 langsung sesuai implementasi DonationController
+                'status' => 'aktif',
+            ]);
+
+            // 2. Update PermintaanSaya
+            $permintaan->update([
+                'donation_id' => $donation->id,
+                'status_permohonan' => 'approved', // Auto-approve karena donatur yang berinisiatif
+                'approved_at' => now(),
+                'status_pengiriman' => 'draft', // Siap dikirim
+            ]);
+
+            DB::commit();
+
+            Log::info('Permintaan fulfilled by donatur', [
+                'permintaan_id' => $permintaan->id,
+                'donation_id' => $donation->id,
+                'user_id' => $user->id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Terima kasih! Permintaan berhasil dipenuhi. Silakan proses pengiriman.',
+                'data' => $permintaan->load('donation')
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error fulfilling permintaan: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }

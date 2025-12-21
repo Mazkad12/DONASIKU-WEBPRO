@@ -1,10 +1,10 @@
 // frontend/src/services/permintaanService.js
-import API from './api'; 
+import API from './api';
 
 // Fungsi CREATE - membuat permintaan baru
 export const createPermintaanSaya = async (data) => {
     try {
-        const response = await API.post('/permintaan-sayas', data); 
+        const response = await API.post('/permintaan-sayas', data);
         return response.data;
     } catch (error) {
         console.error('Error creating Permintaan Saya:', error);
@@ -31,24 +31,24 @@ export const getMyPermintaanSaya = async (retryCount = 0) => {
     try {
         const token = localStorage.getItem('auth_token');
         console.log('Getting my requests... Token present:', !!token);
-        
+
         // Memanggil endpoint backend GET /api/permintaan-sayas (Controller index)
         // Increased timeout to 15000ms (15 seconds) to avoid timeout issues
         const response = await API.get('/permintaan-sayas', { timeout: 15000 });
         // Asumsi backend mengembalikan data di response.data.data (seperti di Controller Anda)
         const data = response.data.data || response.data || [];
         console.log('Requests loaded successfully:', data.length, 'items');
-        return Array.isArray(data) ? data : []; 
+        return Array.isArray(data) ? data : [];
     } catch (error) {
         console.error('Error fetching my requests:', error.message, error.code);
-        
+
         // Retry logic for timeout errors - max 1 retry
         if ((error.code === 'ECONNABORTED' || error.message.includes('timeout')) && retryCount < 1) {
             console.warn('Request timeout - retrying once...');
             await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
             return getMyPermintaanSaya(retryCount + 1);
         }
-        
+
         // Fallback: return empty array instead of throwing
         if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
             console.warn('Request timeout after retry - returning empty list');
@@ -61,5 +61,49 @@ export const getMyPermintaanSaya = async (retryCount = 0) => {
         // Don't throw for network errors, just return empty
         console.warn('API error - returning empty list:', error.message);
         return [];
+    }
+};
+
+// Fungsi READ by ID - ambil detail permintaan
+export const getPermintaanById = async (id) => {
+    try {
+        const response = await API.get(`/permintaan-sayas/${id}`);
+        return response.data.data || response.data;
+    } catch (error) {
+        console.error('Error fetching permintaan by ID:', error);
+        throw new Error(error.response?.data?.message || 'Gagal mengambil detail permintaan.');
+    }
+};
+
+// Fungsi FULFILL - Donatur memenuhi permintaan
+export const fulfillPermintaan = async (id, donationData) => {
+    try {
+        const response = await API.post(`/permintaan-sayas/${id}/fulfill`, donationData);
+        return response.data;
+    } catch (error) {
+        console.error('Error fulfilling permintaan:', error);
+        throw new Error(error.response?.data?.message || 'Gagal memenuhi permintaan.');
+    }
+};
+
+// Fungsi MARK AS SENT - Donatur menandai barang dikirim
+export const markPermintaanSent = async (id) => {
+    try {
+        const response = await API.patch(`/permintaan-sayas/${id}/sent`);
+        return response.data;
+    } catch (error) {
+        console.error('Error marking permintaan as sent:', error);
+        throw new Error(error.response?.data?.message || 'Gagal menandai barang dikirim.');
+    }
+};
+
+// Fungsi MARK AS RECEIVED - Penerima mengonfirmasi barang diterima
+export const markPermintaanReceived = async (id) => {
+    try {
+        const response = await API.patch(`/permintaan-sayas/${id}/received`);
+        return response.data;
+    } catch (error) {
+        console.error('Error marking permintaan as received:', error);
+        throw new Error(error.response?.data?.message || 'Gagal mengonfirmasi penerimaan barang.');
     }
 };

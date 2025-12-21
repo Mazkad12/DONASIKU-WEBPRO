@@ -97,6 +97,11 @@ export const donationAPI = {
   updateStatus: (id, status) => api.patch(`/donations/${id}/status`, { status }),
 };
 
+export const detailDonasiAPI = {
+  getAll: (params = {}) => api.get('/detail-donasis', { params }),
+  getById: (id) => api.get(`/detail-donasis/${id}`),
+};
+
 export const chatAPI = {
   sendMessage: (data) => api.post('/chat/send', data),
   getConversations: () => api.get('/chat/conversations'),

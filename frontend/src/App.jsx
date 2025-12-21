@@ -22,6 +22,7 @@ import DaftarDonasi from './features/donatur/DaftarDonasi.jsx';
 import KelolaDonasi from './features/donatur/KelolaDonasi.jsx';
 import ChatDonatur from './features/donatur/ChatDonatur.jsx';
 import PermintaanMasukDonatur from './features/donatur/PermintaanMasukDonatur.jsx';
+import DetailPermintaan from './features/donatur/DetailPermintaan.jsx';
 import ProfileDonatur from './features/donatur/ProfileDonatur.jsx';
 import DetailAkunDonatur from './features/donatur/DetailAkunDonatur.jsx';
 
@@ -33,6 +34,8 @@ import DetailDonasi from './features/penerima/DetailDonasi.jsx';
 import PermintaanSaya from './features/penerima/PermintaanSaya.jsx';
 import DonasiDiterima from './features/penerima/DonasiDiterima.jsx';
 import Profile from "./features/penerima/Profile.jsx";
+import RequestForm from './components/RequestForm.jsx';
+import KonfirmasiTerima from './features/penerima/KonfirmasiTerima.jsx';
 
 // Impor Fitur Bersama (Shared)
 import Riwayat from './features/riwayat/Riwayat.jsx';
@@ -107,6 +110,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="donatur/permintaan/:id"
+            element={
+              <ProtectedRoute requiredRole="donatur">
+                <DetailPermintaan />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="donatur/chat"
@@ -147,7 +158,7 @@ function App() {
             }
           />
 
-         
+
 
         </Route>
 
@@ -173,14 +184,30 @@ function App() {
             }
           />
           <Route
-          path="penerima/profil"
-          element={
-            <ProtectedRoute requiredRole="penerima">
-              <Profile />
-            </ProtectedRoute>
-          }
-          />  
+            path="penerima/konfirmasi-terima/:id"
+            element={
+              <ProtectedRoute requiredRole="penerima">
+                <KonfirmasiTerima />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="penerima/profil"
+            element={
+              <ProtectedRoute requiredRole="penerima">
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
           {/* ===== FIX: Rute untuk Permintaan Saya ===== */}
+          <Route
+            path="penerima/ajukan-permintaan"
+            element={
+              <ProtectedRoute requiredRole="penerima">
+                <RequestForm />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="penerima/permintaan-saya"
             element={
