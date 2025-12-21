@@ -34,6 +34,7 @@ import DetailDonasi from './features/penerima/DetailDonasi.jsx';
 import PermintaanSaya from './features/penerima/PermintaanSaya.jsx';
 import DonasiDiterima from './features/penerima/DonasiDiterima.jsx';
 import Profile from "./features/penerima/Profile.jsx";
+import DetailProfilePenerima from './features/penerima/DetailProfilePenerima.jsx';
 import RequestForm from './components/RequestForm.jsx';
 import KonfirmasiTerima from './features/penerima/KonfirmasiTerima.jsx';
 
@@ -196,6 +197,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="penerima">
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="penerima/detail-akun"
+            element={
+              <ProtectedRoute requiredRole="penerima">
+                <DetailProfilePenerima />
               </ProtectedRoute>
             }
           />
