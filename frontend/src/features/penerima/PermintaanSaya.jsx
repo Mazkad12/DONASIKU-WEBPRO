@@ -77,7 +77,12 @@ const PermintaanSaya = () => {
               full_first_item: JSON.stringify(data[0], null, 2)
             });
           }
-          setPermintaan(data);
+
+          // Filter out completed requests (status_pengiriman === 'received' or status === 'terpenuhi')
+          const activeData = data.filter(item =>
+            item.status_pengiriman !== 'received' && item.status !== 'terpenuhi'
+          );
+          setPermintaan(activeData);
         } else {
           console.warn("Data format tidak sesuai", data);
           setPermintaan([]);
@@ -88,7 +93,10 @@ const PermintaanSaya = () => {
         try {
           const data = await getMyPermintaanSaya();
           if (Array.isArray(data)) {
-            setPermintaan(data);
+            const activeData = data.filter(item =>
+              item.status_pengiriman !== 'received' && item.status !== 'terpenuhi'
+            );
+            setPermintaan(activeData);
           } else {
             setPermintaan([]);
           }
@@ -173,7 +181,9 @@ const PermintaanSaya = () => {
         ? '[base64]'
         : donasi.image.startsWith('http')
           ? donasi.image
-          : `http://localhost:8000/${donasi.image}`;
+          : donasi.image.startsWith('storage/')
+            ? `http://localhost:8000/${donasi.image}`
+            : `http://localhost:8000/storage/${donasi.image}`;
       console.log("Final image URL:", imageUrl);
     }
     setShowImageModal(true);
@@ -293,12 +303,20 @@ const PermintaanSaya = () => {
                   {/* Image - dari donation.image (base64 atau path) */}
                   <div className="flex-shrink-0">
                     <div className="w-28 h-28 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center shadow-md hover:shadow-lg transition-shadow">
-                      {req.donation?.image ? (
+                      {req.donation?.image || req.image ? (
                         <img
                           src={
-                            req.donation.image.startsWith('data:')
-                              ? req.donation.image
-                              : `http://localhost:8000/${req.donation.image}`
+                            req.donation?.image
+                              ? (req.donation.image.startsWith('data:')
+                                ? req.donation.image
+                                : req.donation.image.startsWith('storage/')
+                                  ? `http://localhost:8000/${req.donation.image}`
+                                  : `http://localhost:8000/storage/${req.donation.image}`)
+                              : (req.image && (req.image.startsWith('data:')
+                                ? req.image
+                                : req.image.startsWith('storage/')
+                                  ? `http://localhost:8000/${req.image}`
+                                  : `http://localhost:8000/storage/${req.image}`))
                           }
                           alt={req.judul}
                           className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
@@ -313,7 +331,7 @@ const PermintaanSaya = () => {
                       ) : null}
                       <div
                         className="w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-3xl"
-                        style={{ display: req.donation?.image ? 'none' : 'flex' }}
+                        style={{ display: req.donation?.image || req.image ? 'none' : 'flex' }}
                       >
                         📦
                       </div>
@@ -447,7 +465,9 @@ const PermintaanSaya = () => {
                     ? donasi.image
                     : donasi.image.startsWith('http')
                       ? donasi.image
-                      : `http://localhost:8000/${donasi.image}`
+                      : donasi.image.startsWith('storage/')
+                        ? `http://localhost:8000/${donasi.image}`
+                        : `http://localhost:8000/storage/${donasi.image}`
                 }
                 alt={donasi.nama}
                 style={{
@@ -596,7 +616,13 @@ const PermintaanSaya = () => {
                   className="w-full group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all cursor-pointer bg-gray-100"
                 >
                   <img
-                    src={donasi.image.startsWith('data:') ? donasi.image : `http://localhost:8000/${donasi.image}`}
+                    src={
+                      donasi.image.startsWith('data:') || donasi.image.startsWith('http')
+                        ? donasi.image
+                        : donasi.image.startsWith('storage/')
+                          ? `http://localhost:8000/${donasi.image}`
+                          : `http://localhost:8000/storage/${donasi.image}`
+                    }
                     alt={donasi.nama}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform"
                     onError={(e) => {

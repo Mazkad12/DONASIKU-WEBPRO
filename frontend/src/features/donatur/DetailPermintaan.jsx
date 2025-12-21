@@ -76,7 +76,13 @@ const DetailPermintaan = () => {
                     <div className="h-64 sm:h-80 w-full bg-gray-200 relative">
                         {request.image ? (
                             <img
-                                src={request.image.startsWith('http') ? request.image : `http://localhost:8000/${request.image}`}
+                                src={
+                                    request.image.startsWith('http') || request.image.startsWith('data:')
+                                        ? request.image
+                                        : request.image.startsWith('storage/')
+                                            ? `http://localhost:8000/${request.image}`
+                                            : `http://localhost:8000/storage/${request.image}`
+                                }
                                 alt={request.judul}
                                 className="w-full h-full object-cover"
                             />
@@ -112,8 +118,8 @@ const DetailPermintaan = () => {
                                 </button>
                             )}
 
-                            {/* Tombol Konfirmasi Pengiriman (untuk donatur yang sudah fulfill) */}
-                            {request.donation_id && user?.role === 'donatur' && request.status_pengiriman === 'draft' && request.donation?.user_id === user.id && (
+                            {/* Tombol Konfirmasi Pengiriman (untuk donatur yang sudah approved) */}
+                            {request.donation_id && user?.role === 'donatur' && request.status_permohonan === 'approved' && request.status_pengiriman === 'draft' && request.donation?.user_id === user.id && (
                                 <button
                                     onClick={async () => {
                                         if (window.confirm('Apakah Anda yakin sudah mengirim barang ini?')) {
@@ -132,6 +138,47 @@ const DetailPermintaan = () => {
                                 >
                                     <FiPackage size={20} /> Konfirmasi Pengiriman
                                 </button>
+                            )}
+
+                            {/* Tombol Approve/Reject (untuk donatur jika status pending) */}
+                            {request.donation_id && user?.role === 'donatur' && request.status_permohonan === 'pending' && request.donation?.user_id === user.id && (
+                                <div className="flex gap-2 w-full sm:w-auto">
+                                    <button
+                                        onClick={async () => {
+                                            if (window.confirm('Setujui permintaan ini?')) {
+                                                try {
+                                                    await import('../../services/permintaanService').then(m => m.approvePermintaan(request.id));
+                                                    alert('Permintaan disetujui!');
+                                                    const updatedData = await import('../../services/permintaanService').then(m => m.getPermintaanById(request.id));
+                                                    setRequest(updatedData);
+                                                } catch (err) {
+                                                    alert(err.message);
+                                                }
+                                            }
+                                        }}
+                                        className="flex-1 sm:flex-none px-6 py-3 bg-green-500 text-white font-bold rounded-xl shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <FiCheckCircle size={20} /> Setujui
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            const reason = prompt('Masukkan alasan penolakan:');
+                                            if (reason) {
+                                                try {
+                                                    await import('../../services/permintaanService').then(m => m.rejectPermintaan(request.id, reason));
+                                                    alert('Permintaan ditolak.');
+                                                    const updatedData = await import('../../services/permintaanService').then(m => m.getPermintaanById(request.id));
+                                                    setRequest(updatedData);
+                                                } catch (err) {
+                                                    alert(err.message);
+                                                }
+                                            }
+                                        }}
+                                        className="flex-1 sm:flex-none px-6 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <FiAlertCircle size={20} /> Tolak
+                                    </button>
+                                </div>
                             )}
 
                             {/* Status Pengiriman */}

@@ -23,7 +23,7 @@ const DetailAkunDonatur = () => {
 
   useEffect(() => {
     loadUserData();
-    
+
     // Refresh user data whenever window gains focus
     window.addEventListener('focus', loadUserData);
     return () => window.removeEventListener('focus', loadUserData);
@@ -117,11 +117,10 @@ const DetailAkunDonatur = () => {
       <div className="p-4 space-y-6 pb-20">
         {/* Message */}
         {message && (
-          <div className={`p-3 rounded-lg text-sm font-medium ${
-            message.includes('berhasil') 
-              ? 'bg-green-100 text-green-700' 
-              : 'bg-red-100 text-red-700'
-          }`}>
+          <div className={`p-3 rounded-lg text-sm font-medium ${message.includes('berhasil')
+            ? 'bg-green-100 text-green-700'
+            : 'bg-red-100 text-red-700'
+            }`}>
             {message}
           </div>
         )}
@@ -155,7 +154,7 @@ const DetailAkunDonatur = () => {
                   className="hidden"
                 />
               </div>
-              <button 
+              <button
                 onClick={handleUploadPhoto}
                 disabled={loading || !photoFile}
                 className="text-sm font-semibold text-blue-600 hover:text-blue-700 disabled:text-gray-400 px-6 py-2 border border-blue-600 disabled:border-gray-400 rounded-full transition"
