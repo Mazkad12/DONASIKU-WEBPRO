@@ -60,6 +60,15 @@ const EditDonasi = () => {
     }
   }, [id, navigate]);
 
+  // Auto-switch status based on jumlah
+  useEffect(() => {
+    if (formData.jumlah === 0) {
+      setFormData(prev => ({ ...prev, status: 'selesai' }));
+    } else if (formData.jumlah > 0 && formData.status === 'selesai') {
+      setFormData(prev => ({ ...prev, status: 'aktif' }));
+    }
+  }, [formData.jumlah]);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -197,8 +206,8 @@ const EditDonasi = () => {
                     type="button"
                     onClick={() => setFormData({ ...formData, kategori: cat.value })}
                     className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.kategori === cat.value
-                        ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                   >
                     <span className="text-2xl">{cat.icon}</span>
@@ -216,7 +225,7 @@ const EditDonasi = () => {
               <input
                 type="number"
                 required
-                min="1"
+                min="0"
                 value={formData.jumlah}
                 onChange={(e) => setFormData({ ...formData, jumlah: parseInt(e.target.value) })}
                 className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:border-[#007EFF] focus:ring-4 focus:ring-[#007EFF]/10 transition-all text-gray-900 font-medium"
@@ -233,8 +242,8 @@ const EditDonasi = () => {
                   type="button"
                   onClick={() => setFormData({ ...formData, status: 'aktif' })}
                   className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.status === 'aktif'
-                      ? 'bg-green-500 text-white shadow-lg scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-green-500 text-white shadow-lg scale-105'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   <span>Aktif</span>
@@ -243,8 +252,8 @@ const EditDonasi = () => {
                   type="button"
                   onClick={() => setFormData({ ...formData, status: 'selesai' })}
                   className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.status === 'selesai'
-                      ? 'bg-blue-500 text-white shadow-lg scale-105'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-blue-500 text-white shadow-lg scale-105'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   <span>Selesai</span>
@@ -255,7 +264,7 @@ const EditDonasi = () => {
             <div>
               <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
                 <FiMapPin className="text-[#007EFF]" />
-                <span>Lokasi Pengambilan *</span>
+                <span>Lokasi Barang *</span>
               </label>
               <input
                 type="text"

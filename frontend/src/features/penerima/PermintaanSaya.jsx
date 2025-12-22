@@ -13,7 +13,8 @@ import {
   FiLoader,
   FiMessageSquare,
   FiSearch,
-  FiAlertCircle
+  FiAlertCircle,
+  FiMapPin
 } from "react-icons/fi";
 // FIX LINTER: Hanya import yang diperlukan
 import { getDonasiByIdService } from "../../services/donasiService.js";
@@ -27,7 +28,7 @@ const PermintaanSaya = () => {
   const navigate = useNavigate();
   const [donasi, setDonasi] = useState(null);
   const [permintaan, setPermintaan] = useState([]);
-  const [formData, setFormData] = useState({ jumlah: 1, asal: "", deskripsi: "", bukti_file: null });
+  const [formData, setFormData] = useState({ jumlah: 1, lokasi: "", deskripsi: "", bukti_file: null });
   const [buktiPreview, setBuktiPreview] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -83,7 +84,9 @@ const PermintaanSaya = () => {
 
           // Filter out completed requests (status_pengiriman === 'received' or status === 'terpenuhi')
           const activeData = data.filter(item =>
-            item.status_pengiriman !== 'received' && item.status !== 'terpenuhi'
+            item.status_pengiriman !== 'received' &&
+            item.status !== 'terpenuhi' &&
+            item.status_permohonan !== 'rejected'
           );
           setPermintaan(activeData);
         } else {
@@ -97,7 +100,9 @@ const PermintaanSaya = () => {
           const data = await getMyPermintaanSaya();
           if (Array.isArray(data)) {
             const activeData = data.filter(item =>
-              item.status_pengiriman !== 'received' && item.status !== 'terpenuhi'
+              item.status_pengiriman !== 'received' &&
+              item.status !== 'terpenuhi' &&
+              item.status_permohonan !== 'rejected'
             );
             setPermintaan(activeData);
           } else {
@@ -213,8 +218,8 @@ const PermintaanSaya = () => {
       return;
     }
 
-    if (!formData.asal) {
-      showError("Data Tidak Lengkap", "Silakan isi asal Anda.");
+    if (!formData.lokasi) {
+      showError("Data Tidak Lengkap", "Silakan isi alamat tujuan pengiriman.");
       return;
     }
 
@@ -224,7 +229,7 @@ const PermintaanSaya = () => {
     newRequestData.append('deskripsi', formData.deskripsi);
     newRequestData.append('kategori', donasi.kategori);
     newRequestData.append('target_jumlah', parseInt(formData.jumlah));
-    newRequestData.append('lokasi', donasi.lokasi);
+    newRequestData.append('lokasi', formData.lokasi);
     newRequestData.append('donation_id', parseInt(id));
 
     // Tambahkan bukti file jika ada
@@ -248,7 +253,7 @@ const PermintaanSaya = () => {
       }
 
       await showSuccess("Berhasil", "Permintaan berhasil diajukan dan disimpan ke database!");
-      setFormData({ jumlah: 1, asal: "", deskripsi: "", bukti_file: null });
+      setFormData({ jumlah: 1, lokasi: "", deskripsi: "", bukti_file: null });
       setBuktiPreview(null);
       navigate("/penerima/permintaan-saya");
 
@@ -408,8 +413,12 @@ const PermintaanSaya = () => {
 
                         <div className="space-y-2 mb-4">
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <FiUsers className="text-[#007EFF]" />
+                            <FiMapPin className="text-[#007EFF]" />
                             <span className="truncate">{req.lokasi}</span>
+                          </div>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <FiUsers className="text-[#007EFF]" />
+                            <span>Donatur: <span className="font-semibold">{req.donation?.donatur?.name || req.donation?.user?.name || "Menunggu"}</span></span>
                           </div>
                           <div className="flex items-center space-x-2 text-sm text-gray-600">
                             <FiPackage className="text-[#007EFF]" />
@@ -603,16 +612,16 @@ const PermintaanSaya = () => {
 
           <div>
             <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
-              <FiUsers className="text-[#00306C]" />
-              <span>Darimana Anda Berasal *</span>
+              <FiMapPin className="text-[#00306C]" />
+              <span>Alamat Lengkap Tujuan Pengiriman *</span>
             </label>
             <input
               type="text"
-              name="asal"
-              value={formData.asal}
+              name="lokasi"
+              value={formData.lokasi}
               onChange={handleChange}
               required
-              placeholder="Contoh: Komunitas, panti asuhan, dsb."
+              placeholder="Masukkan alamat lengkap penerimaan barang..."
               className="w-full px-5 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00306C] focus:ring-4 focus:ring-[#00306C]/10 transition-all"
             />
           </div>

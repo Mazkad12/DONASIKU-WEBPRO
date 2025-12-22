@@ -106,6 +106,7 @@ export const chatAPI = {
   sendMessage: (data) => api.post('/chat/send', data),
   getConversations: () => api.get('/chat/conversations'),
   getMessages: (peerId) => api.get(`/chat/messages/${peerId}`),
+  deleteMessage: (id) => api.delete(`/chat/messages/${id}`),
 };
 
 export default api;

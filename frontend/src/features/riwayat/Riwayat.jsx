@@ -68,7 +68,7 @@ const Riwayat = () => {
             // Extra details for modal
             deskripsi: req.deskripsi,
             lokasi: req.lokasi,
-            donatur_name: req.donation?.user?.name || 'Donatur',
+            donatur_name: req.donation?.donatur?.name || req.donation?.user?.name || 'Donatur',
             tanggal_disetujui: req.approved_at,
             tanggal_dikirim: req.sent_at,
             tanggal_diterima: req.received_at
@@ -135,6 +135,7 @@ const Riwayat = () => {
   // Stats Calculations
   const totalSelesai = historyItems.filter(item => item.displayStatus === 'completed' || item.status === 'selesai').length;
   const totalItem = historyItems.reduce((sum, item) => sum + (parseInt(item.jumlah) || 0), 0);
+  const totalDitolak = historyItems.filter(item => item.displayStatus === 'rejected').length;
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -161,7 +162,7 @@ const Riwayat = () => {
 
         {/* Statistics Section (Only show if there is data) */}
         {!loading && historyItems.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex items-center justify-between">
               <div>
                 <p className="text-gray-500 font-medium">Total Transaksi Selesai</p>
@@ -171,9 +172,20 @@ const Riwayat = () => {
                 <FiCheckCircle />
               </div>
             </div>
+
             <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex items-center justify-between">
               <div>
-                <p className="text-gray-500 font-medium">Total Item {role === 'donatur' ? 'Didonasikan' : 'Diterima'}</p>
+                <p className="text-gray-500 font-medium">Total Ditolak</p>
+                <h3 className="text-3xl font-bold text-red-600 mt-2">{totalDitolak}</h3>
+              </div>
+              <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center text-red-600 text-2xl">
+                <FiX />
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 font-medium">{role === 'donatur' ? 'Total Item Didonasikan' : 'Total Permintaan Barang'}</p>
                 <h3 className="text-3xl font-bold text-[#00306C] mt-2">{totalItem}</h3>
               </div>
               <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl">

@@ -211,7 +211,7 @@ const DetailPermintaan = () => {
                             <div className="md:col-span-2 space-y-8">
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                        <FiUser className="text-[#00306C]" /> Detail Kebutuhan
+                                        <FiUser className="text-[#00306C]" /> Detail Kebutuhan (Penerima: {request.user?.name})
                                     </h3>
                                     <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
                                         {request.deskripsi || "Tidak ada deskripsi detail."}
@@ -235,7 +235,7 @@ const DetailPermintaan = () => {
                                                 <FiMapPin size={20} />
                                             </div>
                                             <div>
-                                                <p className="text-sm text-gray-500">Lokasi Penerimaan</p>
+                                                <p className="text-sm text-gray-500">Alamat Tujuan (Penerima)</p>
                                                 <p className="font-bold text-gray-900">{request.lokasi}</p>
                                             </div>
                                         </div>

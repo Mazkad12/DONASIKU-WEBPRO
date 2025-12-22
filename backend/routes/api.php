@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/chat/send', [ChatController::class, 'sendMessage']);
         Route::get('/chat/conversations', [ChatController::class, 'getConversations']);
         Route::get('/chat/messages/{peerId}', [ChatController::class, 'getMessages']);
+        Route::delete('/chat/messages/{id}', [ChatController::class, 'deleteMessage']);
     });
 
     // Workflow endpoints

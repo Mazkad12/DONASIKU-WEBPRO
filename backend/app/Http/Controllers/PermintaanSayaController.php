@@ -31,7 +31,7 @@ class PermintaanSayaController extends Controller
                 ], 401);
             }
 
-            $query = PermintaanSaya::with('donation'); // Eager load donation relationship
+            $query = PermintaanSaya::with(['donation.user', 'user']); // Eager load donation AND user (donatur & requester)
 
             // Logika baru: Jika user adalah PENERIMA, filter hanya permintaan miliknya.
             if ($user->role === 'penerima') {
@@ -43,7 +43,7 @@ class PermintaanSayaController extends Controller
                     $q->whereHas('donation', function ($subQ) use ($user) {
                         $subQ->where('user_id', $user->id);
                     })
-                    ->orWhereNull('donation_id'); // Tampilkan permintaan terbuka
+                        ->orWhereNull('donation_id'); // Tampilkan permintaan terbuka
                 });
             }
 
@@ -83,6 +83,19 @@ class PermintaanSayaController extends Controller
                         'kategori' => $item->donation->kategori,
                         'jumlah' => $item->donation->jumlah,
                         'lokasi' => $item->donation->lokasi,
+                        'donatur' => $item->donation->user ? [
+                            'id' => $item->donation->user->id,
+                            'name' => $item->donation->user->name,
+                            'email' => $item->donation->user->email,
+                            'photo' => $item->donation->user->photo,
+                        ] : null
+                    ] : null,
+                    'user' => $item->user ? [
+                        'id' => $item->user->id,
+                        'name' => $item->user->name,
+                        'email' => $item->user->email,
+                        'photo' => $item->user->photo,
+                        'phone' => $item->user->phone,
                     ] : null,
                 ];
             });
@@ -117,7 +130,7 @@ class PermintaanSayaController extends Controller
                 ], 401);
             }
 
-            $query = PermintaanSaya::with('donation')->where('id', $id);
+            $query = PermintaanSaya::with(['donation.user', 'user'])->where('id', $id);
 
             // Jika user adalah penerima, harus miliknya sendiri
             if ($user->role === 'penerima') {

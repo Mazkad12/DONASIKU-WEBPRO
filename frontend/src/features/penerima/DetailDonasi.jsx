@@ -17,18 +17,16 @@ const DetailDonasi = () => {
       try {
         setLoading(true);
         const donasiData = await getDonasiByIdService(id);
-        
+
         if (donasiData.status !== 'aktif') {
           setError('Donasi ini sudah tidak tersedia.');
         } else {
           setDonasi(donasiData);
-          
-          // Ambil data donatur dari localStorage 'users_db'
-          const users = JSON.parse(localStorage.getItem('users_db') || '[]');
-          const donaturData = users.find(u => u.id === donasiData.userId);
-          setDonatur(donaturData);
+
+          // Data donatur sudah dikirim oleh API
+          setDonatur(donasiData.donatur);
         }
-        
+
       } catch (err) {
         setError(err.message || 'Gagal memuat detail donasi.');
       }
@@ -50,11 +48,11 @@ const DetailDonasi = () => {
     return icons[category?.toLowerCase()] || '📦';
   };
 
- 
-const handleAjukan = () => {
-  // Navigate to permintaan form for this donasi
-  navigate(`/penerima/permintaan-saya/${id}`);
-};
+
+  const handleAjukan = () => {
+    // Navigate to permintaan form for this donasi
+    navigate(`/penerima/permintaan-saya/${id}`);
+  };
 
 
 

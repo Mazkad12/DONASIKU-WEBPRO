@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Message;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
+
     public function sendMessage(Request $request)
     {
         $request->validate([
@@ -21,6 +23,22 @@ class ChatController extends Controller
             'receiver_id' => $request->receiver_id,
             'message' => $request->message,
         ]);
+
+        // Send Notification to Receiver
+        $receiver = User::find($request->receiver_id);
+        if ($receiver) {
+            // Determine the link based on receiver's role
+            $baseUrl = ($receiver->role === 'donatur') ? '/donatur/chat' : '/penerima/chat';
+            $link = $baseUrl . '?peer_id=' . $request->user()->id;
+
+            Notification::create([
+                'user_id' => $receiver->id,
+                'title' => 'Pesan dari ' . $request->user()->name,
+                'message' => 'Mengirim pesan: "' . substr($request->message, 0, 50) . (strlen($request->message) > 50 ? '...' : '') . '"',
+                'type' => 'chat_message',
+                'link' => $link
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -77,6 +95,26 @@ class ChatController extends Controller
         return response()->json([
             'success' => true,
             'data' => $messages,
+        ]);
+    }
+
+    public function deleteMessage(Request $request, $id)
+    {
+        $message = Message::findOrFail($id);
+
+        // Ensure user is the sender
+        if ($message->sender_id !== $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $message->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan berhasil dihapus'
         ]);
     }
 }
