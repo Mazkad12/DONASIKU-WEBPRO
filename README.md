@@ -1,26 +1,129 @@
 # 🕊️ Donasiku: Platform Penyaluran Donasi Barang Layak Pakai
 
-Donasiku adalah platform berbasis web yang memfasilitasi donasi barang fisik layak pakai secara efisien, aman, dan transparan. Dengan memanfaatkan sistem berbasis lokasi, aplikasi ini mengoptimalkan jarak antara Donatur dan Penerima untuk meminimalkan biaya logistik.
+**Donasiku** adalah platform berbasis web yang dirancang untuk memfasilitasi penyaluran donasi barang fisik layak pakai secara efisien, aman, dan transparan. Aplikasi ini menghubungkan **Donatur** (pemilik barang) dengan **Penerima** (individu atau organisasi yang membutuhkan) dengan fitur berbasis lokasi dan real-time chat.
 
-## 💻 Tech Stack & Arsitektur
+---
 
-Sistem ini dirancang menggunakan arsitektur Client-Server yang memisahkan logika bisnis dengan antarmuka pengguna:
+## ✨ Fitur Utama
 
-- **Frontend**: React.js – Digunakan untuk membangun antarmuka yang responsif dan interaktif
-- **Backend**: Laravel – Menangani logika bisnis, otentikasi, dan API
-- **Database**: MySQL – Penyimpanan data terpusat untuk pengguna, postingan, dan transaksi
-- **API**: RESTful API untuk komunikasi antara React dan Laravel
+### 1. 📦 Manajemen Donasi & Permintaan
+- **Postingan Donasi**: Donatur dapat mengunggah barang dengan foto, deskripsi, dan lokasi.
+- **Permintaan Barang**: Penerima dapat membuat permintaan untuk barang yang dibutuhkan.
+- **Status Transaksi**: Pelacakan status donasi (Diposting -> Dipesan -> Dikirim -> Diterima/Selesai).
 
-## 🛠️ Skema Database (E-R Highlights)
+### 2. � Keamanan & Verifikasi
+- **Otentikasi Aman**: Login dan Register menggunakan Laravel Sanctum.
+- **Verifikasi Akun**: Validasi dokumen untuk akun Penerima untuk memastikan keaslian.
 
-Berdasarkan Functional Requirements (FR), database MySQL akan mencakup tabel-tabel utama berikut:
+### 3. 💬 Komunikasi & Interaksi
+- **Real-time Chat**: Fitur pesan langsung antara Donatur dan Penerima untuk koordinasi.
+- **Notifikasi**: Pemberitahuan real-time untuk status donasi dan pesan baru.
 
-- **users**: Menyimpan data akun, kata sandi terenkripsi, profil, dan role (Donatur/Penerima)
-- **donations**: Menyimpan detail barang seperti foto, deskripsi, kategori (pakaian, buku, elektronik), dan lokasi koordinat
-- **requests**: Mencatat permintaan barang dari Penerima kepada Donatur
-- **chats**: Menyimpan riwayat percakapan antar pengguna untuk koordinasi pengambilan
-- **verifications**: Data dokumen resmi untuk proses validasi akun Penerima oleh Admin
-- **histories**: Catatan riwayat donasi yang telah selesai (arsip)
+### 4. 👤 Profil Pengguna
+- **Manajemen Profil**: Pengguna dapat memperbarui informasi pribadi dan avatar.
+- **Riwayat**: Melihat riwayat donasi yang pernah diberikan atau diterima.
+
+---
+
+## 💻 Teknologi yang Digunakan
+
+Proyek ini dibangun menggunakan arsitektur **Monorepo** (Backend dan Frontend dalam satu repositori) dengan teknologi modern:
+
+### Backend (API)
+- **Framework**: [Laravel 12.x](https://laravel.com)
+- **Language**: PHP 8.2+
+- **Authentication**: Laravel Sanctum
+- **Database**: MySQL / SQLite (Development)
+
+### Frontend (Client)
+- **Framework**: [React 19](https://react.dev)
+- **Build Tool**: [Vite 7.x](https://vitejs.dev)
+- **Styling**: [Tailwind CSS 3.4](https://tailwindcss.com)
+- **HTTP Client**: Axios
+- **State/Icons**: React Icons, SweetAlert2
+
+---
+
+## ⚙️ Prasyarat Instalasi
+
+Sebelum memulai, pastikan perangkat Anda telah terinstal:
+- **PHP** >= 8.2
+- **Composer** (Manajer paket PHP)
+- **Node.js** (Versi LTS disarankan) & **NPM**
+- **Git**
+
+---
+
+## 🚀 Panduan Instalasi & Menjalankan Aplikasi
+
+Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal Anda:
+
+### 1. Clone Repositori
+```bash
+git clone https://github.com/kelompok3/donasiku.git
+cd donasiku
+```
+
+### 2. Setup Backend (Laravel)
+Masuk ke folder backend dan instal dependensi:
+```bash
+cd backend
+composer install
+```
+
+Salin konfigurasi environment dan generate key aplikasi:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+> **Catatan**: Sesuaikan pengaturan database di file `.env` jika Anda menggunakan MySQL (DB_DATABASE, DB_USERNAME, dll). Secara default, script setup mungkin menggunakan SQLite.
+
+Jalankan migrasi database:
+```bash
+php artisan migrate
+```
+
+Jalankan server backend:
+```bash
+php artisan serve
+```
+Backend akan berjalan di `http://127.0.0.1:8000`.
+
+### 3. Setup Frontend (React + Vite)
+Buka terminal baru, masuk ke folder frontend dan instal dependensi:
+```bash
+cd ../frontend
+npm install
+```
+
+Jalankan server pengembangan frontend:
+```bash
+npm run dev
+```
+Frontend akan berjalan (biasanya) di `http://127.0.0.1:5173`.
+
+---
+
+## 📂 Struktur Direktori Proyek
+
+```
+donasiku/
+├── backend/            # Kode sumber Backend (Laravel)
+│   ├── app/            # Controllers, Models, Middleware
+│   ├── database/       # Migrations, Seeders
+│   ├── routes/         # Definisi API Routes (api.php)
+│   └── ...
+├── frontend/           # Kode sumber Frontend (React)
+│   ├── src/
+│   │   ├── components/ # Komponen UI Reusable
+│   │   ├── pages/      # Halaman-halaman utama
+│   │   ├── services/   # Konfigurasi API (Axios)
+│   │   └── ...
+│   └── ...
+└── README.md           # Dokumentasi Proyek
+```
+
+---
 
 ## 👥 Tim Pengembang (Kelompok 3)
 
@@ -33,33 +136,11 @@ Berdasarkan Functional Requirements (FR), database MySQL akan mencakup tabel-tab
 | Muhammad Arief Ridwan Syah | 103032300064 | PIC Tim Donatur |
 | Nauval Yusriya Athalla | 103032330022 | PIC Tim Penerima |
 
-## 🌍 Dampak Sosial & SDGs
-
-Aplikasi ini selaras dengan tujuan global berikut:
-
-1. **Tanpa Kemiskinan (SDG 1)**: Membantu akses barang kebutuhan secara gratis
-2. **Berkurangnya Kesenjangan (SDG 10)**: Mempertemukan pemilik kelebihan barang dengan mereka yang kekurangan
-3. **Konsumsi & Produksi Bertanggung Jawab (SDG 12)**: Mengurangi limbah melalui konsep penggunaan kembali (reuse)
-
-## ⚙️ Langkah Instalasi
-
-### 1. Clone & Backend Setup
-```bash
-git clone https://github.com/kelompok3/donasiku.git
-cd donasiku/backend
-composer install
-cp .env.example .env # Sesuaikan DB_DATABASE=donasiku
-php artisan key:generate
-php artisan migrate
-```
-
-### 2. Frontend Setup
-```bash
-cd ../frontend
-npm install
-npm start
-```
-
 ---
 
-Dikembangkan untuk tugas Pemrograman Web - S1 Teknologi Informasi, Universitas Telkom 2025/2026.
+## 📄 Lisensi
+
+Proyek ini dilisensikan di bawah **MIT License**. Lihat [LICENSE](LICENSE) untuk detail lebih lanjut.
+
+---
+*Dikembangkan untuk tugas Pemrograman Web - S1 Teknologi Informasi, Universitas Telkom 2025/2026.*
