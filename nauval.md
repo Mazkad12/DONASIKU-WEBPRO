@@ -1,116 +1,95 @@
-# Dokumentasi Kemajuan Fitur - Donasiku
-**Oleh:** Nauval Yusriya Athalla - 103032330022
-**Tanggal:**  09 November 2025  
-
-Dokumen ini merangkum perkembangan implementasi fitur pada proyek **Donasiku**, termasuk fitur yang telah selesai (✅ *Done*) dan rencana pengembangan berikutnya (🛠️ *To-Do*).
-
----
-
-##  1. ✅ Login dan Registrasi (Auth)
-
-###  **Selesai Dikerjakan (Done)**
-
-#### 📄 Pembuatan Halaman
-- `src/features/auth/Login.jsx` telah dibuat.  
-- `src/features/auth/Register.jsx` telah dibuat.  
-
-#### ⚙️ Logika Inti
-- Kedua halaman terhubung dengan `authService.js` untuk memproses **pendaftaran** dan **login** pengguna.  
-- Data pengguna (termasuk `role`) disimpan di `localStorage` (melalui `users_db` dan `user`).  
-
-#### 💡 Fungsionalitas
-- Pengguna dapat memilih **role** (Donatur atau Penerima) saat mendaftar.  
-- Halaman Login memverifikasi **role** yang dipilih saat login.  
-
-#### 🧩 Perbaikan Bug & UI
-- [BUG FIX] Navbar publik yang menutupi halaman **Login/Register** telah diperbaiki dengan menambahkan `padding-top (pt-40)`.  
-- [REVISI UI] Desain halaman **Login** kini konsisten dengan **Register** (menghapus header biru pada kartu).  
-- [UI/UX] Menambahkan animasi *fade-in* dan *focus interaction* pada input field.  
-
-### 🛠️ **Rencana Selanjutnya (To-Do)**
-- [SELESAI] Fitur fungsional sudah lengkap sesuai spesifikasi.  
-- (Opsional) Tambah fitur **Lupa Password** di masa depan.  
+# 📄 Dokumentasi Kontribusi & Progres Pengembangan
+**Proyek:** Donasiku - Platform Donasi Barang Layak Pakai  
+**PIC:** Nauval Yusriya Athalla  
+**NIM:** 103032330022  
+**Peran:** PIC Tim Penerima (Frontend & Integration)
 
 ---
 
-##  2. Dashboard Penerima
+## 👨‍💻 Profil Kontributor
 
-### ✅ **Selesai Dikerjakan (Done)**
-
-#### 📄 Pembuatan Halaman
-- `src/features/penerima/DashboardPenerima.jsx` telah dibuat.  
-
-#### 🧭 Routing & Layout
-- [BUG FIX] Rute `/dashboard-penerima` kini berada di dalam `DashboardLayout` di `App.jsx`.  
-  → Memperbaiki bug *sidebar* dan *topbar* yang tidak muncul.  
-- `DashboardSidebar.jsx` kini **dinamis**, menampilkan menu sesuai role Penerima.  
-
-#### ⚙️ Fungsionalitas Inti
-- Halaman berhasil memuat data donasi dari `getAllDonasi()`.  
-- [BUG FIX] Perbaikan kunci `localStorage` dari `'donations'/'donaasi'` → `'donasi'`.  
-  → Memastikan data donasi tampil di dashboard.  
-- Data yang ditampilkan: hanya donasi dengan status **aktif**.  
-
-#### 🎨 UI (Sesuai Desain)
-- Implementasi **header biru**, **search bar**, dan **filter kategori**.  
-- Grid menampilkan kartu donasi (foto, nama, kategori, status).  
-
-### 🛠️ **Rencana Selanjutnya (To-Do)**
-
-#### 📌 Langkah 3 & 4 – *Permintaan Barang*
-- Buat halaman `DetailDonasi.jsx` (tombol “Lihat Detail & Ajukan” belum berfungsi).  
-- Tambahkan `requestService.js` untuk pengelolaan data permintaan.  
-- Tambahkan fungsi baru di `localStorage.js` untuk data `'requests'`.  
-- Implementasikan tombol “Kirim Permintaan Donasi” di halaman detail.  
-
-#### 📌 Langkah 5 – *Permintaan Saya*
-- Buat `PermintaanSaya.jsx` (rute `/penerima/permintaan-saya`)  
-  untuk menampilkan status permintaan (*pending, approved, completed*).  
-
-#### 📌 Langkah 6 & 7 – *Integrasi dengan Donatur*
-- Modifikasi `DashboardDonatur.jsx` untuk menampilkan **Permintaan Masuk**.  
-- Tambahkan tombol “Setujui” / “Tolak” untuk Donatur.  
-- Tambahkan tombol “Konfirmasi Barang Diterima” untuk Penerima.  
+Sebagai **PIC Tim Penerima**, tanggung jawab utama saya adalah merancang dan mengembangkan antarmuka serta logika bisnis untuk pengguna dengan peran **Penerima** (individu/organisasi yang membutuhkan donasi). Fokus saya mencakup alur registrasi, validasi, pencarian donasi, hingga manajemen permintaan barang.
 
 ---
 
-## 📦 3. Riwayat / Cek Status
+## 🚀 Fitur Utama yang Dikembangkan
 
-### ✅ **Selesai Dikerjakan (Done)**
+Berikut adalah rincian fitur-fitur yang telah berhasil diimplementasikan dan diintegrasikan ke dalam sistem secara penuh:
 
-#### 📄 Pembuatan Halaman
-- `src/features/riwayat/Riwayat.jsx` telah dibuat dengan struktur sesuai spesifikasi.  
+### 1. 🔐 Sistem Otentikasi (Authentication)
+*Status: ✅ Selesai (Stable)*
 
-#### 🧭 Routing
-- [BUG FIX] Menambahkan rute:
-  - `/donatur/riwayat`  
-  - `/penerima/riwayat`  
-  ke dalam `App.jsx` di `DashboardLayout`.  
-  → Memperbaiki error *404 Halaman Tidak Ditemukan*.  
+- **Halaman Login & Register**: Membangun antarmuka responsif untuk masuk dan mendaftar akun baru.
+- **Role-Based Routing**: Mengimplementasikan logika untuk memisahkan akses dashboard antara *Donatur* dan *Penerima*.
+- **Integrasi API**: Menghubungkan form frontend dengan endpoint `api/login` dan `api/register` menggunakan Axios.
+- **Keamanan**: Penyimpanan token otentikasi (Sanctum) yang aman di `localStorage` dan redirect otomatis jika sesi habis.
 
-#### ⚙️ Logika Awal
-- Halaman mendeteksi **role** pengguna (Donatur / Penerima).  
-- Untuk **Donatur:** menampilkan donasi dengan status *selesai*.  
-- Untuk **Penerima:** menampilkan pesan *“Fitur Dalam Pengembangan”*.  
+### 2. 🏠 Dashboard Penerima
+*Status: ✅ Selesai (Stable)*
+
+- **Tampilan Dinamis**: Dashboard yang menampilkan daftar donasi yang tersedia secara *real-time* dari backend.
+- **Filtering & Pencarian**: Fitur untuk mencari barang donasi berdasarkan kata kunci (misal: "baju", "buku") dan kategori.
+- **Desain Responsif**: Layout grid yang rapi menggunakan Tailwind CSS, menyesuaikan tampilan di desktop dan mobile.
+- **Sidebar Navigasi**: Menu navigasi khusus untuk akses cepat ke profil, riwayat, dan notifikasi.
+
+### 3. 📦 Manajemen Permintaan (Request System)
+*Status: ✅ Selesai (Stable)*
+
+- **Ajukan Permintaan**: Formulir bagi Penerima untuk mengajukan permintaan barang kepada Donatur telah berfungsi dengan baik.
+- **Validasi Permintaan**: Logika sistem berhasil memastikan satu barang hanya bisa dipinta oleh satu pengguna dalam satu waktu.
+- **Status Tracking**: Penerima dapat memantau status permintaan mereka (Pending -> Disetujui -> Ditolak) secara real-time.
+
+### 4. 📜 Riwayat & Aktifitas
+*Status: ✅ Selesai (Stable)*
+
+- **Riwayat Donasi Masuk**: Halaman untuk melihat daftar barang yang telah sukses diterima berfungsi sempurna.
+- **Log Aktivitas**: Sistem mencatat setiap interaksi penting untuk transparansi.
+
+### 5. 💬 Fitur Tambahan & Integrasi
+*Status: ✅ Selesai (Stable)*
+
+- **Penyempurnaan Profil**: Peningkatan UI/UX pada halaman profil dan penambahan validasi data diri.
+- **Chat System**: Integrasi fitur pesan untuk komunikasi langsung antara Penerima dan Donatur.
+- **Notifikasi**: Sistem notifikasi yang memberitahu pengguna tentang perubahan status donasi.
 
 ---
 
-## 🧭 Status Umum Proyek
+## 🛠️ Teknologi & Tools
 
-| Fitur | Status | Catatan |
-|-------|---------|----------|
-| Login & Register | ✅ Selesai | Sudah sesuai spesifikasi |
-| Dashboard Donatur | ⚙️ Dalam Progres | Menunggu integrasi dengan permintaan penerima |
-| Dashboard Penerima | ✅ Dasar selesai | Butuh pengembangan halaman detail dan permintaan |
-| Riwayat Donasi | ✅ Selesai (Donatur) | Penerima masih *on progress* |
-| Request System | 🛠️ Belum dimulai | Direncanakan di tahap berikutnya |
+Dalam pengembangan fitur-fitur di atas, saya memanfaatkan stack teknologi berikut:
 
----
-
-## 🧑‍💻 Catatan Akhir
-Progres pengembangan berjalan sesuai jadwal. Fokus pengembangan berikutnya adalah **integrasi antara Donatur dan Penerima melalui sistem permintaan donasi**, serta **penyempurnaan alur Riwayat dan Notifikasi**.
+- **Frontend Core**: React 19 (Hooks, Context API).
+- **Styling**: Tailwind CSS (Utility-first framework).
+- **State Management**: React Context & Local State.
+- **HTTP Client**: Axios untuk komunikasi REST API.
+- **Alerts**: SweetAlert2 untuk notifikasi interaktif yang user-friendly.
 
 ---
 
-📅 **Update Terakhir:** 9 November 2025  
-✍️ *Disusun oleh Nauval Yusriya Athalla*
+## 📝 Catatan Milestone Mingguan
+
+### Minggu 1-2: Inisiasi & Setup
+- Setup proyek React dengan Vite.
+- Konfigurasi Tailwind CSS dan struktur folder.
+- Membuat desain dasar (Wireframe) untuk Dashboard Penerima.
+
+### Minggu 3-4: Implementasi Auth & Core UI
+- Menyelesaikan fitur Login dan Register.
+- Membuat komponen-komponen UI reusable (Button, Card, Input).
+- Integrasi awal dengan dummy API untuk testing UI.
+
+### Minggu 5-6: Integrasi Backend & Fitur Lanjutan
+- Menghubungkan Dashboard dengan Real Backend API.
+- Debugging masalah CORS dan Token Auth.
+- Mengembangkan fitur pencarian dan filter kategori.
+- Menyelesaikan fitur Request, Chat, dan Notifikasi.
+
+---
+
+## 🎯 Status Akhir
+
+Semua tugas yang direncanakan untuk **Tim Penerima** telah **100% Selesai**. Sistem berjalan stabil dan siap untuk tahap pengujian pengguna (UAT) dan deployment.
+
+---
+
+*Dokumen ini diperbarui terakhir pada: 22 Desember 2025*
