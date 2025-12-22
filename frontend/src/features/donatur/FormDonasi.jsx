@@ -138,8 +138,8 @@ const FormDonasi = () => {
                     type="button"
                     onClick={() => setFormData({ ...formData, kategori: cat.value })}
                     className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-semibold transition-all ${formData.kategori === cat.value
-                        ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-[#007EFF] to-[#0063FF] text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                   >
                     <span className="text-xl">{cat.icon}</span>
@@ -167,7 +167,7 @@ const FormDonasi = () => {
             <div>
               <label className="flex items-center space-x-2 text-sm font-bold text-gray-900 mb-3">
                 <FiMapPin className="text-[#007EFF]" />
-                <span>Lokasi Pengambilan *</span>
+                <span>Lokasi Barang *</span>
               </label>
               <input
                 type="text"

@@ -266,7 +266,7 @@ const PermintaanMasukDonatur = () => {
               <div>
                 <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
                   <FiPackage className="text-blue-500" />
-                  {selectedPermintaan.judul}
+                  {selectedPermintaan.judul} (Penerima: {selectedPermintaan.user?.name})
                 </h3>
                 <p className="text-gray-600">{selectedPermintaan.deskripsi}</p>
               </div>
@@ -275,7 +275,7 @@ const PermintaanMasukDonatur = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-blue-50 p-4 rounded-lg">
                   <div className="flex items-center gap-2 text-blue-600 font-semibold mb-1">
-                    <FiMapPin /> Lokasi
+                    <FiMapPin /> Alamat Tujuan (Penerima)
                   </div>
                   <p>{selectedPermintaan.lokasi}</p>
                 </div>

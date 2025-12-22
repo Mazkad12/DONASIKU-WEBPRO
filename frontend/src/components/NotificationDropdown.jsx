@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiBell, FiCheck, FiInfo, FiTrash2, FiClock } from 'react-icons/fi';
 import { getNotifications, markAsRead, markAllAsRead } from '../services/notificationService';
 import { formatDistanceToNow } from 'date-fns';
@@ -7,6 +8,7 @@ import { id } from 'date-fns/locale';
 const NotificationDropdown = ({ isOpen, onClose }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const fetchNotifications = async () => {
         try {
@@ -46,6 +48,24 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
             setNotifications(notifications.map(n => ({ ...n, is_read: true })));
         } catch (error) {
             console.error('Error marking all as read:', error);
+        }
+    };
+
+    const handleNotificationClick = async (notif) => {
+        if (notif.link) {
+            navigate(notif.link);
+            onClose(); // Close dropdown
+        }
+
+        if (!notif.is_read) {
+            // Mark read in background
+            try {
+                await markAsRead(notif.id);
+                // Update local state if needed (though we navigated away, but good for UX if user stays)
+                setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
+            } catch (err) {
+                console.error(err);
+            }
         }
     };
 
@@ -89,6 +109,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
                 {latestNotifications.map((notif) => (
                     <div
                         key={notif.id}
+                        onClick={() => handleNotificationClick(notif)}
                         className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer relative group ${!notif.is_read ? 'bg-blue-50/30' : ''}`}
                     >
                         <div className="flex gap-3">
