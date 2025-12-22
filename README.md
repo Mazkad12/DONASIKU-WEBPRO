@@ -138,6 +138,8 @@ donasiku/
 
 ---
 
+![Alt](https://repobeats.axiom.co/api/embed/8289e47482c83602664243129bc30d65f82a9392.svg "Repobeats analytics image")
+
 ## 📄 Lisensi
 
 Proyek ini dilisensikan di bawah **MIT License**. Lihat [LICENSE](LICENSE) untuk detail lebih lanjut.
