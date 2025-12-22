@@ -1,63 +1,83 @@
-# 🧾 Laporan Perkembangan Fitur — Donasiku  
-**Oleh:** Azka Darmawan — [103032300144]  
-**Tanggal:** 09 November 2025  
+# 📄 Dokumentasi Kontribusi & Progres Pengembangan
+**Proyek:** Donasiku - Platform Donasi Barang Layak Pakai  
+**PIC:** Muhammad Azka Darmawan  
+**NIM:** 103032300144  
+**Peran:** PIC Tim Penerima (Profile & Transaction Mgmt)
 
 ---
 
-## 1. Manajemen Profil (Profile Management)  
-✅ **Selesai Dikerjakan (Done)**  
+## 👨‍💻 Profil Kontributor
 
-### 📄 Pembuatan Halaman  
-- `src/features/profile/Profile.jsx` telah dibuat untuk menampilkan informasi pengguna (nama, email, dan role).  
-- Komponen terintegrasi dengan data pengguna yang disimpan di `localStorage` melalui `getAuthData()`.  
-
-### ⚙️ Fungsionalitas Inti
-- Menampilkan data profil pengguna **(nama, email, role,)** secara otomatis sesuai akun yang login.  
-- Menampilkan **foto profil** default bila pengguna belum mengunggah gambar.  
-- Menampilkan tampilan berbeda berdasarkan role Penerima
-
-### 🎨 UI/UX
-- Desain konsisten dengan dashboard (sidebar dan topbar).  
-- Foto profil berbentuk lingkaran dengan nama & email di bawahnya.  
-- Efek hover dan animasi ringan pada tombol edit.  
-
-### 🧩 Perbaikan Bug & Integrasi
-- [FIX] Data profil tidak muncul setelah login → memanggil ulang `getAuthData()` setelah `setAuthData()`.  
-- [FIX] Navigasi 404 saat menuju `/profile` → route sudah ditambahkan ke `DashboardLayout`.  
-- [UI] Penyesuaian warna latar dan teks agar seragam dengan halaman lain.  
-
+Sebagai bagian dari **Tim Penerima**, fokus utama saya adalah memastikan pengalaman pengguna dalam mengelola identitas dan status transaksi berjalan lancar. Saya bertanggung jawab penuh atas modul **Manajemen Profil** dan sistem **Pelacakan Status Barang** untuk sisi Penerima.
 
 ---
 
-## 2. Edit Profil & Update Foto  
-⚙️ **Dalam Progres (On Progress)**  
+## 🚀 Fitur Utama yang Dikembangkan
 
-### 📄 Pembuatan Halaman
-- `src/features/profile/EditProfile.jsx` telah dibuat sebagai form untuk memperbarui data pengguna.  
+Berikut adalah rincian fitur-fitur yang telah berhasil diimplementasikan secara makro dan mikro:
 
-### ⚙️ Fungsionalitas Inti
-- Pengguna dapat mengubah:
-  - Nama lengkap  
-  - Email  
-  - Foto profil (upload file dari device)
-  - nomor telepon
-- File gambar disimpan sementara menggunakan `URL.createObjectURL()` agar langsung terlihat pratinjau-nya.  
-- Data hasil edit disimpan ke `localStorage` agar tetap tersimpan setelah refresh.  
+### 1. 👤 Manajemen Profil (Profile Management)
+*Status: ✅ Selesai (Stable)*
 
+- **Halaman Profil Pengguna**:
+  - Mengembangkan tampilan profil yang informatif menampilkan Nama, Email, Role, dan statistik singkat.
+  - Implementasi *Avatar Placeholder* otomatis jika pengguna belum mengunggah foto.
+  
+- **Edit Profil & Validasi**:
+  - Membuat formulir edit profile dengan validasi input (email format, max length name).
+  - Integrasi dengan endpoint `POST /api/profile` untuk update data ke database.
+  - Fitur **Upload Foto Profil** dengan preview gambar instan sebelum disimpan.
+
+### 2. 🚚 Pelacakan Status & Barang
+*Status: ✅ Selesai (Stable)*
+
+- **Logic Perubahan Status**:
+  - Merancang *State Machine* sederhana untuk status donasi: `Pending` -> `Diproses` -> `Dikirim` -> `Diterima`.
+  - Memastikan user hanya bisa mengubah status sesuai alur yang logis (misal: tidak bisa 'Diterima' sebelum 'Dikirim').
+
+- **Integrasi Dashboard**:
+  - Menampilkan status terkini pada kartu donasi di Dashboard Penerima.
+  - Memberikan indikator visual (Badge warna-warni) untuk setiap status agar mudah dikenali.
+
+### 3. 🛠️ Utilitas & Komponen UI
+*Status: ✅ Selesai*
+
+- **Reusable Badge Component**: Membuat komponen Label/Badge status yang bisa dipakai ulang di berbagai halaman.
+- **Error Handling**: Menangani kasus gagal load data profil atau gagal update dengan pesan error yang ramah pengguna.
 
 ---
 
-## 🧭 Status Umum Fitur
-| Fitur | Deskripsi | Status | PIC |
-|-------|------------|--------|-----|
-| **Lihat Profil** | Menampilkan data penerima (nama, email, role, dsb) dari localStorage | ✅ Selesai | Azka |
-| **Edit Profil** | Mengubah data profil seperti nama, email, dan foto profil | ✅ Selesai | Azka |
-| **Update Status Barang** | Mengubah status barang menjadi *Diproses*, *Dikirim*, *Diterima*, atau *Selesai* | ⏳ Belum Progress | Azka |
+## 🛠️ Teknologi yang Digunakan
+
+- **React Function Components**: Menggunakan pendekatan modern dengan Hooks (`useState`, `useEffect`, `useRef`).
+- **Form Handling**: Mengelola state formulir edit profil secara efisien.
+- **Axios Interceptors**: Memastikan token otentikasi selalu terlampir saat melakukan request ke API profile.
+- **Tailwind CSS**: Styling responsif untuk tampilan mobile dan desktop profile.
 
 ---
 
-## 🧑‍💻 Catatan Akhir
-Fitur profil sudah menampilkan data pengguna yang login dan memungkinkan pengeditan informasi dasar secara lokal. Fokus pengembangan berikutnya adalah sinkronisasi data ke backend serta penambahan validasi input agar sistem lebih stabil.  
+## 📝 Catatan Milestone Mingguan
 
-📅 **Update Terakhir:** 09 November 2025  
-✍️ **Disusun oleh:** Muhammad Azka Darmawan  
+### Minggu 1-2: Riset & Desain
+- Merancang alur User Story untuk fitur "Edit Profil".
+- Membuat mockup UI halaman profil Penerima.
+
+### Minggu 3-4: Implementasi Frontend
+- _Coding_ halaman `src/features/profile/Profile.jsx`.
+- Implementasi logika upload gambar di frontend.
+- Integrasi data dummy untuk tes tampilan.
+
+### Minggu 5-6: Integrasi Backend & Finalisasi
+- Menghubungkan form edit profile dengan Real API.
+- Menangani respon sukses/gagal dari server.
+- Melakukan *Unit Testing* manual untuk memastikan data tersimpan persisten.
+
+---
+
+## 🎯 Status Akhir
+
+Seluruh tanggung jawab fitur yang dibebankan kepada saya, khususnya modul **Profil** dan **Status**, telah **100% Selesai**. Tidak ada hutang teknis (technical debt) yang tersisa untuk sprint ini.
+
+---
+
+*Dokumen ini diperbarui terakhir pada: 22 Desember 2025*
