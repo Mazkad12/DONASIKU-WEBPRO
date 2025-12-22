@@ -31,7 +31,7 @@ class PermintaanSayaController extends Controller
                 ], 401);
             }
 
-            $query = PermintaanSaya::with('donation'); // Eager load donation relationship
+            $query = PermintaanSaya::with(['donation.user', 'user']); // Eager load donation AND user (donatur & requester)
 
             // Logika baru: Jika user adalah PENERIMA, filter hanya permintaan miliknya.
             if ($user->role === 'penerima') {
@@ -43,7 +43,7 @@ class PermintaanSayaController extends Controller
                     $q->whereHas('donation', function ($subQ) use ($user) {
                         $subQ->where('user_id', $user->id);
                     })
-                    ->orWhereNull('donation_id'); // Tampilkan permintaan terbuka
+                        ->orWhereNull('donation_id'); // Tampilkan permintaan terbuka
                 });
             }
 
@@ -83,6 +83,19 @@ class PermintaanSayaController extends Controller
                         'kategori' => $item->donation->kategori,
                         'jumlah' => $item->donation->jumlah,
                         'lokasi' => $item->donation->lokasi,
+                        'donatur' => $item->donation->user ? [
+                            'id' => $item->donation->user->id,
+                            'name' => $item->donation->user->name,
+                            'email' => $item->donation->user->email,
+                            'photo' => $item->donation->user->photo,
+                        ] : null
+                    ] : null,
+                    'user' => $item->user ? [
+                        'id' => $item->user->id,
+                        'name' => $item->user->name,
+                        'email' => $item->user->email,
+                        'photo' => $item->user->photo,
+                        'phone' => $item->user->phone,
                     ] : null,
                 ];
             });
@@ -117,21 +130,54 @@ class PermintaanSayaController extends Controller
                 ], 401);
             }
 
-            $query = PermintaanSaya::with('donation')->where('id', $id);
+            $query = PermintaanSaya::with(['donation.user', 'user'])->where('id', $id);
 
             // Jika user adalah penerima, harus miliknya sendiri
             if ($user->role === 'penerima') {
                 $query->where('user_id', $user->id);
             }
-            // Jika donatur, bisa lihat semua (atau logic lain sesuai kebutuhan bisnis)
-            // Untuk saat ini donatur bisa lihat detail permintaan apapun untuk dipenuhi
 
             $permintaan = $query->firstOrFail();
+
+            // Transform data untuk memastikan donation.user.photo terlihat
+            $transformedData = [
+                'id' => $permintaan->id,
+                'user_id' => $permintaan->user_id,
+                'donation_id' => $permintaan->donation_id,
+                'judul' => $permintaan->judul,
+                'deskripsi' => $permintaan->deskripsi,
+                'target_jumlah' => $permintaan->target_jumlah,
+                'image' => $permintaan->image,
+                'status' => $permintaan->status,
+                'user' => $permintaan->user ? [
+                    'id' => $permintaan->user->id,
+                    'name' => $permintaan->user->name,
+                    'email' => $permintaan->user->email,
+                ] : null,
+                'donation' => $permintaan->donation ? [
+                    'id' => $permintaan->donation->id,
+                    'user_id' => $permintaan->donation->user_id,
+                    'nama' => $permintaan->donation->nama,
+                    'image' => $permintaan->donation->image,
+                    'kategori' => $permintaan->donation->kategori,
+                    'jumlah' => $permintaan->donation->jumlah,
+                    'lokasi' => $permintaan->donation->lokasi,
+                    'user' => $permintaan->donation->user ? [
+                        'id' => $permintaan->donation->user->id,
+                        'name' => $permintaan->donation->user->name,
+                        'email' => $permintaan->donation->user->email,
+                        'photo' => $permintaan->donation->user->photo,
+                        'phone' => $permintaan->donation->user->phone,
+                    ] : null,
+                ] : null,
+                'createdAt' => $permintaan->created_at,
+                'updatedAt' => $permintaan->updated_at,
+            ];
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data permintaan berhasil diambil',
-                'data' => $permintaan
+                'data' => $transformedData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

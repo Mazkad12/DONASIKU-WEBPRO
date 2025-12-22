@@ -8,10 +8,15 @@ import { getNotifications } from '../../services/notificationService';
 const PenerimaNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = getAuthData();
+  const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+
+  const loadUserData = () => {
+    const authData = getAuthData();
+    setUser(authData);
+  };
 
   const fetchNotifCount = async () => {
     try {
@@ -25,13 +30,26 @@ const PenerimaNavbar = () => {
   };
 
   useEffect(() => {
+    loadUserData();
     fetchNotifCount();
     const notifInterval = setInterval(fetchNotifCount, 30000);
 
-    const handleFocus = () => fetchNotifCount();
+    // Listen untuk profile update event real-time
+    const handleProfileUpdate = (e) => {
+      const updatedUser = e.detail;
+      setUser(updatedUser);
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
+    const handleFocus = () => {
+      loadUserData();
+      fetchNotifCount();
+    };
     window.addEventListener('focus', handleFocus);
 
     return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
       window.removeEventListener('focus', handleFocus);
       clearInterval(notifInterval);
     };
@@ -43,6 +61,15 @@ const PenerimaNavbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  const getPhotoUrl = (photoPath) => {
+    if (!photoPath) return null;
+    if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
+    return `http://localhost:8000/storage/${photoPath}`;
+  };
+
+  const photoUrl = user ? getPhotoUrl(user.avatar || user.photo) : null;
+  const displayInitial = user?.name?.charAt(0).toUpperCase() || 'P';
 
   const menuItems = [
     { path: '/dashboard-penerima', label: 'Dashboard', icon: FiHome },
@@ -86,8 +113,16 @@ const PenerimaNavbar = () => {
           {/* Desktop User Info & Logout - Now moved to the left after menu */}
           <div className="hidden lg:flex items-center ml-8 space-x-4 flex-shrink-0">
             <div className="flex items-center space-x-3 px-4 py-2 bg-blue-50 rounded-xl">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center">
-                <FiUser className="text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                {photoUrl ? (
+                  <img
+                    src={photoUrl}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-lg">{displayInitial}</span>
+                )}
               </div>
               <div className="text-left">
                 <div className="text-sm font-bold text-gray-900 line-clamp-1">{user?.name}</div>

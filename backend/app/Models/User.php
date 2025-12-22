@@ -37,6 +37,24 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get the user's photo URL
+     */
+    public function getPhotoUrlAttribute()
+    {
+        if (!$this->photo) {
+            return null;
+        }
+        
+        // Jika sudah full URL, return as is
+        if (strpos($this->photo, 'http') === 0) {
+            return $this->photo;
+        }
+        
+        // Return full URL dengan storage path
+        return url('storage/' . $this->photo);
+    }
+
     public function donations()
     {
         return $this->hasMany(Donation::class);

@@ -11,6 +11,12 @@ const KonfirmasiTerima = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
+    const getPhotoUrl = (photoPath) => {
+        if (!photoPath) return null;
+        if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
+        return `http://localhost:8000/storage/${photoPath}`;
+    };
+
     useEffect(() => {
         const fetchRequest = async () => {
             try {
@@ -119,11 +125,19 @@ const KonfirmasiTerima = () => {
                                 <div className="mt-8 pt-8 border-t border-gray-100">
                                     <h3 className="font-bold text-gray-900 mb-4">Detail Pengirim</h3>
                                     <div className="bg-gray-50 p-4 rounded-2xl flex items-center">
-                                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4 text-blue-600 font-bold">
-                                            {request.donation.nama?.charAt(0) || 'D'}
+                                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4 text-blue-600 font-bold overflow-hidden flex-shrink-0">
+                                            {request.donation.user?.photo ? (
+                                                <img
+                                                    src={getPhotoUrl(request.donation.user.photo)}
+                                                    alt={request.donation.user.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                request.donation.user?.name?.charAt(0) || 'D'
+                                            )}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-800">{request.donation.nama || 'Donatur'}</p>
+                                            <p className="text-sm font-bold text-gray-800">{request.donation.user?.name || 'Donatur'}</p>
                                             <p className="text-xs text-gray-500">{request.donation.lokasi || 'Lokasi tidak tersedia'}</p>
                                         </div>
                                     </div>
@@ -136,8 +150,8 @@ const KonfirmasiTerima = () => {
                                 onClick={handleConfirm}
                                 disabled={submitting}
                                 className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center transition-all shadow-lg ${submitting
-                                        ? 'bg-gray-400 cursor-not-allowed text-white'
-                                        : 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:shadow-blue-500/30 hover:scale-[1.02]'
+                                    ? 'bg-gray-400 cursor-not-allowed text-white'
+                                    : 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:shadow-blue-500/30 hover:scale-[1.02]'
                                     }`}
                             >
                                 {submitting ? (

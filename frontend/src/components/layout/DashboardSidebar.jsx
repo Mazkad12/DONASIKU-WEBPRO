@@ -65,7 +65,10 @@ const DashboardSidebar = ({ isOpen, toggleSidebar }) => {
           {/* Logo & Toggle */}
           <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200">
             {isOpen && (
-              <Link to="/" className="flex items-center space-x-2">
+              <Link 
+                to={role === 'donatur' ? '/dashboard-donatur' : '/dashboard-penerima'} 
+                className="flex items-center space-x-2"
+              >
                 <img
                   src="/logo-donasiku.png"
                   alt="DonasiKu"

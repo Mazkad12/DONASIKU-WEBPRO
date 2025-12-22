@@ -22,10 +22,9 @@ export const register = async (userData) => {
       phone: userData.phone || '',
     });
 
-    const { user, token } = response.data.data;
-    setAuthData(user, token);
-    
-    return user;
+    // Tidak auto-login setelah registrasi
+    // User harus login secara manual
+    return response.data.data;
   } catch (error) {
     const message = error.response?.data?.message || 'Registrasi gagal';
     throw new Error(message);

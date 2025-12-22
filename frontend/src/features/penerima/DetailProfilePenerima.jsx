@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronLeft, FiCamera, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
-import { getAuthData, setAuthData } from '../../utils/localStorage'; // Pastikan nama fungsi sesuai (setAuthData/saveAuthData)
-import axios from 'axios';
+import { getAuthData, setAuthData } from '../../utils/localStorage';
+import api from '../../services/api';
 
   const DetailProfilePenerima = () => {
   const navigate = useNavigate();
@@ -52,19 +52,18 @@ import axios from 'axios';
   const saveProfileData = async (updates) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await axios.post('http://localhost:8000/api/profile/update', updates, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await api.post('/user/profile', updates);
 
-      if (response.data.user) {
-        const updatedData = { ...user, ...response.data.user };
+      if (response.data.data) {
+        const updatedData = { ...user, ...response.data.data.user };
         setAuthData(updatedData);
         setUser(updatedData);
         setMessage('Profil berhasil diperbarui!');
+
+        // Emit event untuk update header/topbar
+        window.dispatchEvent(new CustomEvent('profileUpdated', { 
+          detail: updatedData 
+        }));
       }
     } catch (error) {
       console.error('Error:', error.response?.data);
@@ -126,29 +125,33 @@ import axios from 'axios';
     setLoading(true);
 
     const formData = new FormData();
-    formData.append('avatar', photoFile); // Sesuai controller penerima Anda
+    formData.append('photo', photoFile);
     formData.append('name', user.name);
     formData.append('email', user.email);
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await axios.post('http://localhost:8000/api/profile/update', formData, {
+      const response = await api.post('/user/profile', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      if (response.data.user) {
-        const updatedData = { ...user, ...response.data.user };
-        setAuthData(updatedData); // Menggunakan fungsi setAuthData dari utils Anda
+      if (response.data.data) {
+        const updatedData = { ...user, ...response.data.data.user };
+        setAuthData(updatedData);
         setUser(updatedData);
         setPhotoFile(null);
         setPhotoPreview(null);
         setMessage('Profil berhasil diperbarui!');
+
+        // Emit event untuk update header/topbar
+        window.dispatchEvent(new CustomEvent('profileUpdated', { 
+          detail: updatedData 
+        }));
       }
     } catch (error) {
-      setMessage('Gagal memperbarui profil');
+      console.error('Upload error:', error);
+      setMessage(error.response?.data?.message || 'Gagal memperbarui profil');
     } finally {
       setLoading(false);
       setTimeout(() => setMessage(''), 3000);
@@ -157,7 +160,7 @@ import axios from 'axios';
 
   if (!user) return <div className="p-4 text-center">Loading...</div>;
 
-  const displayPhoto = photoPreview || getPhotoUrl(user.avatar);
+  const displayPhoto = photoPreview || getPhotoUrl(user.photo || user.avatar);
   const displayName = user.name?.charAt(0).toUpperCase() || 'P';
 
   return (

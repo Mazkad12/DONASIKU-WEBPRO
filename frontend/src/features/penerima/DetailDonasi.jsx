@@ -17,18 +17,16 @@ const DetailDonasi = () => {
       try {
         setLoading(true);
         const donasiData = await getDonasiByIdService(id);
-        
+
         if (donasiData.status !== 'aktif') {
           setError('Donasi ini sudah tidak tersedia.');
         } else {
           setDonasi(donasiData);
-          
-          // Ambil data donatur dari localStorage 'users_db'
-          const users = JSON.parse(localStorage.getItem('users_db') || '[]');
-          const donaturData = users.find(u => u.id === donasiData.userId);
-          setDonatur(donaturData);
+
+          // Data donatur sudah dikirim oleh API
+          setDonatur(donasiData.donatur);
         }
-        
+
       } catch (err) {
         setError(err.message || 'Gagal memuat detail donasi.');
       }
@@ -50,11 +48,17 @@ const DetailDonasi = () => {
     return icons[category?.toLowerCase()] || '📦';
   };
 
- 
-const handleAjukan = () => {
-  // Navigate to permintaan form for this donasi
-  navigate(`/penerima/permintaan-saya/${id}`);
-};
+  const getPhotoUrl = (photoPath) => {
+    if (!photoPath) return null;
+    if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
+    return `http://localhost:8000/storage/${photoPath}`;
+  };
+
+
+  const handleAjukan = () => {
+    // Navigate to permintaan form for this donasi
+    navigate(`/penerima/permintaan-saya/${id}`);
+  };
 
 
 
@@ -137,8 +141,16 @@ const handleAjukan = () => {
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
               <label className="text-sm font-bold text-gray-900 mb-2 block">Donatur:</label>
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center shadow-lg">
-                  <FiUser className="text-white" />
+                <div className="w-10 h-10 bg-gradient-to-br from-[#00306C] to-[#001F4D] rounded-full flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
+                  {donatur?.photo ? (
+                    <img
+                      src={getPhotoUrl(donatur.photo)}
+                      alt={donatur.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-white font-bold">{donatur?.name?.charAt(0).toUpperCase() || 'D'}</span>
+                  )}
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900">{donatur?.name || 'Donatur'}</div>
