@@ -122,7 +122,8 @@ class DonationController extends Controller
                         'id' => $donation->user->id,
                         'name' => $donation->user->name,
                         'email' => $donation->user->email,
-                        // Add other fields if necessary
+                        'photo' => $donation->user->photo,
+                        'phone' => $donation->user->phone,
                     ] : null,
                     'createdAt' => $donation->created_at->toIso8601String(),
                     'updatedAt' => $donation->updated_at->toIso8601String(),

@@ -136,15 +136,48 @@ class PermintaanSayaController extends Controller
             if ($user->role === 'penerima') {
                 $query->where('user_id', $user->id);
             }
-            // Jika donatur, bisa lihat semua (atau logic lain sesuai kebutuhan bisnis)
-            // Untuk saat ini donatur bisa lihat detail permintaan apapun untuk dipenuhi
 
             $permintaan = $query->firstOrFail();
+
+            // Transform data untuk memastikan donation.user.photo terlihat
+            $transformedData = [
+                'id' => $permintaan->id,
+                'user_id' => $permintaan->user_id,
+                'donation_id' => $permintaan->donation_id,
+                'judul' => $permintaan->judul,
+                'deskripsi' => $permintaan->deskripsi,
+                'target_jumlah' => $permintaan->target_jumlah,
+                'image' => $permintaan->image,
+                'status' => $permintaan->status,
+                'user' => $permintaan->user ? [
+                    'id' => $permintaan->user->id,
+                    'name' => $permintaan->user->name,
+                    'email' => $permintaan->user->email,
+                ] : null,
+                'donation' => $permintaan->donation ? [
+                    'id' => $permintaan->donation->id,
+                    'user_id' => $permintaan->donation->user_id,
+                    'nama' => $permintaan->donation->nama,
+                    'image' => $permintaan->donation->image,
+                    'kategori' => $permintaan->donation->kategori,
+                    'jumlah' => $permintaan->donation->jumlah,
+                    'lokasi' => $permintaan->donation->lokasi,
+                    'user' => $permintaan->donation->user ? [
+                        'id' => $permintaan->donation->user->id,
+                        'name' => $permintaan->donation->user->name,
+                        'email' => $permintaan->donation->user->email,
+                        'photo' => $permintaan->donation->user->photo,
+                        'phone' => $permintaan->donation->user->phone,
+                    ] : null,
+                ] : null,
+                'createdAt' => $permintaan->created_at,
+                'updatedAt' => $permintaan->updated_at,
+            ];
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data permintaan berhasil diambil',
-                'data' => $permintaan
+                'data' => $transformedData
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

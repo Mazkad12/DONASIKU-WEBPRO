@@ -20,15 +20,26 @@ const ProfileDonatur = () => {
   useEffect(() => {
     loadUserData();
 
+    // Listen untuk profile update event real-time
+    const handleProfileUpdate = (e) => {
+      const updatedUser = e.detail;
+      setUser(updatedUser);
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
     // Refresh user data whenever window gains focus (user returns to this tab/page)
     window.addEventListener('focus', loadUserData);
-    return () => window.removeEventListener('focus', loadUserData);
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('focus', loadUserData);
+    };
   }, [navigate]);
 
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
     if (photoPath.startsWith('http')) return photoPath;
-    return `http://localhost:8000/${photoPath}`;
+    return `http://localhost:8000/storage/${photoPath}`;
   };
 
   const handleLogout = async () => {

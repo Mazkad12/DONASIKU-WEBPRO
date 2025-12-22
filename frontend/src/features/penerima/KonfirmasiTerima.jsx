@@ -11,6 +11,12 @@ const KonfirmasiTerima = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
+    const getPhotoUrl = (photoPath) => {
+        if (!photoPath) return null;
+        if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
+        return `http://localhost:8000/storage/${photoPath}`;
+    };
+
     useEffect(() => {
         const fetchRequest = async () => {
             try {
@@ -119,8 +125,16 @@ const KonfirmasiTerima = () => {
                                 <div className="mt-8 pt-8 border-t border-gray-100">
                                     <h3 className="font-bold text-gray-900 mb-4">Detail Pengirim</h3>
                                     <div className="bg-gray-50 p-4 rounded-2xl flex items-center">
-                                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4 text-blue-600 font-bold">
-                                            {request.donation.user?.name?.charAt(0) || 'D'}
+                                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4 text-blue-600 font-bold overflow-hidden flex-shrink-0">
+                                            {request.donation.user?.photo ? (
+                                                <img
+                                                    src={getPhotoUrl(request.donation.user.photo)}
+                                                    alt={request.donation.user.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                request.donation.user?.name?.charAt(0) || 'D'
+                                            )}
                                         </div>
                                         <div>
                                             <p className="text-sm font-bold text-gray-800">{request.donation.user?.name || 'Donatur'}</p>

@@ -20,9 +20,20 @@ const ProfilePenerima = () => {
   useEffect(() => {
     loadUserData();
 
+    // Listen untuk profile update event real-time
+    const handleProfileUpdate = (e) => {
+      const updatedUser = e.detail;
+      setUser(updatedUser);
+    };
+
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
     // Refresh data jika user kembali ke tab ini
     window.addEventListener('focus', loadUserData);
-    return () => window.removeEventListener('focus', loadUserData);
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('focus', loadUserData);
+    };
   }, [navigate]);
 
   const getPhotoUrl = (photoPath) => {

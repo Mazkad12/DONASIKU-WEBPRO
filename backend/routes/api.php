@@ -42,19 +42,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // Profile routes
-    Route::middleware('auth:sanctum')->group(function () {
-        // Route untuk mengambil profil (GET)
-        Route::get('/profile', [ProfileController::class, 'show']);
-        // Route untuk memperbarui profil (PUT/PATCH)
-        // Sesuai dengan frontend Anda yang akan mengirim data update
-        Route::post('/profile/update', [ProfileController::class, 'update']);
-        // Saya sarankan menggunakan POST untuk form-data/file upload, atau PATCH/PUT jika tanpa file
-        // Chat Routes
-        Route::post('/chat/send', [ChatController::class, 'sendMessage']);
-        Route::get('/chat/conversations', [ChatController::class, 'getConversations']);
-        Route::get('/chat/messages/{peerId}', [ChatController::class, 'getMessages']);
-        Route::delete('/chat/messages/{id}', [ChatController::class, 'deleteMessage']);
-    });
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/user/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/update', [ProfileController::class, 'update']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::patch('/profile', [ProfileController::class, 'update']);
+
+    // Chat Routes
+    Route::post('/chat/send', [ChatController::class, 'sendMessage']);
+    Route::get('/chat/conversations', [ChatController::class, 'getConversations']);
+    Route::get('/chat/messages/{peerId}', [ChatController::class, 'getMessages']);
+    Route::delete('/chat/messages/{id}', [ChatController::class, 'deleteMessage']);
 
     // Workflow endpoints
     Route::patch('permintaan-sayas/{id}/approve', [PermintaanSayaController::class, 'approve']); // Donatur

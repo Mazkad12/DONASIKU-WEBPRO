@@ -31,8 +31,10 @@ const DetailAkunDonatur = () => {
 
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
+    // Backend sudah return full URL via photo_url attribute
     if (photoPath.startsWith('http')) return photoPath;
-    return `http://localhost:8000/${photoPath}`;
+    // Fallback jika hanya path
+    return `http://localhost:8000/storage/${photoPath}`;
   };
 
   const handlePhotoChange = (e) => {
@@ -74,10 +76,16 @@ const DetailAkunDonatur = () => {
 
       // Update local storage with new user data
       if (response.data.data) {
-        saveAuthData(response.data.data.user);
-        setUser(response.data.data.user);
+        const updatedUser = response.data.data.user;
+        saveAuthData(updatedUser);
+        setUser(updatedUser);
         setPhotoFile(null);
         setPhotoPreview(null);
+
+        // Emit event untuk update header/topbar
+        window.dispatchEvent(new CustomEvent('profileUpdated', { 
+          detail: updatedUser 
+        }));
       }
 
       setMessage('Foto berhasil diubah');

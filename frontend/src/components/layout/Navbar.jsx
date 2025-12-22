@@ -66,7 +66,10 @@ const Navbar = () => {
         <nav className="max-w-[1400px] mx-auto bg-white/90 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200/50 px-8 md:px-10 py-4 transition-all duration-300 hover:shadow-3xl">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <Link to="/" className="flex items-center group">
+            <Link 
+              to={authenticated ? (role === 'donatur' ? '/dashboard-donatur' : '/dashboard-penerima') : '/'} 
+              className="flex items-center group"
+            >
               <div className="relative transition-transform duration-300 group-hover:scale-105">
                 <img
                   src="/logo-donasiku.png"

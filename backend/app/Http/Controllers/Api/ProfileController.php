@@ -37,10 +37,11 @@ class ProfileController extends Controller
         // 1. Validasi Data
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'sometimes|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:15',
-            // Validasi 'avatar' sebagai file upload
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Max 2MB
+            // Validasi 'photo' atau 'avatar' sebagai file upload
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Max 5MB
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Max 5MB
         ]);
 
         if ($validator->fails()) {
@@ -48,26 +49,40 @@ class ProfileController extends Controller
         }
 
         // 2. Pemrosesan Data Update
-        $data = $request->only('name', 'email', 'phone');
+        $data = $request->only(['name', 'phone']);
+        
+        // Jika email disertakan, tambahkan ke data
+        if ($request->has('email')) {
+            $data['email'] = $request->input('email');
+        }
 
-        // Penanganan Avatar (Standar File Upload)
-        if ($request->hasFile('avatar')) {
+        // Penanganan Photo/Avatar (Standar File Upload)
+        // Frontend mengirim 'photo', tapi model menyimpan sebagai 'photo'
+        if ($request->hasFile('photo')) {
             // Jika dikirim sebagai file (Multipart)
-            if ($user->avatar) {
-                // Hapus avatar lama (pastikan path yang tersimpan di DB benar)
-                Storage::disk('public')->delete($user->avatar); 
+            if ($user->photo) {
+                // Hapus foto lama
+                Storage::disk('public')->delete($user->photo); 
             }
             // Simpan file baru
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $data['avatar'] = $path;
+            $path = $request->file('photo')->store('avatars', 'public');
+            $data['photo'] = $path;
 
-        } elseif ($request->input('avatar') === '') {
-             // Jika frontend mengirim string kosong (tanda ingin menghapus)
-             if ($user->avatar) {
-                 Storage::disk('public')->delete($user->avatar);
-             }
-             $data['avatar'] = null;
-        } 
+        } elseif ($request->hasFile('avatar')) {
+            // Fallback untuk 'avatar' jika frontend mengirim dengan nama 'avatar'
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo); 
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $data['photo'] = $path;
+
+        } elseif ($request->input('photo') === '') {
+            // Jika frontend mengirim string kosong (tanda ingin menghapus)
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+            $data['photo'] = null;
+        }
         
         // 3. Update Database
         $user->update($data);
@@ -75,7 +90,9 @@ class ProfileController extends Controller
         // 4. Kirim Respons dengan data baru
         return response()->json([
             'message' => 'Profil berhasil diperbarui.',
-            'user' => $user->fresh(), 
+            'data' => [
+                'user' => $user->fresh()
+            ]
         ], 200);
     }
 }
