@@ -33,12 +33,12 @@ COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www
 
-# Change current user to www
-USER www-data
-
 # Copy custom entrypoint
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Change current user to www
+USER www-data
 
 # Entrypoint setup
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
