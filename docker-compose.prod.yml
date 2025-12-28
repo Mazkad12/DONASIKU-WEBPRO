@@ -1,0 +1,68 @@
+services:
+  # Backend (Laravel)
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: donasiku-backend
+    container_name: donasiku-backend
+    restart: always
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    networks:
+      - app-network
+
+  # Web Server (Nginx)
+  webserver:
+    image: nginx:alpine
+    container_name: donasiku-webserver
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - app-network
+
+  # Frontend (React/Vite) - In production, this should ideally be built and served by Nginx
+  # But for PaaS simplicity we keep it running as a service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: donasiku-frontend
+    container_name: donasiku-frontend
+    restart: always
+    environment:
+      - VITE_API_BASE_URL=/api
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+
+  # Database (MySQL)
+  # In production environments like Railway/Render, usually you use their managed database
+  # But we keep this for full containerized deployment if needed
+  db:
+    image: mysql:8.0
+    container_name: donasiku-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
