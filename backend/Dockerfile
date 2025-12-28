@@ -35,10 +35,9 @@ COPY --chown=www-data:www-data . /var/www
 
 # Copy custom entrypoint
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Change current user to www
 USER www-data
 
 # Entrypoint setup
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
