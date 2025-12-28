@@ -59,10 +59,23 @@ services:
     networks:
       - app-network
 
+  # Redis Cache
+  # In production, use PaaS managed Redis if possible, or this container
+  redis:
+    image: redis:alpine
+    container_name: donasiku-redis
+    restart: always
+    volumes:
+      - redisdata:/data
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   dbdata:
+    driver: local
+  redisdata:
     driver: local

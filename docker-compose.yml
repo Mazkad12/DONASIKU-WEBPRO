@@ -68,6 +68,16 @@ services:
     networks:
       - app-network
 
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: donasiku-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
   # Database Viewer (Adminer)
   adminer:
     image: adminer
