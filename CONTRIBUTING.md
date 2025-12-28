@@ -1,24 +1,26 @@
-# Contributing to Donasiku: The Complete Developer Handbook
+# Contributing to Donasiku: The Ultimate Developer Handbook
 
-**Version:** 1.0.0
+**Version:** 2.0.0 (The "Textbook" Edition)
 **Last Updated:** December 2025
 **Maintainers:** Donasiku Core Team
+**Status:** Living Document
 
 ---
 
-# 🌟 Welcome, Developer!
+# � Prologue: The Developer's Journey
 
-First off, **thank you** for considering contributing to Donasiku! It's people like you that make this open-source project such a powerful tool for connecting generosity with those in need.
+Welcome, traveler. You have stumbled upon the source code of **Donasiku**, a platform dedicated to bridging the gap between abundance and scarcity. 
 
-This document is not just a guide; it is a **comprehensive constitution** for our codebase. Whether you are fixing a typo in documentation, refactoring a complex database query, or architecting a brand new microservice, this document governs how we work.
+This document is more than just a set of rules. It is a **Masterclass**. 
+By reading this document from start to finish, you will not only understand how to contribute to this project, but you will also become a better software engineer. We cover architecture, design patterns, testing strategies, and professional workflows used by top-tier tech companies.
 
-We believe that **Great Software** is built on **Great Documentation** and **Consistent Processes**.
+We believe that **Open Source** is the best classroom.
 
-> "Code is read much more often than it is written." — Guido van Rossum
+> "I'm not a great programmer; I'm just a good programmer with great habits." — Kent Beck
 
 ---
 
-# 📚 Table of Contents (The Map)
+# � Table of Contents
 
 1.  [Philosophy & Core Values](#1-philosophy--core-values)
 2.  [Code of Conduct](#2-code-of-conduct)
@@ -44,13 +46,26 @@ We believe that **Great Software** is built on **Great Documentation** and **Con
     *   [JavaScript/TypeScript Standards](#82-javascripttypescript-standards)
     *   [CSS & Design System (Tailwind)](#83-css--design-system-tailwind)
     *   [SQL & Database Best Practices](#84-sql--database-best-practices)
-9.  [Security Handbook](#9-security-handbook)
-10. [Testing Strategy](#10-testing-strategy)
-11. [Deployment & DevOps](#11-deployment--devops)
-12. [Appendix A: Full Database Schema](#12-appendix-a-full-database-schema)
-13. [Appendix B: API Reference](#13-appendix-b-api-reference)
-14. [Appendix C: Dependency Glossary](#14-appendix-c-dependency-glossary)
-15. [Appendix D: Troubleshooting Dictionary](#15-appendix-d-troubleshooting-dictionary)
+    *   [REST API Design Standards](#85-rest-api-design-standards)
+9.  [Design Patterns Used in Donasiku](#9-design-patterns-used-in-donasiku)
+    *   [The Service Pattern](#91-the-service-pattern)
+    *   [The Repository Pattern (Why we don't strictly use it)](#92-the-repository-pattern)
+    *   [The Observer Pattern](#93-the-observer-pattern)
+    *   [The Factory Pattern](#94-the-factory-pattern)
+    *   [The Atomic Design Pattern (Frontend)](#95-the-atomic-design-pattern)
+10. [Advanced Git Tutorials](#10-advanced-git-tutorials)
+    *   [Handling Merge Conflicts](#101-handling-merge-conflicts)
+    *   [Interactive Rebase & Squashing](#102-interactive-rebase--squashing)
+    *   [Stashing & Cherry Picking](#103-stashing--cherry-picking)
+    *   [Bisecting Bugs](#104-bisecting-bugs)
+11. [Testing Strategy](#11-testing-strategy)
+12. [Security Handbook](#12-security-handbook)
+13. [Deployment & DevOps](#13-deployment--devops)
+14. [Appendix A: Full Database Schema](#14-appendix-a-full-database-schema)
+15. [Appendix B: API Reference (Full JSON Specs)](#15-appendix-b-api-reference-full-json-specs)
+16. [Appendix C: Dependency Glossary](#16-appendix-c-dependency-glossary)
+17. [Appendix D: Troubleshooting Dictionary](#17-appendix-d-troubleshooting-dictionary)
+18. [Appendix E: Mock Interview Questions](#18-appendix-e-mock-interview-questions)
 
 ---
 
@@ -255,6 +270,28 @@ docker-compose exec app php artisan migrate:fresh --seed
 
 ---
 
+## 5.3 The macOS Manual Way (Homebrew) 🍎
+
+(Requires Homebrew)
+
+**1. Install Services:**
+```bash
+brew install php@8.2
+brew install composer
+brew install mysql
+brew install node
+```
+
+**2. Start Services:**
+```bash
+brew services start mysql
+```
+
+**3. Configure Project:**
+(Follow the same steps as Windows Backend/Frontend setup).
+
+---
+
 ## 5.5 The WSL2 Way (Windows Subsystem for Linux) 🐧
 
 This is the best manual way for Windows users.
@@ -271,7 +308,7 @@ This is the best manual way for Windows users.
     sudo apt install mysql-server
     sudo systemctl start mysql
     ```
-5.  **Follow Linux Manual Steps** (See section 5.4).
+5.  **Follow Linux Manual Steps**.
 
 ---
 
@@ -509,46 +546,143 @@ Use the `concentric-css` model mentally, but Tailwind usually handles this via p
 - **Snake Case**: Tables (`user_profiles`) and Columns (`first_name`).
 - **Foreign Keys**: Always define constraints (`constrained()->onDelete('cascade')`).
 - **Indexes**: Index columns used in `WHERE`, `ORDER BY`, and `JOIN`.
-- **Soft Deletes**: Use for important data (`deleted_at`).
+- **Soft Deletes**: Use when data shouldn't be permanently destroyed immediately.
 
----
+## 8.5 REST API Design Standards
 
-# 9. Security Handbook 🛡️
+We follow standard HTTP semantics.
 
-## 9.1 Authentication
-- Never assume the user is logged in. Use `auth:sanctum` middleware.
-- Never store passwords plain text. Use `Hash::make()`.
+- **GET /resource**: Retrieve list.
+- **GET /resource/1**: Retrieve detail.
+- **POST /resource**: Create new.
+- **PUT /resource/1**: Replace completely.
+- **PATCH /resource/1**: Update partially.
+- **DELETE /resource/1**: Remove.
 
-## 9.2 Authorization
-Always use Policies or Gates.
-```php
-// Bad
-if ($user->id === $post->user_id) { ... }
-
-// Good
-if ($user->can('update', $post)) { ... }
+**Response Envelope:**
+All responses should follow this envelope:
+```json
+{
+    "success": true,
+    "message": "Operation successful",
+    "data": { ... },
+    "errors": null
+}
 ```
 
-## 9.3 XSS & CSRF
-- Laravel Blade `{{ }}` automatically escapes output.
-- In React, React automatically escapes content unless using `dangerouslySetInnerHTML`. **Avoid `dangerouslySetInnerHTML`**.
-- CSRF is handled by Laravel Sanctum automatically for SPA.
+---
 
-## 9.4 SQL Injection
-- Never raw query with user input.
-- **Bad**: `DB::select("SELECT * FROM users WHERE name = '$name'")`
-- **Good**: `DB::select("SELECT * FROM users WHERE name = ?", [$name])`
-- **Better**: `User::where('name', $name)->get()`
+# 9. Design Patterns Used in Donasiku
+
+Design patterns are reusable solutions to common problems. We use several.
+
+## 9.1 The Service Pattern
+**Problem**: Controllers becoming too "fat" with business logic.
+**Solution**: Move logic to a Service class.
+
+**Code Example:**
+```php
+// Bad (Logic in Controller)
+public function store(Request $request) {
+    if($request->amount > 100) { ... }
+    $donation = Donation::create(...);
+    Mail::to($user)->send(...);
+    return response(...);
+}
+
+// Good (Logic in Service)
+public function store(Request $request, DonationService $service) {
+    try {
+        $donation = $service->createDonation($request->validated());
+        return response()->json($donation);
+    } catch (Exception $e) {
+        return response()->error($e->getMessage());
+    }
+}
+```
+
+## 9.2 The Repository Pattern
+**Note**: We use a *light* version of this. We don't always create Interfaces for every repository unless we plan to swap implementations (e.g., MySQL to Mongo).
+**Usage**: Encapsulate complex database queries (Reports, Analytics) in a Repository to keep Models clean.
+
+## 9.3 The Observer Pattern
+**Problem**: Performing side-effects (Sending Email, Logging) when a model is updated.
+**Solution**: Use Eloquent Observers.
+**Usage**: When a `Donation` is created, a `DonationObserver` triggers a notification to the Admins.
+
+## 9.4 The Factory Pattern
+**Usage**: Used extensively in Testing (`UserFactory`, `DonationFactory`) to generate dummy data.
+
+## 9.5 The Atomic Design Pattern (Frontend)
+As mentioned in architecture, we break UI into atoms, molecules, and organisms.
+- **Atom**: `Avatar.jsx`
+- **Molecule**: `UserBadge.jsx` (Avatar + Name)
+- **Organism**: `TopNav.jsx` (Logo + Search + UserBadge)
 
 ---
 
-# 10. Testing Strategy 🧪
+# 10. Advanced Git Tutorials
 
-## 10.1 Types of Tests
+Mastering Git is a superpower. Here are some scenarios you might encounter.
+
+## 10.1 Handling Merge Conflicts
+It happens to the best of us.
+
+1.  **Don't Panic.**
+2.  Run `git status`. It will show you the conflicting files.
+3.  Open the file. You will see markers:
+    ```text
+    <<<<<<< HEAD
+    Your code
+    =======
+    Incoming code
+    >>>>>>> feature/branch
+    ```
+4.  Decide which block to keep (or combine them).
+5.  Remove markers.
+6.  `git add filename`.
+7.  `git commit`.
+
+## 10.2 Interactive Rebase & Squashing
+Clean up your messy commit history before merging.
+
+1.  `git rebase -i HEAD~3` (Edit last 3 commits).
+2.  Editor opens. Change `pick` to `squash` (or `s`) for commits you want to merge into the previous one.
+3.  Save and close.
+4.  Editor opens again for Commit Message. Rewrite it to be one nice message.
+5.  `git push -f` (Force push required after rebase).
+
+## 10.3 Stashing & Cherry Picking
+**Scenario**: You are working on Branch A, but need to fix a critical bug on Branch B.
+1.  `git stash` (Save work on A).
+2.  `git checkout B`.
+3.  Fix bug. Commit.
+4.  `git checkout A`.
+5.  `git stash pop` (Restore work).
+
+**Scenario**: You made a commit on the wrong branch.
+1.  On wrong branch: `git log` (Copy Hash `abc1234`).
+2.  Go to right branch: `git checkout right-branch`.
+3.  `git cherry-pick abc1234`.
+
+## 10.4 Bisecting Bugs
+**Scenario**: A bug appeared sometime in the last 50 commits. You don't know where.
+1.  `git bisect start`.
+2.  `git bisect bad` (Current version is bad).
+3.  `git bisect good <commit-hash>` (A version from last week that was good).
+4.  Git will jump to the middle. Test it.
+5.  If good: `git bisect good`. If bad: `git bisect bad`.
+6.  Repeat until Git tells you exact suspect commit.
+
+---
+
+# 11. Testing Strategy
+
+## 11.1 Types of Tests
 1.  **Unit Tests**: Test a single function/class in isolation. Fast.
 2.  **Feature Tests**: Test a full HTTP request/response cycle. Slower but more valuable.
 
-## 10.2 Writing a Feature Test (Laravel)
+## 11.2 Writing a Feature Test (Laravel)
 
 ```php
 public function test_user_can_create_donation()
@@ -572,7 +706,7 @@ public function test_user_can_create_donation()
 }
 ```
 
-## 10.3 Testing Checklist
+## 11.3 Testing Checklist
 - Happy Path (It works as expected).
 - Validation Errors (Invalid email, missing fields).
 - Authorization Errors (User tries to delete someone else's item).
@@ -580,9 +714,38 @@ public function test_user_can_create_donation()
 
 ---
 
-# 11. Deployment & DevOps 🚀
+# 12. Security Handbook 🛡️
 
-## 11.1 CI/CD (GitHub Actions)
+## 12.1 Authentication
+- Never assume the user is logged in. Use `auth:sanctum` middleware.
+- Never store passwords plain text. Use `Hash::make()`.
+
+## 12.2 Authorization
+Always use Policies or Gates.
+```php
+// Bad
+if ($user->id === $post->user_id) { ... }
+
+// Good
+if ($user->can('update', $post)) { ... }
+```
+
+## 12.3 XSS & CSRF
+- Laravel Blade `{{ }}` automatically escapes output.
+- In React, React automatically escapes content unless using `dangerouslySetInnerHTML`. **Avoid `dangerouslySetInnerHTML`**.
+- CSRF is handled by Laravel Sanctum automatically for SPA.
+
+## 12.4 SQL Injection
+- Never raw query with user input.
+- **Bad**: `DB::select("SELECT * FROM users WHERE name = '$name'")`
+- **Good**: `DB::select("SELECT * FROM users WHERE name = ?", [$name])`
+- **Better**: `User::where('name', $name)->get()`
+
+---
+
+# 13. Deployment & DevOps 🚀
+
+## 13.1 CI/CD (GitHub Actions)
 We have a workflow `.github/workflows/ci.yml`.
 - Triggers on Push to `main` and `develop`.
 - Installs PHP & Node.
@@ -590,7 +753,7 @@ We have a workflow `.github/workflows/ci.yml`.
 - Runs `php artisan test`.
 - Runs `npm run build`.
 
-## 11.2 Production Server (VPS)
+## 13.2 Production Server (VPS)
 If deploying to a VPS (Ubuntu 22.04 + Nginx + PHP-FPM):
 
 1.  **Update OS**: `apt update && apt upgrade`.
@@ -612,7 +775,7 @@ If deploying to a VPS (Ubuntu 22.04 + Nginx + PHP-FPM):
 
 ---
 
-# 12. Appendix A: Full Database Schema
+# 14. Appendix A: Full Database Schema
 
  Detailed schema definition for reference.
 
@@ -641,6 +804,8 @@ If deploying to a VPS (Ubuntu 22.04 + Nginx + PHP-FPM):
 | `status` | ENUM | 'active', 'booked', 'done' | Availability |
 | `location` | VARCHAR(255) | NOT NULL | City/Address |
 | `image_url` | VARCHAR(255) | NULLABLE | Main photo |
+| `created_at` | TIMESTAMP | NULLABLE | timestamps |
+| `updated_at` | TIMESTAMP | NULLABLE | timestamps |
 
 ## Requests Table (`donation_requests`)
 | Column | Type | Attributes | Description |
@@ -650,10 +815,28 @@ If deploying to a VPS (Ubuntu 22.04 + Nginx + PHP-FPM):
 | `requester_id` | BIGINT | FK -> users(id) | Who requested |
 | `message` | TEXT | NULLABLE | Reason for request |
 | `status` | ENUM | 'pending', 'approved', 'rejected' | Request status |
+| `created_at` | TIMESTAMP | NULLABLE | timestamps |
+| `updated_at` | TIMESTAMP | NULLABLE | timestamps |
+
+## Categories Table (`categories`)
+| Column | Type | Attributes | Description |
+| --- | --- | --- | --- |
+| `id` | BIGINT | PK, AI, UNSIGNED | Unique ID |
+| `name` | VARCHAR(50) | NOT NULL | Category Name |
+| `slug` | VARCHAR(50) | UNIQUE | URL slug |
+
+## Messages Table (`messages`)
+| Column | Type | Attributes | Description |
+| --- | --- | --- | --- |
+| `id` | BIGINT | PK, AI, UNSIGNED | Unique ID |
+| `sender_id` | BIGINT | FK -> users | Sender |
+| `receiver_id` | BIGINT | FK -> users | Receiver |
+| `content` | TEXT | NOT NULL | Message body |
+| `is_read` | BOOLEAN | DEFAULT 0 | Read status |
 
 ---
 
-# 13. Appendix B: API Reference
+# 15. Appendix B: API Reference (Full JSON Specs)
 
 (This is a copy of our Living Documentation in `DocsAPI.md`)
 
@@ -661,44 +844,141 @@ If deploying to a VPS (Ubuntu 22.04 + Nginx + PHP-FPM):
 
 ### POST /register
 Register a new user to the system.
-**Params:** `name`, `email`, `password`, `role`.
-**Returns:** User object + Access Token.
+
+**Request:**
+```json
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "securepassword",
+    "role": "donatur"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+    "success": true,
+    "message": "User registered successfully",
+    "data": {
+        "user": {
+            "id": 1,
+            "name": "John Doe",
+            "email": "john@example.com",
+            "role": "donatur"
+        },
+        "token": "1|abcdef12345..."
+    }
+}
+```
 
 ### POST /login
 Authenticate a user.
-**Params:** `email`, `password`.
-**Returns:** User object + Access Token.
+
+**Request:**
+```json
+{
+    "email": "john@example.com",
+    "password": "securepassword"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+    "success": true,
+    "message": "Login successful",
+    "data": {
+        "user": {
+            "id": 1,
+            "role": "donatur"
+        },
+        "token": "2|xyzw..."
+    }
+}
+```
 
 ### GET /donations
 List all donations.
-**Params:** `page`, `category`, `search`.
-**Returns:** Paginated list of donations.
+
+**Query Parameters:**
+- `page` (int): Page number.
+- `category` (string): Filter by category slug.
+- `search` (string): Filter by title.
+
+**Response (200 OK):**
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": 10,
+            "title": "Unused Bicycle",
+            "category": "sports",
+            "location": "Bandung",
+            "image_url": "http://..."
+        },
+        {
+            "id": 11,
+            "title": "Math Textbook",
+            "category": "education",
+            "location": "Jakarta",
+            "image_url": "http://..."
+        }
+    ],
+    "meta": {
+        "current_page": 1,
+        "last_page": 5,
+        "total": 50
+    }
+}
+```
 
 ## Protected Endpoints
 
 ### POST /donations
 Create a new donation.
+
 **Headers:** `Authorization: Bearer <token>`
-**Params:** `title`, `description`, `category`, `location`, `image`.
 
-### PUT /donations/{id}
-Update a donation.
-**Check:** User must own the donation.
+**Request:**
+```json
+{
+    "title": "Gaming Laptop",
+    "description": "Used for 2 years, works perfectly.",
+    "category": "electronics",
+    "location": "Surabaya",
+    "image": "(Binary File)"
+}
+```
 
-### DELETE /donations/{id}
-Remove a donation.
-
-### POST /donations/{id}/request
-Request an item.
-**Params:** `message`.
+**Response (201 Created):**
+```json
+{
+    "success": true,
+    "data": {
+        "id": 12,
+        "title": "Gaming Laptop",
+        "slug": "gaming-laptop-123",
+        "status": "active"
+    }
+}
+```
 
 ### PATCH /requests/{id}/approve
 Approve a request (Owner only).
-**Effect:** Sets donation status to 'booked'.
+
+**Response (200 OK):**
+```json
+{
+    "success": true,
+    "message": "Request approved. Donation status updated to Booked."
+}
+```
 
 ---
 
-# 14. Appendix C: Dependency Glossary
+# 16. Appendix C: Dependency Glossary
 
 Understanding our `composer.json` and `package.json`.
 
@@ -710,6 +990,8 @@ Understanding our `composer.json` and `package.json`.
 - **`fakerphp/faker`**: Generates fake data for testing/seeding.
 - **`mockery/mockery`**: Mocking library for Unit Tests.
 - **`phpunit/phpunit`**: Testing framework.
+- **`spatie/laravel-permission`**: (Optional) For advanced roles.
+- **`barryvdh/laravel-debugbar`**: Debugging toolbar (Dev only).
 
 ## Frontend (NPM)
 - **`react`**: The UI library.
@@ -721,10 +1003,12 @@ Understanding our `composer.json` and `package.json`.
 - **`postcss`**: Tool for transforming CSS with JavaScript.
 - **`autoprefixer`**: PostCSS plugin to parse CSS and add vendor prefixes.
 - **`eslint`**: Linter.
+- **`framer-motion`**: (Optional) Animation library.
+- **`react-icons`**: Icon pack.
 
 ---
 
-# 15. Appendix D: Troubleshooting Dictionary
+# 17. Appendix D: Troubleshooting Dictionary
 
 **Error: `SQLSTATE[HY000] [2002] Connection refused`**
 - **Cause**: Laravel cannot connect to MySQL.
@@ -745,6 +1029,27 @@ Understanding our `composer.json` and `package.json`.
 **Error: `Mixed Content` (HTTPS/HTTP)**
 - **Cause**: App is loaded via HTTPS but API calls are HTTP.
 - **Fix**: Force HTTPS in `AppServiceProvider` or setup SSL locally.
+
+---
+
+# 18. Appendix E: Mock Interview Questions
+
+Since you are contributing to this project, you might want to use it in your portfolio. Here is how to explain it.
+
+**Q: What is Donasiku?**
+A: It's a full-stack donation management platform. It allows users to list items for donation and others to request them.
+
+**Q: What architecture did you use?**
+A: I used a decoupled Monorepo architecture. The backend is a RESTful API built with Laravel, and the frontend is a SPA built with React and Vite. They communicate via JSON.
+
+**Q: How do you handle authentication?**
+A: We use token-based authentication with Laravel Sanctum. It's secure and stateless, perfect for SPAs.
+
+**Q: How did you handle deployment?**
+A: The application is fully Dockerized. We have a `docker-compose` for development and a optimized production configuration. We use GitHub Actions for CI/CD to run tests automatically.
+
+**Q: What was the hardest challenge?**
+A: (Example) Configuring Nginx to reverse proxy correctly to the Docker containers while handling CORS issues between the frontend and backend.
 
 ---
 

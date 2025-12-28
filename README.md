@@ -58,12 +58,12 @@ Sebelum memulai, pastikan perangkat Anda telah terinstal:
 
 Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal Anda:
 
-### ⚡ Cara Cepat (Menggunakan Docker)
-Jika Anda sudah menginstal Docker, Anda bisa menjalankan aplikasi ini tanpa ribet.
+### Menggunakan Docker (Cara Paling Mudah)
+Pastikan Anda sudah menginstall Docker Desktop.
 
-1.  **Bangun & Jalankan Container**:
+1.  **Jalankan Aplikasi:**
     ```bash
-    docker-compose up -d --build
+    docker-compose -f docker-compose.dev.yml up -d --build
     ```
 2.  **Akses Aplikasi**:
     - Frontend: `http://localhost:5173`
