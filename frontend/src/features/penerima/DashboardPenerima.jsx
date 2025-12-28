@@ -4,6 +4,7 @@ import { FiPackage, FiMapPin, FiCalendar, FiSearch, FiAlertCircle, FiClock, FiCh
 import { getAuthData } from '../../utils/localStorage';
 import { getAllDonasi } from '../../services/donasiService';
 import { getMyPermintaanSaya } from '../../services/permintaanService';
+import { STORAGE_URL } from '../../services/api';
 
 const DashboardPenerima = () => {
   const user = getAuthData();
@@ -202,8 +203,8 @@ const DashboardPenerima = () => {
                         donation.image.startsWith('http') || donation.image.startsWith('data:')
                           ? donation.image
                           : donation.image.startsWith('storage/')
-                            ? `http://localhost:8000/${donation.image}`
-                            : `http://localhost:8000/storage/${donation.image}`
+                            ? `${STORAGE_URL}/${donation.image}`
+                            : `${STORAGE_URL}/storage/${donation.image}`
                       }
                       alt={donation.nama}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
@@ -296,8 +297,8 @@ const DashboardPenerima = () => {
                           req.image.startsWith('http') || req.image.startsWith('data:')
                             ? req.image
                             : req.image.startsWith('storage/')
-                              ? `http://localhost:8000/${req.image}`
-                              : `http://localhost:8000/storage/${req.image}`
+                              ? `${STORAGE_URL}/${req.image}`
+                              : `${STORAGE_URL}/storage/${req.image}`
                         }
                         alt={req.judul}
                         className="w-full h-full object-cover"
@@ -357,8 +358,8 @@ const DashboardPenerima = () => {
                           req.image.startsWith('http') || req.image.startsWith('data:')
                             ? req.image
                             : req.image.startsWith('storage/')
-                              ? `http://localhost:8000/${req.image}`
-                              : `http://localhost:8000/storage/${req.image}`
+                              ? `${STORAGE_URL}/${req.image}`
+                              : `${STORAGE_URL}/storage/${req.image}`
                         }
                         alt={req.judul}
                         className="w-full h-full object-cover"

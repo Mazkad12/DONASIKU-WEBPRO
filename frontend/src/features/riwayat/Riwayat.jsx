@@ -4,7 +4,7 @@ import { FiPackage, FiMapPin, FiCalendar, FiClock, FiAlertCircle, FiCheckCircle,
 import { getAuthData, getUserRole } from '../../utils/localStorage';
 import { getAllDonasi } from '../../services/donasiService';
 import { getMyPermintaanSaya } from '../../services/permintaanService';
-import API, { detailDonasiAPI } from '../../services/api';
+import API, { detailDonasiAPI, STORAGE_URL } from '../../services/api';
 
 const Riwayat = () => {
   const user = getAuthData();
@@ -238,8 +238,8 @@ const Riwayat = () => {
                         item.image.startsWith('http') || item.image.startsWith('data:')
                           ? item.image
                           : item.image.startsWith('storage/')
-                            ? `http://localhost:8000/${item.image}`
-                            : `http://localhost:8000/storage/${item.image}`
+                            ? `${STORAGE_URL}/${item.image}`
+                            : `${STORAGE_URL}/storage/${item.image}`
                       }
                       alt={item.nama}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale group-hover:grayscale-0"
@@ -344,8 +344,8 @@ const Riwayat = () => {
                       selectedItem.image.startsWith('http') || selectedItem.image.startsWith('data:')
                         ? selectedItem.image
                         : selectedItem.image.startsWith('storage/')
-                          ? `http://localhost:8000/${selectedItem.image}`
-                          : `http://localhost:8000/storage/${selectedItem.image}`
+                          ? `${STORAGE_URL}/${selectedItem.image}`
+                          : `${STORAGE_URL}/storage/${selectedItem.image}`
                     }
                     alt={selectedItem.nama}
                     className="w-full h-full object-cover"

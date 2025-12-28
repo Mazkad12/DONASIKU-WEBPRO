@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiCheckCircle, FiInfo, FiArrowLeft, FiPackage } from 'react-icons/fi';
 import { getPermintaanById, markPermintaanReceived } from '../../services/permintaanService';
 import Swal from 'sweetalert2';
+import { STORAGE_URL } from '../../services/api';
 
 const KonfirmasiTerima = () => {
     const { id } = useParams();
@@ -14,7 +15,7 @@ const KonfirmasiTerima = () => {
     const getPhotoUrl = (photoPath) => {
         if (!photoPath) return null;
         if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
-        return `http://localhost:8000/storage/${photoPath}`;
+        return `${STORAGE_URL}/storage/${photoPath}`;
     };
 
     useEffect(() => {

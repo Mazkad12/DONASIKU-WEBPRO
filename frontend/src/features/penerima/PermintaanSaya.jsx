@@ -20,7 +20,7 @@ import {
 import { getDonasiByIdService } from "../../services/donasiService.js";
 import { getMyPermintaanSaya } from "../../services/permintaanService.js";
 import { getAuthData } from "../../utils/localStorage.js";
-import API from "../../services/api.js";
+import API, { STORAGE_URL, API_BASE_URL } from "../../services/api.js";
 import { showSuccess, showError } from "../../utils/sweetalert";
 
 const PermintaanSaya = () => {
@@ -190,8 +190,8 @@ const PermintaanSaya = () => {
         : donasi.image.startsWith('http')
           ? donasi.image
           : donasi.image.startsWith('storage/')
-            ? `http://localhost:8000/${donasi.image}`
-            : `http://localhost:8000/storage/${donasi.image}`;
+            ? `${STORAGE_URL}/${donasi.image}`
+            : `${STORAGE_URL}/storage/${donasi.image}`;
       console.log("Final image URL:", imageUrl);
     }
     setShowImageModal(true);
@@ -238,7 +238,7 @@ const PermintaanSaya = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/permintaan-sayas', {
+      const response = await fetch(`${API_BASE_URL}/permintaan-sayas`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -267,7 +267,7 @@ const PermintaanSaya = () => {
   const handleMarkReceived = async (reqId) => {
     try {
       setActionLoading(true);
-      await fetch(`http://localhost:8000/api/permintaan-sayas/${reqId}/received`, {
+      await fetch(`${API_BASE_URL}/permintaan-sayas/${reqId}/received`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -350,13 +350,13 @@ const PermintaanSaya = () => {
                                 ? (req.donation.image.startsWith('data:')
                                   ? req.donation.image
                                   : req.donation.image.startsWith('storage/')
-                                    ? `http://localhost:8000/${req.donation.image}`
-                                    : `http://localhost:8000/storage/${req.donation.image}`)
+                                    ? `${STORAGE_URL}/${req.donation.image}`
+                                    : `${STORAGE_URL}/storage/${req.donation.image}`)
                                 : (req.image && (req.image.startsWith('data:')
                                   ? req.image
                                   : req.image.startsWith('storage/')
-                                    ? `http://localhost:8000/${req.image}`
-                                    : `http://localhost:8000/storage/${req.image}`))
+                                    ? `${STORAGE_URL}/${req.image}`
+                                    : `${STORAGE_URL}/storage/${req.image}`))
                             }
                             alt={req.judul}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
@@ -506,8 +506,8 @@ const PermintaanSaya = () => {
                     : donasi.image.startsWith('http')
                       ? donasi.image
                       : donasi.image.startsWith('storage/')
-                        ? `http://localhost:8000/${donasi.image}`
-                        : `http://localhost:8000/storage/${donasi.image}`
+                        ? `${STORAGE_URL}/${donasi.image}`
+                        : `${STORAGE_URL}/storage/${donasi.image}`
                 }
                 alt={donasi.nama}
                 style={{
@@ -660,8 +660,8 @@ const PermintaanSaya = () => {
                       donasi.image.startsWith('data:') || donasi.image.startsWith('http')
                         ? donasi.image
                         : donasi.image.startsWith('storage/')
-                          ? `http://localhost:8000/${donasi.image}`
-                          : `http://localhost:8000/storage/${donasi.image}`
+                          ? `${STORAGE_URL}/${donasi.image}`
+                          : `${STORAGE_URL}/storage/${donasi.image}`
                     }
                     alt={donasi.nama}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform"
