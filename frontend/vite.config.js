@@ -6,6 +6,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
+    allowedHosts: [
+      'donasiku-webpro-production.up.railway.app',
+      'donasiku.com',
+      '.railway.app',
+      'localhost'
+    ],
     watch: {
       usePolling: true,
     },

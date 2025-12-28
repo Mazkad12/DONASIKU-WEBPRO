@@ -21,20 +21,20 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy custom PHP config
-COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY backend/docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Set working directory
 # Set working directory
 WORKDIR /var/www
 
 # Copy existing application directory contents
-COPY . /var/www
+COPY backend/ /var/www
 
 # Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
+COPY --chown=www-data:www-data backend/ /var/www
 
 # Copy custom entrypoint
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY backend/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Change current user to www
 USER www-data
