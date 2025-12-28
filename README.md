@@ -58,7 +58,24 @@ Sebelum memulai, pastikan perangkat Anda telah terinstal:
 
 Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal Anda:
 
-### 1. Clone Repositori
+### ⚡ Cara Cepat (Menggunakan Docker)
+Jika Anda sudah menginstal Docker, Anda bisa menjalankan aplikasi ini tanpa ribet.
+
+1.  **Bangun & Jalankan Container**:
+    ```bash
+    docker-compose up -d --build
+    ```
+2.  **Akses Aplikasi**:
+    - Frontend: `http://localhost:5173`
+    - Backend: `http://localhost:8000`
+    - Database Viewer (Adminer): `http://localhost:8081`
+
+> Lihat panduan lengkap di [TUTORIAL_DOCKER.md](TUTORIAL_DOCKER.md).
+
+### 🔧 Cara Manual (Tanpa Docker)
+Jika Anda ingin menjalankan secara manual:
+
+#### 1. Clone Repositori
 ```bash
 git clone https://github.com/kelompok3/donasiku.git
 cd donasiku
