@@ -1,8 +1,19 @@
 import axios from 'axios';
 
-// Use environment variable for API base URL, fallback to localhost for development
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+// Use environment variable for API base URL
+// Fallback to specific production URL if in production mode, otherwise localhost
+const PROD_API = 'https://creative-motivation-production-7056.up.railway.app/api';
+const LOCAL_API = 'http://localhost:8000/api';
+
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? PROD_API : LOCAL_API);
 export const STORAGE_URL = API_BASE_URL.replace('/api', '');
+
+console.log('🚀 API Config:', {
+  mode: import.meta.env.MODE,
+  isProd: import.meta.env.PROD,
+  baseUrl: API_BASE_URL,
+  storageUrl: STORAGE_URL
+});
 
 const api = axios.create({
   baseURL: API_BASE_URL,
