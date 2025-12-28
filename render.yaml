@@ -1,0 +1,30 @@
+services:
+  # Backend Service (Laravel)
+  - type: web
+    name: donasiku-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    rootDir: ./backend
+    envVars:
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_DEBUG
+        value: "true"
+      - key: APP_ENV
+        value: production
+      - key: DB_CONNECTION
+        value: sqlite 
+        # Fallback to SQLite if no MySQL provided, or user adds MySQL details manually in Dashboard
+
+  # Frontend Service (React)
+  - type: web
+    name: donasiku-frontend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    rootDir: ./frontend
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: donasiku-backend
+          property: url
