@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotificationDropdown from '../NotificationDropdown';
 import { getNotifications } from '../../services/notificationService';
+import { STORAGE_URL } from '../../services/api';
 
 const DashboardTopbar = ({ toggleSidebar }) => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const DashboardTopbar = ({ toggleSidebar }) => {
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
     if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
-    return `http://localhost:8000/storage/${photoPath}`;
+    return `${STORAGE_URL}/storage/${photoPath}`;
   };
 
   const photoUrl = user ? getPhotoUrl(user.avatar || user.photo) : null;
