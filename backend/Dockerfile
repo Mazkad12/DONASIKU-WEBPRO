@@ -24,7 +24,17 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Set working directory
+# Set working directory
 WORKDIR /var/www
+
+# Copy existing application directory contents
+COPY . /var/www
+
+# Copy existing application directory permissions
+COPY --chown=www-data:www-data . /var/www
+
+# Change current user to www
+USER www-data
 
 # Copy custom entrypoint
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
