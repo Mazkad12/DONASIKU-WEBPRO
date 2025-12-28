@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPackage, FiMapPin, FiUser, FiPhone, FiMail, FiMessageSquare, FiCheckCircle, FiX, FiLoader, FiTruck, FiClock } from 'react-icons/fi';
-import API from '../../services/api';
+import API, { STORAGE_URL } from '../../services/api';
 import { showSuccess, showError } from '../../utils/sweetalert';
 
 const PermintaanMasukDonatur = () => {
@@ -152,8 +152,8 @@ const PermintaanMasukDonatur = () => {
                             : (p.image || p.donation?.image)?.startsWith('http')
                               ? (p.image || p.donation.image)
                               : (p.image || p.donation?.image)?.startsWith('storage/')
-                                ? `http://localhost:8000/${p.image || p.donation.image}`
-                                : `http://localhost:8000/storage/${p.image || p.donation.image}`
+                                ? `${STORAGE_URL}/${p.image || p.donation.image}`
+                                : `${STORAGE_URL}/storage/${p.image || p.donation.image}`
                         }
                         alt={p.judul}
                         className="w-full h-full object-cover"
@@ -250,8 +250,8 @@ const PermintaanMasukDonatur = () => {
                         : (selectedPermintaan.image || selectedPermintaan.donation?.image)?.startsWith('http')
                           ? (selectedPermintaan.image || selectedPermintaan.donation.image)
                           : (selectedPermintaan.image || selectedPermintaan.donation?.image)?.startsWith('storage/')
-                            ? `http://localhost:8000/${selectedPermintaan.image || selectedPermintaan.donation.image}`
-                            : `http://localhost:8000/storage/${selectedPermintaan.image || selectedPermintaan.donation.image}`
+                            ? `${STORAGE_URL}/${selectedPermintaan.image || selectedPermintaan.donation.image}`
+                            : `${STORAGE_URL}/storage/${selectedPermintaan.image || selectedPermintaan.donation.image}`
                     }
                     alt={selectedPermintaan.judul}
                     className="max-w-sm max-h-64 object-cover rounded-lg shadow-md"
@@ -331,7 +331,7 @@ const PermintaanMasukDonatur = () => {
                 {/* Jika ada file bukti kebutuhan (upload image) */}
                 {selectedPermintaan.bukti_kebutuhan && (
                   <img
-                    src={`http://localhost:8000/${selectedPermintaan.bukti_kebutuhan}`}
+                    src={`${STORAGE_URL}/${selectedPermintaan.bukti_kebutuhan}`}
                     alt="Bukti Kebutuhan"
                     className="w-full max-h-80 object-cover rounded-lg mb-3"
                     onError={e => {
@@ -343,7 +343,7 @@ const PermintaanMasukDonatur = () => {
                 {/* Jika ada gambar dari donasi (fallback) */}
                 {!selectedPermintaan.bukti_kebutuhan && selectedPermintaan.image && (
                   <img
-                    src={`http://localhost:8000/${selectedPermintaan.image}`}
+                    src={`${STORAGE_URL}/${selectedPermintaan.image}`}
                     alt="Gambar Barang"
                     className="w-full max-h-80 object-cover rounded-lg"
                     onError={e => {

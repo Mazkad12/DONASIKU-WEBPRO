@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 // --- SAYA PERBAIKI JALUR IMPORT DI BAWAH INI ---
 import { getDonasiByIdService } from '../../services/donasiService.js';
 import { FiArrowLeft, FiPackage, FiMapPin, FiCalendar, FiUser, FiFileText, FiAlertCircle, FiLoader, FiInbox } from 'react-icons/fi';
+import { STORAGE_URL } from '../../services/api';
 
 const DetailDonasi = () => {
   const { id } = useParams();
@@ -51,7 +52,7 @@ const DetailDonasi = () => {
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
     if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
-    return `http://localhost:8000/storage/${photoPath}`;
+    return `${STORAGE_URL}/storage/${photoPath}`;
   };
 
 

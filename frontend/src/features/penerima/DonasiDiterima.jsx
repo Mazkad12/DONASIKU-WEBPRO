@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiPackage, FiMapPin, FiCalendar, FiUser, FiAlertCircle, FiLoader, FiCheckCircle } from 'react-icons/fi';
 import { getAuthData } from '../../utils/localStorage';
-import API from '../../services/api';
+import API, { STORAGE_URL } from '../../services/api';
 
 const DonasiDiterima = () => {
   const [donasi, setDonasi] = useState([]);
@@ -16,7 +16,7 @@ const DonasiDiterima = () => {
       try {
         setLoading(true);
         setErrorMsg('');
-        
+
         // Ambil semua permintaan donasi user (tidak perlu filter by status di sini)
         const response = await API.get('/permintaan-sayas', { timeout: 15000 });
         console.log('📦 Permintaan API Response:', response.data);
@@ -25,7 +25,7 @@ const DonasiDiterima = () => {
           const detailDonasi = response.data.data.map(item => {
             // Get donation data jika ada relationship
             const donationData = item.donation || {};
-            
+
             return {
               id: item.id,
               nama: item.judul || donationData.nama || 'Donasi',
@@ -47,7 +47,7 @@ const DonasiDiterima = () => {
               image: donationData.image || item.image || null
             };
           });
-          
+
           console.log('✅ Donasi loaded:', detailDonasi.length, 'items');
           setDonasi(detailDonasi);
         } else {
@@ -127,11 +127,10 @@ const DonasiDiterima = () => {
           <button
             key={tab.value}
             onClick={() => setFilter(tab.value)}
-            className={`px-4 py-3 font-semibold border-b-2 transition-all ${
-              filter === tab.value
+            className={`px-4 py-3 font-semibold border-b-2 transition-all ${filter === tab.value
                 ? 'border-[#00306C] text-[#00306C]'
                 : 'border-transparent text-gray-600 hover:text-gray-900'
-            }`}
+              }`}
           >
             {tab.label} ({tab.count})
           </button>
@@ -162,7 +161,7 @@ const DonasiDiterima = () => {
                         src={
                           item.image.startsWith('data:')
                             ? item.image
-                            : `http://localhost:8000/${item.image}`
+                            : `${STORAGE_URL}/${item.image}`
                         }
                         alt={item.nama}
                         className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
@@ -193,25 +192,23 @@ const DonasiDiterima = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                       {/* Status Permohonan */}
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        item.status_permohonan === 'approved'
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${item.status_permohonan === 'approved'
                           ? 'bg-blue-100 text-[#00306C]'
                           : item.status_permohonan === 'rejected'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}>
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}>
                         {item.status_permohonan === 'approved' ? '✓ Disetujui' : item.status_permohonan === 'rejected' ? '✕ Ditolak' : '⏳ Menunggu'}
                       </span>
-                      
+
                       {/* Status Pengiriman (jika approved) */}
                       {item.status_permohonan === 'approved' && (
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          item.status_pengiriman === 'received'
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${item.status_pengiriman === 'received'
                             ? 'bg-blue-100 text-[#00306C]'
                             : item.status_pengiriman === 'sent'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-blue-100 text-[#00306C]'
-                        }`}>
+                              ? 'bg-purple-100 text-purple-700'
+                              : 'bg-blue-100 text-[#00306C]'
+                          }`}>
                           {item.status_pengiriman === 'received' ? '📍 Diterima' : item.status_pengiriman === 'sent' ? '🚚 Dikirim' : '📦 Disiapkan'}
                         </span>
                       )}
@@ -237,7 +234,7 @@ const DonasiDiterima = () => {
                     <div className="flex items-center gap-2 text-sm">
                       <FiCalendar className="text-[#00306C]" />
                       <span className="text-gray-600">
-                        {item.tanggalDiterima 
+                        {item.tanggalDiterima
                           ? new Date(item.tanggalDiterima).toLocaleDateString('id-ID')
                           : 'Belum diterima'
                         }

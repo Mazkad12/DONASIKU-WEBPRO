@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiChevronRight, FiLogOut, FiPackage } from 'react-icons/fi'; // Tambah icon package untuk riwayat
+import { FiChevronRight, FiLogOut, FiPackage } from 'react-icons/fi';
 import { getAuthData, logout } from '../../utils/localStorage';
 import { showConfirm } from '../../utils/sweetalert';
+import { STORAGE_URL } from '../../services/api';
 
 const ProfilePenerima = () => {
   const navigate = useNavigate();
@@ -39,8 +40,7 @@ const ProfilePenerima = () => {
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
     if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
-    // Sesuai logika Laravel: asset disimpan di storage/
-    return `http://localhost:8000/storage/${photoPath}`;
+    return `${STORAGE_URL}/storage/${photoPath}`;
   };
 
   const handleLogout = async () => {

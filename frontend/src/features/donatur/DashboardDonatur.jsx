@@ -4,6 +4,7 @@ import { FiPlus, FiPackage, FiClock, FiCheckCircle, FiEdit2, FiTrash2, FiMapPin,
 import { getAuthData } from '../../utils/localStorage';
 import { getMyDonasi, deleteDonasiService } from '../../services/donasiService';
 import { getMyPermintaanSaya } from '../../services/permintaanService';
+import { STORAGE_URL } from '../../services/api';
 import FulfillmentModal from '../../components/FulfillmentModal';
 import { showSuccess, showError, showConfirm } from '../../utils/sweetalert';
 
@@ -87,7 +88,7 @@ const DashboardDonatur = () => {
             <div className="h-48 w-full bg-green-50 relative overflow-hidden">
               {req.image ? (
                 <img
-                  src={req.image.startsWith('http') ? req.image : `http://localhost:8000/${req.image}`}
+                  src={req.image.startsWith('http') ? req.image : `${STORAGE_URL}/${req.image}`}
                   alt={req.judul}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
@@ -336,8 +337,8 @@ const DashboardDonatur = () => {
                         donation.image.startsWith('http') || donation.image.startsWith('data:')
                           ? donation.image
                           : donation.image.startsWith('storage/')
-                            ? `http://localhost:8000/${donation.image}`
-                            : `http://localhost:8000/storage/${donation.image}`
+                            ? `${STORAGE_URL}/${donation.image}`
+                            : `${STORAGE_URL}/storage/${donation.image}`
                       }
                       alt={donation.nama}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
@@ -434,8 +435,8 @@ const DashboardDonatur = () => {
                           req.image.startsWith('http') || req.image.startsWith('data:')
                             ? req.image
                             : req.image.startsWith('storage/')
-                              ? `http://localhost:8000/${req.image}`
-                              : `http://localhost:8000/storage/${req.image}`
+                              ? `${STORAGE_URL}/${req.image}`
+                              : `${STORAGE_URL}/storage/${req.image}`
                         }
                         alt={req.judul}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
@@ -503,7 +504,7 @@ const DashboardDonatur = () => {
                 <div className="h-48 w-full bg-green-50 relative overflow-hidden">
                   {req.image ? (
                     <img
-                      src={req.image.startsWith('http') || req.image.startsWith('data:') ? req.image : `http://localhost:8000/${req.image}`}
+                      src={req.image.startsWith('http') || req.image.startsWith('data:') ? req.image : `${STORAGE_URL}/${req.image}`}
                       alt={req.judul}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />

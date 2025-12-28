@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronLeft, FiCamera, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
 import { getAuthData, setAuthData } from '../../utils/localStorage';
-import api from '../../services/api';
+import api, { STORAGE_URL } from '../../services/api';
 
-  const DetailProfilePenerima = () => {
+const DetailProfilePenerima = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -61,8 +61,8 @@ import api from '../../services/api';
         setMessage('Profil berhasil diperbarui!');
 
         // Emit event untuk update header/topbar
-        window.dispatchEvent(new CustomEvent('profileUpdated', { 
-          detail: updatedData 
+        window.dispatchEvent(new CustomEvent('profileUpdated', {
+          detail: updatedData
         }));
       }
     } catch (error) {
@@ -103,7 +103,7 @@ import api from '../../services/api';
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
     if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
-    return `http://localhost:8000/storage/${photoPath}`;
+    return `${STORAGE_URL}/storage/${photoPath}`;
   };
 
   const handlePhotoChange = (e) => {
@@ -145,8 +145,8 @@ import api from '../../services/api';
         setMessage('Profil berhasil diperbarui!');
 
         // Emit event untuk update header/topbar
-        window.dispatchEvent(new CustomEvent('profileUpdated', { 
-          detail: updatedData 
+        window.dispatchEvent(new CustomEvent('profileUpdated', {
+          detail: updatedData
         }));
       }
     } catch (error) {
@@ -193,7 +193,7 @@ import api from '../../services/api';
           </div>
 
           <div className="pt-2">
-            <button 
+            <button
               onClick={handleUploadPhoto}
               disabled={!photoFile || loading}
               className="px-6 py-2 bg-indigo-600 text-white rounded-full font-bold disabled:bg-gray-300 transition"
@@ -208,20 +208,20 @@ import api from '../../services/api';
               <label className="text-xs font-bold text-gray-400 uppercase">Nama Lengkap</label>
               {isEditingName ? (
                 <div className="flex gap-2 mt-2">
-                  <input 
+                  <input
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     className="flex-1 px-3 py-2 bg-white border border-indigo-300 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  <button 
+                  <button
                     onClick={handleSaveName}
                     disabled={loading}
                     className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition disabled:bg-gray-300"
                   >
                     <FiCheck size={18} />
                   </button>
-                  <button 
+                  <button
                     onClick={cancelEditName}
                     className="p-2 bg-gray-300 text-white rounded-lg hover:bg-gray-400 transition"
                   >
@@ -231,7 +231,7 @@ import api from '../../services/api';
               ) : (
                 <div className="flex items-center justify-between bg-gray-50 p-3 rounded-xl mt-1">
                   <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-                  <button 
+                  <button
                     onClick={initEditName}
                     className="p-2 hover:bg-gray-200 rounded-lg transition"
                   >
@@ -246,20 +246,20 @@ import api from '../../services/api';
               <label className="text-xs font-bold text-gray-400 uppercase">Email</label>
               {isEditingEmail ? (
                 <div className="flex gap-2 mt-2">
-                  <input 
+                  <input
                     type="email"
                     value={editEmail}
                     onChange={(e) => setEditEmail(e.target.value)}
                     className="flex-1 px-3 py-2 bg-white border border-indigo-300 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
-                  <button 
+                  <button
                     onClick={handleSaveEmail}
                     disabled={loading}
                     className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition disabled:bg-gray-300"
                   >
                     <FiCheck size={18} />
                   </button>
-                  <button 
+                  <button
                     onClick={cancelEditEmail}
                     className="p-2 bg-gray-300 text-white rounded-lg hover:bg-gray-400 transition"
                   >
@@ -269,7 +269,7 @@ import api from '../../services/api';
               ) : (
                 <div className="flex items-center justify-between bg-gray-50 p-3 rounded-xl mt-1">
                   <p className="text-sm font-semibold text-gray-900">{user.email}</p>
-                  <button 
+                  <button
                     onClick={initEditEmail}
                     className="p-2 hover:bg-gray-200 rounded-lg transition"
                   >

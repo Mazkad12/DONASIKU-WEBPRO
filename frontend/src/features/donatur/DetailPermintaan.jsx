@@ -6,6 +6,7 @@ import { showSuccess, showError, showConfirm } from '../../utils/sweetalert';
 import Swal from 'sweetalert2';
 import FulfillmentModal from '../../components/FulfillmentModal';
 import { getAuthData } from '../../utils/localStorage';
+import { STORAGE_URL } from '../../services/api';
 
 const DetailPermintaan = () => {
     const { id } = useParams();
@@ -82,8 +83,8 @@ const DetailPermintaan = () => {
                                     request.image.startsWith('http') || request.image.startsWith('data:')
                                         ? request.image
                                         : request.image.startsWith('storage/')
-                                            ? `http://localhost:8000/${request.image}`
-                                            : `http://localhost:8000/storage/${request.image}`
+                                            ? `${STORAGE_URL}/${request.image}`
+                                            : `${STORAGE_URL}/storage/${request.image}`
                                 }
                                 alt={request.judul}
                                 className="w-full h-full object-cover"
