@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiChevronLeft, FiCamera } from 'react-icons/fi';
 import { getAuthData, saveAuthData } from '../../utils/localStorage';
-import api from '../../services/api';
+import api, { STORAGE_URL } from '../../services/api';
 
 const DetailAkunDonatur = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const DetailAkunDonatur = () => {
     // Backend sudah return full URL via photo_url attribute
     if (photoPath.startsWith('http')) return photoPath;
     // Fallback jika hanya path
-    return `http://localhost:8000/storage/${photoPath}`;
+    return `${STORAGE_URL}/storage/${photoPath}`;
   };
 
   const handlePhotoChange = (e) => {
@@ -83,8 +83,8 @@ const DetailAkunDonatur = () => {
         setPhotoPreview(null);
 
         // Emit event untuk update header/topbar
-        window.dispatchEvent(new CustomEvent('profileUpdated', { 
-          detail: updatedUser 
+        window.dispatchEvent(new CustomEvent('profileUpdated', {
+          detail: updatedUser
         }));
       }
 

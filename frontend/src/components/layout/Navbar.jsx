@@ -2,11 +2,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiLogIn, FiLogOut, FiUser, FiMenu, FiX } from 'react-icons/fi';
 import { isAuthenticated, logout, getAuthData, getUserRole } from '../../utils/localStorage';
 import { useState, useEffect } from 'react';
+import { STORAGE_URL } from '../../services/api';
 
 const getPhotoUrl = (photoPath) => {
   if (!photoPath) return null;
   if (photoPath.startsWith('http')) return photoPath;
-  return `http://localhost:8000/${photoPath}`;
+  return `${STORAGE_URL}/${photoPath}`;
 };
 
 const Navbar = () => {
@@ -66,8 +67,8 @@ const Navbar = () => {
         <nav className="max-w-[1400px] mx-auto bg-white/90 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200/50 px-8 md:px-10 py-4 transition-all duration-300 hover:shadow-3xl">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <Link 
-              to={authenticated ? (role === 'donatur' ? '/dashboard-donatur' : '/dashboard-penerima') : '/'} 
+            <Link
+              to={authenticated ? (role === 'donatur' ? '/dashboard-donatur' : '/dashboard-penerima') : '/'}
               className="flex items-center group"
             >
               <div className="relative transition-transform duration-300 group-hover:scale-105">

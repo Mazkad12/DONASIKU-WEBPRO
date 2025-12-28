@@ -4,6 +4,7 @@ import { logout, getAuthData } from '../../utils/localStorage';
 import { useState, useEffect } from 'react';
 import NotificationDropdown from '../NotificationDropdown';
 import { getNotifications } from '../../services/notificationService';
+import { STORAGE_URL } from '../../services/api';
 
 const PenerimaNavbar = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const PenerimaNavbar = () => {
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
     if (photoPath.startsWith('http') || photoPath.startsWith('data:')) return photoPath;
-    return `http://localhost:8000/storage/${photoPath}`;
+    return `${STORAGE_URL}/storage/${photoPath}`;
   };
 
   const photoUrl = user ? getPhotoUrl(user.avatar || user.photo) : null;

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiChevronRight, FiLogOut } from 'react-icons/fi';
 import { getAuthData, logout } from '../../utils/localStorage';
 import { showConfirm } from '../../utils/sweetalert';
+import { STORAGE_URL } from '../../services/api';
 
 const ProfileDonatur = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const ProfileDonatur = () => {
   const getPhotoUrl = (photoPath) => {
     if (!photoPath) return null;
     if (photoPath.startsWith('http')) return photoPath;
-    return `http://localhost:8000/storage/${photoPath}`;
+    return `${STORAGE_URL}/storage/${photoPath}`;
   };
 
   const handleLogout = async () => {
