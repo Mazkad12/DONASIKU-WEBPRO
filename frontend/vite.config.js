@@ -17,4 +17,16 @@ export default defineConfig({
       usePolling: true,
     },
   },
+  preview: {
+    allowedHosts: [
+      'donasiku-webpro-production.up.railway.app',
+      'donasiku.site',
+      'www.donasiku.site',
+      '.railway.app',
+      'localhost'
+    ],
+    watch: {
+      usePolling: true,
+    },
+  },
 })
