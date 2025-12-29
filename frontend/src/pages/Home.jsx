@@ -200,8 +200,8 @@ const Home = () => {
                         key={index}
                         onClick={() => setCurrentSlide(index)}
                         className={`transition-all duration-300 ${index === currentSlide
-                            ? 'bg-white w-8 h-2'
-                            : 'bg-white/50 w-2 h-2 hover:bg-white/75'
+                          ? 'bg-white w-8 h-2'
+                          : 'bg-white/50 w-2 h-2 hover:bg-white/75'
                           } rounded-full`}
                       />
                     ))}
@@ -221,8 +221,8 @@ const Home = () => {
           </svg>
         </div>
 
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
-          <div className="text-center mb-16 space-y-4">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16 relative z-10">
+          <div className="text-center mb-16 space-y-4 pt-8">
             <h2 className="text-5xl font-bold text-[#00306C]">
               Kenapa Memilih <span className="bg-gradient-to-r from-[#007EFF] to-[#00A6FF] bg-clip-text text-transparent">Donasiku</span>?
             </h2>
