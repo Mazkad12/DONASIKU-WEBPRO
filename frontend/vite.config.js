@@ -8,7 +8,8 @@ export default defineConfig({
     host: true,
     allowedHosts: [
       'donasiku-webpro-production.up.railway.app',
-      'donasiku.com',
+      'donasiku.site',
+      'www.donasiku.site',
       '.railway.app',
       'localhost'
     ],
