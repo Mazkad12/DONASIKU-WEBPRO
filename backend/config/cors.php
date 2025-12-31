@@ -11,7 +11,8 @@ return [
         'http://127.0.0.1:5174',
         'http://127.0.0.1:5175',
         'https://donasiku-webpro-production.up.railway.app',
-        'https://donasiku.com',
+        'https://donasiku.site',
+        'https://www.donasiku.site',
     ],
     'allowed_origins_patterns' => [
         '#^https://.*\.up\.railway\.app$#',
